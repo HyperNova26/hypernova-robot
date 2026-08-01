@@ -1,0 +1,102 @@
+# Operating systems
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editors and IDEs
+.idea/
+.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ROS 2 / colcon
+build/
+install/
+log/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+cmake-build-*/
+
+# Firmware toolchains
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Runtime logs and crash artifacts
+*.log
+*.core
+core.*
+
+# Robot recordings and generated sensor data
+*.bag
+*.bag.active
+*.db3
+*.mcap
+*.pcd
+*.ply
+bags/
+rosbags/
+recordings/
+
+# Machine-learning artifacts and experiment output
+*.pt
+*.pth
+*.onnx
+*.engine
+checkpoints/
+runs/
+results/
+wandb/
+
+# Keep only the data policy in Git by default
+data/*
+!data/README.md
+
+# CAD / EDA temporary and generated files
+~$*.SLDPRT
+~$*.SLDASM
+~$*.SLDDRW
+*.autosave
+*.bak
+*-backups/
+*.kicad_prl
+*.kicad_sch-bak
+~*.lck
+History/
+__Previews/
+
+# Archives and local exports
+dist/
+artifacts/
+exports/local/

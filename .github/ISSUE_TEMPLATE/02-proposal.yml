@@ -1,0 +1,26 @@
+name: 제안
+description: 기능, 설계, 문서, 시험 방식의 변경을 제안합니다.
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 해결하려는 문제
+      description: 구현 방법보다 지금 무엇이 불편한지를 먼저 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: approach
+    attributes:
+      label: 제안하는 방식
+      description: 생각한 방향과, 검토한 다른 방법이 있으면 함께 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: 영향
+      description: 인터페이스, 안전, 하드웨어, 일정에 영향이 있으면 적어 주세요.

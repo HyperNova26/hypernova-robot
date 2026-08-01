@@ -1,0 +1,42 @@
+name: 버그 보고
+description: 예상과 다르게 동작하는 문제를 보고합니다.
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 무슨 일이 있었나
+      description: 기대한 동작과 실제 동작을 함께 적어 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 재현 방법
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 환경
+      description: commit, 기체 revision, 보드, OS/ROS, 관련 설정 중 아는 것을 적어 주세요.
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 로그와 사진
+      description: 큰 원본 데이터는 링크만 남겨 주세요.
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: 안전
+      options:
+        - label: 사람이나 장비가 다칠 수 있는 문제입니다. 해당하면 실물 시험을 멈추고 체크해 주세요.

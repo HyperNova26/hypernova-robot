@@ -1,0 +1,22 @@
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.pdf binary
+*.zip binary
+*.7z binary
+*.glb binary
+*.stl binary
+*.step binary
+*.stp binary
+*.FCStd binary
+*.SLDPRT binary
+*.SLDASM binary
+*.SLDDRW binary
