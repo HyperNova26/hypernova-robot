@@ -23,7 +23,7 @@
 
 ## `main` 브랜치 보호
 
-- Pull Request 필수, 승인 1명
+- Pull Request 필수, 승인 0명 (초기 운영)
 - force push와 브랜치 삭제 금지
 - squash merge를 기본으로 사용하고 병합 후 브랜치 삭제
 
