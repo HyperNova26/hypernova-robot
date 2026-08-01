@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./docs/assets/hypernova-readme-banner.png" width="100%" alt="HYPERNOVA Project Team">
+  <img src="./docs/assets/hypernova-readme-banner.jpg" width="100%" alt="HYPERNOVA Project Team">
   <p><strong>HYPERNOVA 로봇 프로젝트</strong></p>
 </div>
 
