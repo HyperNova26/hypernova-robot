@@ -2,6 +2,8 @@
 
 기구·전자 설계 원본, BOM, 제작·조립 자료를 둡니다.
 
+Markdown 문서를 제외한 이 디렉터리의 HYPERNOVA 하드웨어 설계는 별도 표기가 없으면 CERN-OHL-S-2.0을 적용합니다. 원본 위치는 `https://github.com/HyperNova26/hypernova-robot`입니다. 자세한 범위는 [라이선스 정책](../LICENSE.md)을 확인합니다.
+
 ## 예상 분류
 
 - `mechanical/`: 기구 source, assembly, 도면, 제조 export
