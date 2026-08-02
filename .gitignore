@@ -79,9 +79,8 @@ runs/
 results/
 wandb/
 
-# Keep only the data policy in Git by default
-data/*
-!data/README.md
+# Local datasets and ad-hoc downloads
+/data/
 
 # CAD / EDA temporary and generated files
 ~$*.SLDPRT
