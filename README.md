@@ -1,11 +1,11 @@
 <div align="center">
-  <img src="./docs/assets/hypernova-readme-banner.jpg" width="100%" alt="HYPERNOVA Project Team">
-  <p><strong>HYPERNOVA 로봇 프로젝트</strong></p>
+  <img src="./docs/assets/hypernova-readme-banner.jpg" width="100%" alt="HyperNova Project Team">
+  <p><strong>HyperNova 로봇 프로젝트</strong></p>
 </div>
 
 ## 프로젝트
 
-HYPERNOVA는 스스로 움직이는 로봇을 직접 설계해서 만드는 팀 프로젝트입니다.
+HyperNova는 스스로 움직이는 로봇을 직접 설계해서 만드는 팀 프로젝트입니다.
 
 ## 다루는 영역
 
