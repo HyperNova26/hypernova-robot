@@ -1,0 +1,44 @@
+{
+  "title": "HyperNova AI/CV 로드맵",
+  "notionDatabase": "https://app.notion.com/p/3b445bd87178802796e1dbf0e35e6de5?v=3b445bd87178802c8bda000c79be7d24",
+  "poc": { "date": "2026-12-30" },
+  "areas": {
+    "common": { "label": "공통", "members": ["허재원"] },
+    "walk": { "label": "보행", "members": ["정찬원", "조재대"] },
+    "perc": { "label": "인지", "members": ["김완준", "장승민"] }
+  },
+  "milestones": [
+    { "id": "EDU", "name": "팀별 교육 (AI-Study)", "start": "2026-09-05", "end": "2026-10-05", "showId": false },
+    { "id": "S0", "name": "", "start": "2026-10-19", "end": "2026-10-31" },
+    { "id": "S1", "name": "", "start": "2026-11-01", "end": "2026-11-08" },
+    { "id": "S2", "name": "", "start": "2026-11-09", "end": "2026-11-15" },
+    { "id": "S3", "name": "", "start": "2026-11-16", "end": "2026-11-22" },
+    { "id": "S4", "name": "", "start": "2026-11-23", "end": "2026-11-29" },
+    { "id": "S5", "name": "", "start": "2026-11-30", "end": "2026-12-07" },
+    { "id": "EXAM", "name": "시험 기간", "start": "2026-12-08", "end": "2026-12-21", "gap": true },
+    { "id": "POC", "name": "PoC 준비", "start": "2026-12-22", "end": "2026-12-30", "showId": false }
+  ],
+  "branches": [
+    {
+      "area": "common", "milestone": "EDU", "title": "Python과 Git·PR 공통 실습",
+      "status": "완료", "due": "2026-10-04",
+      "url": "https://app.notion.com/52d45bd87178836785ce81109f9af5cf"
+    },
+    {
+      "area": "walk", "milestone": "EDU", "title": "Go2 teleop, 정책 학습·적용 실습",
+      "status": "완료", "due": "2026-10-04",
+      "url": "https://app.notion.com/52d45bd87178836785ce81109f9af5cf"
+    },
+    {
+      "area": "perc", "milestone": "EDU", "title": "Nav2, FAST-LIO2 실습",
+      "status": "완료", "due": "2026-10-04",
+      "url": "https://app.notion.com/52d45bd87178836785ce81109f9af5cf"
+    },
+    {
+      "id": "G-001", "area": "common", "milestone": "S0",
+      "title": "개발 환경 구축 (Docker, 레포 skeleton, README, GPU)",
+      "status": "진행", "due": "2026-10-31",
+      "url": "https://app.notion.com/p/3fe45bd8717881099a1dfe62c07a9fca"
+    }
+  ]
+}

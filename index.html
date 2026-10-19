@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI/CV 로드맵</title>
+<meta name="description" content="HyperNova AI/CV 팀의 스프린트별 진행 현황">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='14' y='2' width='4' height='28' rx='1' fill='%2334444A'/%3E%3Cpath d='M16 10H6M16 18h10M16 24H8' stroke='%2334444A' stroke-width='2.5'/%3E%3Ccircle cx='6' cy='10' r='3' fill='%232D6BD0'/%3E%3Ccircle cx='26' cy='18' r='3' fill='%23BD3030'/%3E%3Ccircle cx='8' cy='24' r='3' fill='%237048C8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1EF; --card:#FBFCFB; --ink:#1C272B; --muted:#5E6E70; --hair:#C6D0CC;
+  --trunk:#34444A; --walk:#2D6BD0; --perc:#BD3030; --common:#7048C8; --alert:#B45309;
+  --walk-text:var(--walk); --perc-text:var(--perc); --common-text:var(--common);
+  --center:260px; --half:130px; --reach:44px; --trunk-w:10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#12181A; --card:#1B2427; --ink:#E3EAE7; --muted:#93A3A2; --hair:#304043;
+    --trunk:#7F918F; --walk:#6E9CF0; --perc:#EA6A62; --common:#A88BF2; --alert:#F59E0B;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12181A; --card:#1B2427; --ink:#E3EAE7; --muted:#93A3A2; --hair:#304043;
+  --trunk:#7F918F; --walk:#6E9CF0; --perc:#EA6A62; --common:#A88BF2; --alert:#F59E0B;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'IBM Plex Sans KR', system-ui, -apple-system, sans-serif;
+  font-size:15px; line-height:1.5; font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;
+}
+.tree{position:relative; max-width:1120px; margin:0 auto; padding:40px 16px 96px}
+
+/* 줄기: 블록마다 한 조각씩 그려서 시험 기간만 점선으로 끊는다 */
+.stem{position:relative}
+.stem::before{
+  content:""; position:absolute; top:0; bottom:0; left:50%;
+  width:var(--trunk-w); margin-left:calc(var(--trunk-w) / -2);
+  background:var(--trunk); z-index:0;
+}
+.stem.gap::before{
+  background:repeating-linear-gradient(to bottom, var(--trunk) 0 9px, transparent 9px 18px);
+  width:4px; margin-left:-2px;
+}
+
+/* 줄기 맨 위 (가장 오래된 끝) */
+.root{padding:0 0 28px; text-align:center}
+.root::before{top:14px}
+.root .seed{
+  position:relative; z-index:1; display:inline-flex; flex-direction:column; align-items:center; gap:6px;
+  color:var(--muted); font-size:13px;
+}
+.root .seed span{background:var(--paper); padding:2px 8px}
+.root .seed i{width:18px; height:18px; border-radius:50%; border:3px solid var(--trunk); background:var(--paper)}
+
+/* 마일스톤 마디 */
+.seg{padding:22px 0 26px}
+.ms{position:relative; z-index:4; display:flex; justify-content:center; margin-bottom:14px}
+.ms .pill{
+  display:inline-flex; align-items:baseline; gap:10px; flex-wrap:wrap; justify-content:center;
+  background:var(--trunk); color:var(--paper); border-radius:999px; padding:7px 16px;
+  font-size:14px; font-weight:500;
+}
+.ms .pill b{font-weight:700}
+.ms .pill time{opacity:.75; font-size:13px}
+.gap .ms .pill{background:var(--paper); color:var(--muted); border:1.5px dashed var(--trunk)}
+.seg.current .ms .pill{box-shadow:0 0 0 4px var(--paper), 0 0 0 6px var(--trunk)}
+
+/* 가지 */
+.row{display:grid; grid-template-columns:1fr var(--center) 1fr; align-items:center; margin:12px 0}
+.cell{position:relative; display:flex; min-width:0; --on-c:var(--card)}
+.cell.walk{justify-content:flex-end; padding-right:var(--reach); --c:var(--walk); --ct:var(--walk-text)}
+.cell.perc{justify-content:flex-start; padding-left:var(--reach); --c:var(--perc); --ct:var(--perc-text)}
+.cell.common{justify-content:center; --c:var(--common); --ct:var(--common-text)}
+.cell:empty{visibility:hidden}
+
+.limb{position:absolute; top:50%; height:2px; margin-top:-1px; background:var(--c); z-index:1}
+.cell.walk .limb{right:calc(-1 * var(--half)); width:calc(var(--reach) + var(--half))}
+.cell.perc .limb{left:calc(-1 * var(--half)); width:calc(var(--reach) + var(--half))}
+.limb::before,.limb::after{content:""; position:absolute; border-radius:50%}
+.cell.walk .limb::before{left:-4px; top:-3px; width:8px; height:8px; background:var(--c)}
+.cell.perc .limb::after{right:-4px; top:-3px; width:8px; height:8px; background:var(--c)}
+.cell.walk .limb::after{right:-8px; top:-7px; width:16px; height:16px; background:var(--paper); border:3px solid var(--c)}
+.cell.perc .limb::before{left:-8px; top:-7px; width:16px; height:16px; background:var(--paper); border:3px solid var(--c)}
+.planned .limb{background:repeating-linear-gradient(90deg, var(--c) 0 6px, transparent 6px 11px)}
+
+.br{display:block; width:min(100%, 300px); color:inherit; text-decoration:none; position:relative; z-index:2; border-radius:12px}
+.cell.common .br{width:228px; z-index:3}
+.card{
+  background:var(--card); border:1.5px solid var(--hair); border-radius:10px;
+  padding:11px 14px 12px; transition:border-color .15s, background-color .15s;
+}
+.cell.walk .card{border-right:4px solid var(--c)}
+.cell.perc .card{border-left:4px solid var(--c)}
+.cell.common .card{border-top:4px solid var(--c)}
+.planned .card{background:var(--paper); border-style:dashed}
+.cell.walk.planned .card{border-right-style:solid}
+.cell.perc.planned .card{border-left-style:solid}
+.cell.common.planned .card{border-top-style:solid}
+.planned .title{opacity:.82}
+.blocked .card{border-color:var(--alert)}
+.br:hover .card,.br:focus-visible .card{border-color:var(--c); border-style:solid; background:var(--card)}
+.br:hover + .limb,.br:focus-visible + .limb{background:var(--c); height:4px; margin-top:-2px}
+.cell.walk .br:hover + .limb::after,.cell.walk .br:focus-visible + .limb::after,
+.cell.perc .br:hover + .limb::before,.cell.perc .br:focus-visible + .limb::before{background:var(--c); top:-6px}
+.br:focus-visible{outline:3px solid var(--c); outline-offset:3px}
+
+.top{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px}
+.gid{font-size:12px; color:var(--muted); font-weight:500}
+.area-tag{display:none; font-size:12px; font-weight:600; color:var(--ct)}
+.st{font-size:12px; font-weight:600; line-height:1; padding:4px 8px; border-radius:999px; border:1.5px solid currentColor; white-space:nowrap}
+.st.s-진행{background:var(--c); border-color:var(--c); color:var(--on-c)}
+.st.s-예정,.st.s-Backlog{color:var(--muted)}
+.st.s-검토{color:var(--ct)}
+.st.s-블로킹{color:var(--alert)}
+.st.s-블로킹::before{content:"⚠ "}
+.st.s-완료{color:var(--muted); border-color:transparent; padding-right:0}
+.title{font-size:15px; font-weight:600; line-height:1.4; overflow-wrap:anywhere}
+.meta{margin-top:6px; font-size:13px; color:var(--muted)}
+.meta .late{color:var(--alert); font-weight:600}
+
+/* 상태 박스 아래 영역 이름 */
+.lanes{display:grid; grid-template-columns:1fr var(--center) 1fr; margin:6px 0 0; position:relative; z-index:2}
+.lanes span{font-size:13px; font-weight:600}
+.lanes .l-walk{text-align:right; padding-right:var(--reach); color:var(--walk-text)}
+.lanes .l-common{justify-self:center; color:var(--common-text); background:var(--paper); padding:0 8px}
+.lanes .l-perc{padding-left:var(--reach); color:var(--perc-text)}
+
+/* 상태 박스 = 오늘 */
+.now{padding:6px 0 10px}
+.status{
+  position:relative; z-index:5; width:min(720px, 100%); margin:0 auto;
+  background:var(--card); border:2px solid var(--trunk); border-radius:18px;
+  padding:18px 22px 16px; display:grid; grid-template-columns:1.15fr 1fr; gap:14px 28px;
+}
+.status h1{font-size:15px; font-weight:600; margin:0 0 10px; color:var(--muted)}
+.today{font-size:30px; font-weight:700; line-height:1.15; letter-spacing:-.01em}
+.today small{display:block; font-size:14px; font-weight:500; color:var(--muted); letter-spacing:0; margin-top:2px}
+.milestone{margin-top:14px; padding-top:12px; border-top:1.5px solid var(--hair)}
+.milestone .label{font-size:13px; color:var(--muted)}
+.milestone .name{font-size:18px; font-weight:700; margin-top:1px}
+.milestone .name b{display:inline-block; background:var(--trunk); color:var(--paper); border-radius:6px; padding:0 7px; margin-right:6px; font-size:15px}
+.milestone .when{font-size:13px; color:var(--muted); margin-top:2px}
+.roster{display:flex; flex-direction:column; gap:10px; align-self:start}
+.roster dl{margin:0; display:flex; flex-direction:column; gap:10px}
+.team{display:grid; grid-template-columns:44px 1fr; align-items:baseline; gap:8px}
+.team dt{font-size:13px; font-weight:700; color:var(--ct); display:flex; align-items:center; gap:6px}
+.team dt::before{content:""; width:8px; height:8px; border-radius:2px; background:var(--c); flex:none}
+.team dd{margin:0; font-size:15px; font-weight:500}
+.counts{display:flex; gap:14px; flex-wrap:wrap; margin-top:4px; padding-top:10px; border-top:1.5px solid var(--hair); font-size:13px; color:var(--muted)}
+.counts b{color:var(--ink); font-size:15px; margin-left:3px}
+.poc{font-size:13px; color:var(--muted); margin-top:8px}
+.poc b{color:var(--ink)}
+.status footer{grid-column:1 / -1; font-size:13px; color:var(--muted); border-top:1.5px solid var(--hair); padding-top:10px}
+
+/* 줄기 끝 = PoC */
+.end{padding:18px 0 0; text-align:center}
+.end::before{bottom:auto; height:30px}
+.target{position:relative; z-index:2; display:inline-flex; flex-direction:column; align-items:center; gap:8px}
+.target i{
+  width:44px; height:44px; border-radius:50%; background:var(--paper);
+  border:3px solid var(--trunk); box-shadow:inset 0 0 0 7px var(--paper), inset 0 0 0 12px var(--trunk);
+}
+.target strong{font-size:20px}
+.target span{font-size:13px; color:var(--muted)}
+
+.notice{max-width:520px; margin:80px auto; padding:18px 20px; background:var(--card); border:1.5px solid var(--alert); border-radius:12px}
+.notice code{font-size:13px}
+
+.back{
+  position:fixed; right:16px; bottom:16px; z-index:20; display:none;
+  font:inherit; font-size:14px; font-weight:600; color:var(--paper); background:var(--trunk);
+  border:0; border-radius:999px; padding:9px 16px; cursor:pointer;
+}
+.back.show{display:block}
+.back:focus-visible{outline:3px solid var(--walk); outline-offset:3px}
+
+@media (max-width:760px){
+  :root{--reach:46px}
+  .tree{padding:28px 12px 88px}
+  .stem::before{left:22px}
+  .root,.end{text-align:left; padding-left:12px}
+  .root .seed,.target{align-items:flex-start; flex-direction:row; gap:10px}
+  .ms{justify-content:flex-start; padding-left:4px}
+  .row{display:flex; flex-direction:column; align-items:stretch; gap:12px; margin:12px 0}
+  .cell,.cell.walk,.cell.perc,.cell.common{justify-content:flex-start; padding:0 0 0 var(--reach)}
+  .cell:empty{display:none}
+  .cell .limb,.cell.walk .limb,.cell.perc .limb{left:22px; right:auto; width:calc(var(--reach) - 22px)}
+  .cell .limb::before,.cell .limb::after{display:none}
+  .br,.cell.common .br{width:100%}
+  .cell.walk .card,.cell.perc .card,.cell.common .card{border:1.5px solid var(--hair); border-left:4px solid var(--c); border-radius:10px}
+  .planned .card{border-style:dashed}
+  .cell.walk.planned .card,.cell.perc.planned .card,.cell.common.planned .card{border-left-style:solid}
+  .area-tag{display:inline}
+  .lanes{display:none}
+  .status{grid-template-columns:1fr; padding:14px 16px; gap:10px}
+  .today{font-size:24px}
+  .milestone{margin-top:10px; padding-top:10px}
+  .roster,.roster dl{gap:6px}
+  .team dd{font-size:14px}
+  .counts{padding-top:8px}
+  .target i{width:36px; height:36px}
+}
+@media (min-width:761px){ .cell.common .limb{display:none} }
+@media (prefers-reduced-motion:reduce){ .card,.limb{transition:none} }
+</style>
+</head>
+<body>
+<main class="tree" id="tree" aria-label="AI/CV 팀 로드맵"></main>
+<button class="back" id="back" type="button">오늘로 돌아가기</button>
+
+<script>
+/* 데이터는 data/roadmap.json 하나만 고치면 된다. 구조는 README.md 참고. */
+const DATA_URL = 'data/roadmap.json';
+const TZ = 'Asia/Seoul';
+const ORDER = ['walk', 'common', 'perc'];
+const PLANNED = new Set(['예정', 'Backlog']);
+
+/* ---- 날짜 도우미 (Asia/Seoul 기준) ---- */
+function seoulToday(){
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit'})
+    .formatToParts(new Date()).map(x => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}`;
+}
+const toDate = s => new Date(s + 'T00:00:00Z');
+const days = (a, b) => Math.round((toDate(b) - toDate(a)) / 864e5);
+const md = s => { const d = toDate(s); return [d.getUTCMonth() + 1, d.getUTCDate()]; };
+function range(a, b){
+  const [m1, d1] = md(a), [m2, d2] = md(b);
+  return m1 === m2 ? `${m1}월 ${d1}–${d2}일` : `${m1}월 ${d1}일–${m2}월 ${d2}일`;
+}
+const short = s => { const [m, d] = md(s); return `${m}월 ${d}일`; };
+const weekday = s => new Intl.DateTimeFormat('ko-KR', {timeZone: 'UTC', weekday: 'long'}).format(toDate(s));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const showId = m => !m.gap && m.showId !== false;
+
+/* 주소에 ?today=2026-11-20 을 붙이면 그 날짜 기준으로 볼 수 있다 */
+function pickToday(){
+  const q = new URLSearchParams(location.search).get('today');
+  return q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? q : seoulToday();
+}
+
+/* ---- 렌더링 ---- */
+const tree = document.getElementById('tree');
+
+function branchHTML(R, b, today){
+  const area = R.areas[b.area];
+  const late = b.status !== '완료' && b.due && b.due < today;
+  const url = b.url || R.notionDatabase;
+  const cls = [b.area, PLANNED.has(b.status) ? 'planned' : '', b.status === '블로킹' ? 'blocked' : ''].join(' ');
+  const label = `${b.id ? b.id + ' ' : ''}${b.title}, ${b.status}. Notion에서 열기`;
+  return `<div class="cell ${cls}">
+    <a class="br" href="${esc(url)}" target="_blank" rel="noopener" aria-label="${esc(label)}">
+      <div class="card">
+        <div class="top">
+          <span><span class="area-tag">${esc(area.label)} </span><span class="gid">${esc(b.id)}</span></span>
+          <span class="st s-${esc(b.status)}">${b.status === '완료' ? '✓ 완료' : esc(b.status)}</span>
+        </div>
+        <div class="title">${esc(b.title)}</div>
+        ${b.due ? `<div class="meta"><span class="${late ? 'late' : ''}">${late ? '마감 지남 ' : '마감 '}${short(b.due)}</span></div>` : ''}
+      </div>
+    </a>
+    <span class="limb" aria-hidden="true"></span>
+  </div>`;
+}
+
+function segmentHTML(R, ms, today, isCurrent){
+  const items = R.branches.filter(b => b.milestone === ms.id).sort((a, b) => (a.due || '').localeCompare(b.due || ''));
+  const lanes = Object.fromEntries(ORDER.map(k => [k, items.filter(b => b.area === k)]));
+  const n = Math.max(0, ...ORDER.map(k => lanes[k].length));
+  let rows = '';
+  for (let i = 0; i < n; i++){
+    rows += `<div class="row">${ORDER.map(k => lanes[k][i] ? branchHTML(R, lanes[k][i], today) : `<div class="cell ${k}"></div>`).join('')}</div>`;
+  }
+  return `<section class="seg stem ${ms.gap ? 'gap' : ''} ${isCurrent ? 'current' : ''}" aria-label="${esc(ms.name || ms.id)}">
+    <div class="ms"><span class="pill">${showId(ms) ? `<b>${esc(ms.id)}</b>` : ''}${ms.name ? `<span>${esc(ms.name)}</span>` : ''}<time>${range(ms.start, ms.end)}</time></span></div>
+    ${rows}
+  </section>`;
+}
+
+function statusHTML(R, today, current){
+  const counts = {};
+  R.branches.forEach(b => { counts[b.status] = (counts[b.status] || 0) + 1; });
+  const countHTML = ['진행', '검토', '블로킹', '예정', '완료'].filter(s => counts[s]).map(s => `<span>${s}<b>${counts[s]}</b></span>`).join('');
+  let msHTML = '<div class="milestone"><div class="name">모든 마일스톤 완료</div></div>';
+  if (current){
+    const started = current.start <= today;
+    msHTML = `<div class="milestone">
+      <div class="label">${started ? '지금 마일스톤' : '다음 마일스톤'}</div>
+      <div class="name">${showId(current) ? `<b>${esc(current.id)}</b>` : ''}${esc(current.name)}</div>
+      <div class="when">${range(current.start, current.end)}, ${started ? `${days(today, current.end)}일 남음` : `${days(today, current.start)}일 뒤 시작`}</div>
+    </div>`;
+  }
+  const toPoc = days(today, R.poc.date);
+  return `<section class="now stem">
+    <div class="status" id="now">
+      <div>
+        <h1>${esc(R.title)}</h1>
+        <div class="today">${short(today)} ${weekday(today)}<small>${today.slice(0, 4)}년</small></div>
+        ${msHTML}
+        <div class="poc">PoC <b>${short(R.poc.date)}</b>${toPoc > 0 ? `까지 ${toPoc}일` : toPoc === 0 ? ' 오늘' : ' 지남'}</div>
+      </div>
+      <div class="roster">
+        <dl>
+          ${['common', 'walk', 'perc'].map(k => `<div class="team" style="--c:var(--${k}); --ct:var(--${k}-text)"><dt>${esc(R.areas[k].label)}</dt><dd>${esc(R.areas[k].members.join(', '))}</dd></div>`).join('')}
+        </dl>
+        ${countHTML ? `<div class="counts">${countHTML}</div>` : ''}
+      </div>
+      <footer>위로 스크롤하면 지난 작업, 아래로는 진행 중이거나 예정된 작업이에요. 카드를 누르면 해당 Notion 업무가 열려요.</footer>
+    </div>
+    <div class="lanes" aria-hidden="true"><span class="l-walk">보행</span><span class="l-common">공통</span><span class="l-perc">인지</span></div>
+  </section>`;
+}
+
+function render(R){
+  const today = pickToday();
+  const ms = R.milestones;
+  /* 지금 마일스톤 = 아직 끝나지 않은 첫 마일스톤 (시험 기간은 건너뜀). 그 앞까지가 지난 작업. */
+  const current = ms.find(m => m.end >= today && !m.gap) || null;
+  const cut = current ? ms.indexOf(current) : ms.length;
+  const first = ms[0].start;
+  let html = `<div class="root stem"><span class="seed"><i></i><span>${first.slice(0, 4)}년 ${md(first)[0]}월 시작</span></span></div>`;
+  html += ms.slice(0, cut).map(m => segmentHTML(R, m, today, false)).join('');
+  html += statusHTML(R, today, current);
+  html += ms.slice(cut).map(m => segmentHTML(R, m, today, m === current)).join('');
+  html += `<div class="end stem"><span class="target"><i aria-hidden="true"></i><span><strong>PoC</strong> ${short(R.poc.date)}</span></span></div>`;
+  tree.innerHTML = html;
+  jumpToNow();
+  watchNow();
+}
+
+function jumpToNow(){
+  const el = document.getElementById('now');
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - 12;
+  /* 오늘 아래 내용이 짧아도 상태 박스가 화면 맨 위에 오도록 바닥 여백을 늘린다 */
+  const missing = window.innerHeight - (document.documentElement.scrollHeight - top);
+  if (missing > 0) tree.style.paddingBottom = `${96 + missing}px`;
+  window.scrollTo({top, behavior: 'instant'});
+}
+
+const back = document.getElementById('back');
+back.addEventListener('click', jumpToNow);
+function watchNow(){
+  const io = new IntersectionObserver(([e]) => {
+    back.classList.toggle('show', !e.isIntersecting);
+    back.textContent = e.boundingClientRect.top < 0 ? '↑ 오늘로 돌아가기' : '↓ 오늘로 돌아가기';
+  });
+  io.observe(document.getElementById('now'));
+}
+
+fetch(DATA_URL, {cache: 'no-cache'})
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(render)
+  .catch(err => {
+    tree.innerHTML = `<div class="notice"><strong>로드맵 데이터를 불러오지 못했어요.</strong><br>
+      <code>${esc(DATA_URL)}</code>가 있는지, JSON 문법이 맞는지 확인하세요. (${esc(err.message)})</div>`;
+  });
+</script>
+</body>
+</html>
