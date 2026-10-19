@@ -220,6 +220,51 @@
       "status": "예정",
       "due": "2026-11-22",
       "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e"
+    },
+    {
+      "id": "G-011",
+      "area": "perc",
+      "milestone": "S1",
+      "title": "ML-X 데이터 수신",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/3fe45bd87178818e9b96f9de57eb6cdb"
+    },
+    {
+      "id": "G-012",
+      "area": "perc",
+      "milestone": "S1",
+      "title": "핸드헬드 FAST-LIO2 실행",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/3fe45bd8717881b2b226c42a7417afd8"
+    },
+    {
+      "id": "G-013",
+      "area": "perc",
+      "milestone": "S1",
+      "title": "데이터 흐름 설계",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/3fe45bd87178815c85fcc5ecb6116ae0"
+    },
+    {
+      "id": "G-014",
+      "area": "perc",
+      "milestone": "S2",
+      "title": "대시보드 데이터 구조",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/3fe45bd8717881848066dcc35d531a6d"
+    },
+    {
+      "id": "G-015",
+      "area": "perc",
+      "milestone": "S2",
+      "title": "대시보드 프론트",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/3fe45bd8717881e1a0fdcc23ef9f8d2e"
     }
   ]
 }
