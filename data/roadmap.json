@@ -135,9 +135,9 @@
       "id": "G-001",
       "area": "common",
       "milestone": "S0",
-      "title": "개발 환경 구축 (Docker, 레포 skeleton, README, GPU)",
+      "title": "개발 환경 구축",
       "status": "진행",
-      "due": "2026-10-31",
+      "due": "2026-10-23",
       "url": "https://app.notion.com/p/3fe45bd8717881099a1dfe62c07a9fca"
     },
     {
@@ -146,7 +146,7 @@
       "milestone": "S0",
       "title": "PAIR360 데모 패치 추출",
       "status": "예정",
-      "due": "2026-10-24",
+      "due": "2026-10-25",
       "url": "https://app.notion.com/p/3fe45bd871788106860efb8aba404d74"
     },
     {
