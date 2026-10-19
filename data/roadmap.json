@@ -139,6 +139,24 @@
       "status": "진행",
       "due": "2026-10-31",
       "url": "https://app.notion.com/p/3fe45bd8717881099a1dfe62c07a9fca"
+    },
+    {
+      "id": "G-002",
+      "area": "common",
+      "milestone": "S0",
+      "title": "PAIR360 데모 패치 추출",
+      "status": "예정",
+      "due": "2026-10-24",
+      "url": "https://app.notion.com/p/3fe45bd871788106860efb8aba404d74"
+    },
+    {
+      "id": "G-003",
+      "area": "common",
+      "milestone": "S0",
+      "title": "임시 URDF 평지 보행",
+      "status": "예정",
+      "due": "2026-10-31",
+      "url": "https://app.notion.com/p/3fe45bd8717881f5830fc62356f4ca8a"
     }
   ]
 }
