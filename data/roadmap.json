@@ -265,6 +265,15 @@
       "status": "예정",
       "due": "2026-11-15",
       "url": "https://app.notion.com/p/3fe45bd8717881e1a0fdcc23ef9f8d2e"
+    },
+    {
+      "id": "G-016",
+      "area": "common",
+      "milestone": "S0",
+      "title": "ML-X·IMU 핸드헬드 마운트",
+      "status": "예정",
+      "due": "2026-10-31",
+      "url": "https://app.notion.com/p/3fe45bd87178816ca195fe1f133ca535"
     }
   ]
 }
