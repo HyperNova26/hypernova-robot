@@ -157,6 +157,69 @@
       "status": "예정",
       "due": "2026-10-31",
       "url": "https://app.notion.com/p/3fe45bd8717881f5830fc62356f4ca8a"
+    },
+    {
+      "id": "G-004",
+      "area": "walk",
+      "milestone": "S1",
+      "title": "데모 지형 학습",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/3fe45bd8717881949fd8c261c803587d"
+    },
+    {
+      "id": "G-005",
+      "area": "walk",
+      "milestone": "S1",
+      "title": "Policy IO 통일",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/3fe45bd87178813f801beeed99cdba84"
+    },
+    {
+      "id": "G-006",
+      "area": "walk",
+      "milestone": "S1",
+      "title": "MuJoCo 검증 스크립트",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/3fe45bd8717881f18e5ad4f400f587d7"
+    },
+    {
+      "id": "G-007",
+      "area": "walk",
+      "milestone": "S2",
+      "title": "보상 튜닝 기록",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/3fe45bd8717881938d0ac337ce835730"
+    },
+    {
+      "id": "G-008",
+      "area": "walk",
+      "milestone": "S2",
+      "title": "데모 필드 정책 실행",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/3fe45bd8717881dfb77afadde8a77ea8"
+    },
+    {
+      "id": "G-009",
+      "area": "walk",
+      "milestone": "S2",
+      "title": "로봇 상태 로거",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/3fe45bd871788192a39fd0e112f4f827"
+    },
+    {
+      "id": "G-010",
+      "area": "walk",
+      "milestone": "S3",
+      "title": "HW URDF 적용",
+      "status": "예정",
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e"
     }
   ]
 }
