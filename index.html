@@ -211,7 +211,12 @@ body{
   .counts{padding-top:8px}
   .target i{width:36px; height:36px}
 }
-@media (min-width:761px){ .cell.common .limb{display:none} }
+@media (min-width:761px){
+  .cell.common .limb{display:none}
+  /* 반반 고리 가운데를 배경색으로 한 번 끊는다 */
+  .row.pair{position:relative}
+  .row.pair::after{content:""; position:absolute; left:50%; top:50%; width:4px; height:16px; margin:-8px 0 0 -2px; background:var(--paper); z-index:2; pointer-events:none}
+}
 @media (prefers-reduced-motion:reduce){ .card,.limb{transition:none} }
 </style>
 </head>
