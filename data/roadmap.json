@@ -33,6 +33,12 @@
       "walk": "icons/walk_purple",
       "perc": "icons/view_purple"
     },
+    "idPrefix": {
+      "common": "M",
+      "walk": "G",
+      "perc": "S",
+      "_note": "영역별로 따로 이어서 번호를 붙인다. 예: M-005, G-008, S-006"
+    },
     "title": "5단어 이하, 최대한 간단하게. [공통] 같은 영역 접두어나 괄호 나열은 넣지 않는다.",
     "requiredSections": [
       "목표",
@@ -132,7 +138,7 @@
       "url": "https://app.notion.com/52d45bd87178836785ce81109f9af5cf"
     },
     {
-      "id": "G-001",
+      "id": "M-001",
       "area": "common",
       "milestone": "S0",
       "title": "개발 환경 구축",
@@ -141,7 +147,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881099a1dfe62c07a9fca"
     },
     {
-      "id": "G-002",
+      "id": "M-002",
       "area": "common",
       "milestone": "S0",
       "title": "PAIR360 데모 패치 추출",
@@ -150,7 +156,7 @@
       "url": "https://app.notion.com/p/3fe45bd871788106860efb8aba404d74"
     },
     {
-      "id": "G-003",
+      "id": "M-003",
       "area": "common",
       "milestone": "S0",
       "title": "임시 URDF 평지 보행",
@@ -159,7 +165,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881f5830fc62356f4ca8a"
     },
     {
-      "id": "G-004",
+      "id": "G-001",
       "area": "walk",
       "milestone": "S1",
       "title": "데모 지형 학습",
@@ -168,7 +174,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881949fd8c261c803587d"
     },
     {
-      "id": "G-005",
+      "id": "G-002",
       "area": "walk",
       "milestone": "S1",
       "title": "Policy IO 통일",
@@ -177,7 +183,7 @@
       "url": "https://app.notion.com/p/3fe45bd87178813f801beeed99cdba84"
     },
     {
-      "id": "G-006",
+      "id": "G-003",
       "area": "walk",
       "milestone": "S1",
       "title": "MuJoCo 검증 스크립트",
@@ -186,7 +192,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881f18e5ad4f400f587d7"
     },
     {
-      "id": "G-007",
+      "id": "G-004",
       "area": "walk",
       "milestone": "S2",
       "title": "보상 튜닝 기록",
@@ -195,7 +201,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881938d0ac337ce835730"
     },
     {
-      "id": "G-008",
+      "id": "G-005",
       "area": "walk",
       "milestone": "S2",
       "title": "데모 필드 정책 실행",
@@ -204,7 +210,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881dfb77afadde8a77ea8"
     },
     {
-      "id": "G-009",
+      "id": "G-006",
       "area": "walk",
       "milestone": "S2",
       "title": "로봇 상태 로거",
@@ -213,7 +219,7 @@
       "url": "https://app.notion.com/p/3fe45bd871788192a39fd0e112f4f827"
     },
     {
-      "id": "G-010",
+      "id": "G-007",
       "area": "walk",
       "milestone": "S3",
       "title": "HW URDF 적용",
@@ -222,7 +228,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e"
     },
     {
-      "id": "G-011",
+      "id": "S-001",
       "area": "perc",
       "milestone": "S1",
       "title": "ML-X 데이터 수신",
@@ -231,7 +237,7 @@
       "url": "https://app.notion.com/p/3fe45bd87178818e9b96f9de57eb6cdb"
     },
     {
-      "id": "G-012",
+      "id": "S-002",
       "area": "perc",
       "milestone": "S1",
       "title": "핸드헬드 FAST-LIO2 실행",
@@ -240,7 +246,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881b2b226c42a7417afd8"
     },
     {
-      "id": "G-013",
+      "id": "S-003",
       "area": "perc",
       "milestone": "S1",
       "title": "데이터 흐름 설계",
@@ -249,7 +255,7 @@
       "url": "https://app.notion.com/p/3fe45bd87178815c85fcc5ecb6116ae0"
     },
     {
-      "id": "G-014",
+      "id": "S-004",
       "area": "perc",
       "milestone": "S2",
       "title": "대시보드 데이터 구조",
@@ -258,7 +264,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881848066dcc35d531a6d"
     },
     {
-      "id": "G-015",
+      "id": "S-005",
       "area": "perc",
       "milestone": "S2",
       "title": "대시보드 프론트",
@@ -267,7 +273,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881e1a0fdcc23ef9f8d2e"
     },
     {
-      "id": "G-016",
+      "id": "M-004",
       "area": "common",
       "milestone": "S0",
       "title": "ML-X·IMU 핸드헬드 마운트",

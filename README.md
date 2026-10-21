@@ -24,11 +24,11 @@ HyperNova AI/CV 팀의 스프린트별 진행 현황을 보여 주는 GitHub Pag
    - 본문: `목표`와 `완료기준`을 항상 넣습니다.
    - 속성: `팀` AICV, `구분` 작업, `상태` 예정, `마감일`은 해당 스프린트 안의 날짜
    - `담당자`: 공통은 허재원, 보행은 정찬원·조재대, 인지는 김완준·장승민
-2. `data/roadmap.json`의 `branches`에 항목을 추가하고 커밋합니다. G-번호는 이어서 붙입니다.
+2. `data/roadmap.json`의 `branches`에 항목을 추가하고 커밋합니다. 번호는 영역별로 따로 이어 붙입니다. 공통은 `M-`, 보행은 `G-`, 인지는 `S-`입니다.
 
 ```json
 {
-  "id": "G-002", "area": "walk", "milestone": "S1",
+  "id": "G-008", "area": "walk", "milestone": "S1",
   "title": "업무 제목", "status": "예정", "due": "2026-11-08",
   "url": "https://app.notion.com/p/..."
 }
@@ -40,7 +40,7 @@ HyperNova AI/CV 팀의 스프린트별 진행 현황을 보여 주는 GitHub Pag
 
 | 필드 | 값 |
 | --- | --- |
-| `id` | `G-001` 형식. 비워 두면 번호 없이 표시 |
+| `id` | 공통 `M-001`, 보행 `G-001`, 인지 `S-001` 형식. 비워 두면 번호 없이 표시 |
 | `area` | `common`(공통), `walk`(보행), `perc`(인지) |
 | `milestone` | `milestones`의 `id` |
 | `status` | Notion `상태`와 같은 값: `Backlog`, `예정`, `진행`, `검토`, `블로킹`, `완료` |
