@@ -21,14 +21,43 @@
 
 자세한 적용 범위는 [`LICENSE.md`](../../LICENSE.md)에서 관리합니다.
 
+## 팀과 권한
+
+| 팀 | 저장소 권한 | 구성 |
+| --- | --- | --- |
+| `leads` | Maintain | 팀장 4명 (공동 PM 포함) |
+| `ai-cv`, `sw`, `hw`, `ee` | Write | 각 팀원 |
+
+조직 기본 권한이 아니라 팀 권한으로 접근합니다. `CODEOWNERS`에 쓰는 팀은 저장소에 write 이상 권한이 있어야 인식됩니다.
+
 ## `main` 브랜치 보호
 
-- Pull Request 필수, 승인 0명 (초기 운영)
+- Pull Request 필수, 일반 승인 0명
+- Code Owner 리뷰 필수 — [`CODEOWNERS`](../../.github/CODEOWNERS)에 적힌 경로만 해당 팀 승인이 필요합니다
+- 관리자도 같은 규칙을 따릅니다
 - force push와 브랜치 삭제 금지
-- squash merge 기본, 병합 후 브랜치 삭제
+- squash merge만 허용, 병합 후 브랜치 삭제
+- 필수 status check는 아직 없습니다. 경로 필터가 걸린 workflow를 필수로 두면 해당 workflow가 돌지 않는 PR이 병합되지 못하므로, CI 구조가 잡힌 뒤 정합니다
+
+## 코드 소유자
+
+여러 팀이 같이 쓰는 경로에만 소유자를 둡니다. 팀 내부 경로까지 지정하면 팀장이 모든 PR의 병목이 됩니다.
+
+| 경로 | 소유 팀 | 이유 |
+| --- | --- | --- |
+| `.github/`, `docs/decisions/` | `leads` | CI·CODEOWNERS 자체와 ADR은 프로젝트 전체 결정 |
+| `docker/` | `ai-cv`, `sw` | 두 팀이 같은 개발 이미지를 씀 |
+| `description/` | `hw`, `ai-cv` | 실기와 시뮬레이션이 같은 기체 정의를 씀 |
+
+ROS 2 인터페이스 package가 생기면 `sw`, `ai-cv` 공동 소유로 추가합니다.
+
+## 보안
+
+- Secret scanning과 push protection을 켭니다. public 저장소라 비용이 없고, NGC API key나 GHCR token 같은 비밀값이 commit에 섞이면 push 단계에서 막습니다.
 
 ## Issue 라벨
 
-- `bug`, `enhancement`, `documentation`
-- `area:description`, `area:firmware`, `area:ros`, `area:simulation`, `area:policy`
+- `bug`, `enhancement`, `documentation`, `question`
+- `area:firmware`, `area:hardware`, `area:simulation`, `area:software`
 - `safety`
+- `good first issue`, `help wanted`, `duplicate`, `invalid`, `wontfix`
