@@ -89,9 +89,11 @@ body{
 .cell.perc .limb::after{right:-4px; top:-3px; width:8px; height:8px; background:var(--c)}
 .cell.walk .limb::after{right:-8px; top:-7px; width:16px; height:16px; background:var(--paper); border:3px solid var(--c)}
 .cell.perc .limb::before{left:-8px; top:-7px; width:16px; height:16px; background:var(--paper); border:3px solid var(--c)}
+/* 고리 위아래로 줄기를 물러나게 해서 고리가 줄기와 붙어 보이지 않게 */
+.cell.walk .limb::after,.cell.perc .limb::before{box-shadow:0 -4px 0 0 var(--paper), 0 4px 0 0 var(--paper)}
 /* 보행과 인지 가지가 같은 높이에서 만나면 줄기 위 고리를 반반(왼쪽 보행, 오른쪽 인지)으로 */
-.row.pair .cell.walk .limb::after{clip-path:inset(0 50% 0 0)}
-.row.pair .cell.perc .limb::before{clip-path:inset(0 0 0 50%)}
+.row.pair .cell.walk .limb::after{clip-path:inset(-5px 50% -5px -5px)}
+.row.pair .cell.perc .limb::before{clip-path:inset(-5px -5px -5px 50%)}
 .planned .limb{background:repeating-linear-gradient(90deg, var(--c) 0 6px, transparent 6px 11px)}
 
 .br{display:block; width:min(100%, 300px); color:inherit; text-decoration:none; position:relative; z-index:2; border-radius:12px}
@@ -211,12 +213,7 @@ body{
   .counts{padding-top:8px}
   .target i{width:36px; height:36px}
 }
-@media (min-width:761px){
-  .cell.common .limb{display:none}
-  /* 반반 고리 가운데를 배경색으로 한 번 끊는다 */
-  .row.pair{position:relative}
-  .row.pair::after{content:""; position:absolute; left:50%; top:50%; width:4px; height:16px; margin:-8px 0 0 -2px; background:var(--paper); z-index:2; pointer-events:none}
-}
+@media (min-width:761px){ .cell.common .limb{display:none} }
 @media (prefers-reduced-motion:reduce){ .card,.limb{transition:none} }
 </style>
 </head>
