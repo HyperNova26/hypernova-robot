@@ -9,21 +9,24 @@
       "label": "공통",
       "members": [
         "허재원"
-      ]
+      ],
+      "prefix": "M"
     },
     "walk": {
       "label": "보행",
       "members": [
         "정찬원",
         "조재대"
-      ]
+      ],
+      "prefix": "G"
     },
     "perc": {
       "label": "인지",
       "members": [
         "김완준",
         "장승민"
-      ]
+      ],
+      "prefix": "S"
     }
   },
   "notionRules": {
@@ -32,12 +35,6 @@
       "common": "icons/alien-pixel_purple",
       "walk": "icons/walk_purple",
       "perc": "icons/view_purple"
-    },
-    "idPrefix": {
-      "common": "M",
-      "walk": "G",
-      "perc": "S",
-      "_note": "영역별로 따로 이어서 번호를 붙인다. 예: M-005, G-008, S-006"
     },
     "title": "5단어 이하, 최대한 간단하게. [공통] 같은 영역 접두어나 괄호 나열은 넣지 않는다.",
     "requiredSections": [
@@ -51,7 +48,8 @@
       "구분": "작업",
       "상태": "예정",
       "담당자": "areas.<영역>.members 전원"
-    }
+    },
+    "numbering": "영역별로 따로 이어서 번호를 붙인다. 접두어는 areas.<영역>.prefix (공통 M, 보행 G, 인지 S). 예: M-005, G-008, S-006"
   },
   "milestones": [
     {
@@ -151,7 +149,7 @@
       "area": "common",
       "milestone": "S0",
       "title": "PAIR360 데모 패치 추출",
-      "status": "예정",
+      "status": "진행",
       "due": "2026-10-25",
       "url": "https://app.notion.com/p/3fe45bd871788106860efb8aba404d74"
     },

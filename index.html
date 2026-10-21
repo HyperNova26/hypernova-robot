@@ -89,6 +89,9 @@ body{
 .cell.perc .limb::after{right:-4px; top:-3px; width:8px; height:8px; background:var(--c)}
 .cell.walk .limb::after{right:-8px; top:-7px; width:16px; height:16px; background:var(--paper); border:3px solid var(--c)}
 .cell.perc .limb::before{left:-8px; top:-7px; width:16px; height:16px; background:var(--paper); border:3px solid var(--c)}
+/* 보행과 인지 가지가 같은 높이에서 만나면 줄기 위 고리를 반반(왼쪽 보행, 오른쪽 인지)으로 */
+.row.pair .cell.walk .limb::after{clip-path:inset(0 50% 0 0)}
+.row.pair .cell.perc .limb::before{clip-path:inset(0 0 0 50%)}
 .planned .limb{background:repeating-linear-gradient(90deg, var(--c) 0 6px, transparent 6px 11px)}
 
 .br{display:block; width:min(100%, 300px); color:inherit; text-decoration:none; position:relative; z-index:2; border-radius:12px}
@@ -150,9 +153,9 @@ body{
 .milestone .when{font-size:13px; color:var(--muted); margin-top:2px}
 .roster{display:flex; flex-direction:column; gap:10px; align-self:start}
 .roster dl{margin:0; display:flex; flex-direction:column; gap:10px}
-.team{display:grid; grid-template-columns:44px 1fr; align-items:baseline; gap:8px}
+.team{display:grid; grid-template-columns:62px 1fr; align-items:center; gap:8px}
 .team dt{font-size:13px; font-weight:700; color:var(--ct); display:flex; align-items:center; gap:6px}
-.team dt::before{content:""; width:8px; height:8px; border-radius:2px; background:var(--c); flex:none}
+.team .lt{display:inline-grid; place-items:center; width:20px; height:20px; border-radius:5px; background:var(--c); color:var(--card); font-size:12px; font-weight:700; line-height:1; flex:none}
 .team dd{margin:0; font-size:15px; font-weight:500}
 .counts{display:flex; gap:14px; flex-wrap:wrap; margin-top:4px; padding-top:10px; border-top:1.5px solid var(--hair); font-size:13px; color:var(--muted)}
 .counts b{color:var(--ink); font-size:15px; margin-left:3px}
@@ -277,7 +280,7 @@ function segmentHTML(R, ms, today, isCurrent){
   const n = Math.max(0, ...ORDER.map(k => lanes[k].length));
   let rows = '';
   for (let i = 0; i < n; i++){
-    rows += `<div class="row">${ORDER.map(k => lanes[k][i] ? branchHTML(R, lanes[k][i], today) : `<div class="cell ${k}"></div>`).join('')}</div>`;
+    rows += `<div class="row${lanes.walk[i] && lanes.perc[i] ? ' pair' : ''}">${ORDER.map(k => lanes[k][i] ? branchHTML(R, lanes[k][i], today) : `<div class="cell ${k}"></div>`).join('')}</div>`;
   }
   return `<section class="seg stem ${ms.gap ? 'gap' : ''} ${isCurrent ? 'current' : ''}" aria-label="${esc(ms.name || ms.id)}">
     <div class="ms"><span class="pill">${showId(ms) ? `<b>${esc(ms.id)}</b>` : ''}${ms.name ? `<span>${esc(ms.name)}</span>` : ''}<time>${range(ms.start, ms.end)}</time></span></div>
@@ -309,7 +312,7 @@ function statusHTML(R, today, current){
       </div>
       <div class="roster">
         <dl>
-          ${['common', 'walk', 'perc'].map(k => `<div class="team" style="--c:var(--${k}); --ct:var(--${k}-text)"><dt>${esc(R.areas[k].label)}</dt><dd>${esc(R.areas[k].members.join(', '))}</dd></div>`).join('')}
+          ${['common', 'walk', 'perc'].map(k => `<div class="team" style="--c:var(--${k}); --ct:var(--${k}-text)"><dt>${R.areas[k].prefix ? `<span class="lt">${esc(R.areas[k].prefix)}</span>` : ''}${esc(R.areas[k].label)}</dt><dd>${esc(R.areas[k].members.join(', '))}</dd></div>`).join('')}
         </dl>
         ${countHTML ? `<div class="counts">${countHTML}</div>` : ''}
       </div>

@@ -47,6 +47,8 @@ HyperNova AI/CV 팀의 스프린트별 진행 현황을 보여 주는 GitHub Pag
 | `due` | `YYYY-MM-DD`. 완료 전에 이 날짜가 지나면 "마감 지남"으로 표시 |
 | `url` | Notion 업무 주소. 비워 두면 전체 업무 DB로 연결 |
 
+`areas`의 `prefix`(공통 M, 보행 G, 인지 S)는 가지 번호 접두어이고, 상태 박스의 팀 이름 옆에도 표시됩니다.
+
 `milestones` 항목은 `id`, `name`, `start`, `end`를 가집니다. `name`은 비워 둬도 됩니다.
 `"gap": true`는 작업이 없는 기간(시험 기간)으로 줄기를 점선으로 그립니다. `"showId": false`는 알약에 ID를 숨깁니다.
 
