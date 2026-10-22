@@ -89,7 +89,7 @@ robot venv(MuJoCo, onnxruntime, Open3D)는 Isaac Lab venv와 분리해서 시스
 
 ### 7. 네이티브 설치
 
-ROS만 쓰는 작업(LIO, 지형, 대시보드, SW 노드)은 네이티브 설치도 허용합니다. 단, 같은 Ubuntu·ROS 버전과 같은 Python lock, 같은 ROS snapshot 날짜를 씁니다. Isaac Sim·Isaac Lab 작업과 공용 GPU 머신, 데모는 컨테이너만 씁니다.
+ROS만 쓰는 작업(LIO, 지형, 대시보드, SW 노드)은 네이티브 설치도 허용합니다. 단, 같은 Ubuntu·ROS 버전과 같은 Python lock, 같은 ROS snapshot 날짜를 씁니다. Python lock은 저장소 최상위 `pyproject.toml`·`uv.lock`이고, 호스트에서는 `tools/setup-venv.sh`로 robot venv를 만듭니다([공용 Python 환경](../development/python-env.md)). Isaac Sim·Isaac Lab 작업과 공용 GPU 머신, 데모는 컨테이너만 씁니다.
 
 ### 8. 저장소 구조
 

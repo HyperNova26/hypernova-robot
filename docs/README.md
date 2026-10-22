@@ -8,6 +8,7 @@
 ## 개발
 
 - [개발 시작 안내](./development/getting-started.md)
+- [공용 Python 환경](./development/python-env.md)
 - [저장소 및 데이터 정책](./development/repository-policy.md)
 - [라이선스 정책](../LICENSE.md)
 

@@ -193,6 +193,7 @@ cd hypernova-robot
 - git은 호스트에서 씁니다. 컨테이너 안에서는 실행과 빌드만 합니다.
 - 코드나 설정에 개인 절대경로(`/home/이름/...`)를 넣지 않습니다. 저장소 상대경로나 `/data/...`를 씁니다.
 - 패키지가 더 필요하면 컨테이너 안에서 `apt`나 `pip`로 설치하지 말고 Dockerfile을 고치는 PR을 냅니다. 컨테이너를 다시 만들면 안에서 설치한 것은 사라집니다.
+- 컨테이너 없이 호스트에서 Python 도구(맵·지형 처리 등)를 돌릴 때는 [공용 Python 환경](../docs/development/python-env.md)(`./tools/setup-venv.sh`)을 씁니다. 이미지의 robot venv와 같은 `uv.lock`을 씁니다.
 - 이미지 버전이 바뀌면(`git pull` 후 `docker/.env`의 태그가 바뀜) 보행팀은 `./docker/hn build sim`, 인지팀·SW팀은 `./docker/hn pull ros`를 다시 실행합니다.
 - 끝낼 때는 `./docker/hn stop`(안 해도 됨). 컨테이너가 꼬였으면 `./docker/hn reset`. 빌드 결과와 캐시는 남습니다.
 

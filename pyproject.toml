@@ -1,0 +1,39 @@
+# 공용 Python 환경 (robot venv)
+#
+# 호스트와 컨테이너가 같은 패키지 버전을 쓰도록 이 파일과 uv.lock으로 고정합니다.
+# 버전 근거: docs/decisions/0002-dev-environment.md (§4)
+# 사용법:    docs/development/python-env.md
+#
+# Isaac Lab·torch와 ROS 패키지(rclpy 등)는 여기에 넣지 않습니다.
+# Isaac Lab은 자기 venv를, ROS는 apt로 설치된 시스템 Python을 씁니다.
+
+[project]
+name = "hypernova-robot"
+version = "0.0.0"
+description = "HyperNova 공용 Python 도구 환경"
+requires-python = "==3.12.*"
+dependencies = [
+  # ADR-0002 §4 — Isaac Lab v3.0.0 lock과 같은 버전
+  "mujoco==3.12.0",
+  "onnx==1.22.0",
+  "onnxruntime==1.26.0",
+  "open3d==0.19.0",
+
+  # Ubuntu 24.04 apt(python3-numpy)와 같은 버전. ROS 2 Jazzy 메시지 바인딩이
+  # numpy 1.x C API로 빌드돼 있어서, 2.x를 올리면 rclpy 메시지 import가 깨집니다.
+  "numpy==1.26.4",
+
+  # 맵·지형 처리 (PAIR360 패치 추출, heightfield, terrain USD)
+  "scipy",
+  "matplotlib",
+  "pyyaml",
+  "pyproj",
+  "trimesh",
+  "usd-core",
+]
+
+[tool.uv]
+# 설치 가능한 패키지가 아니라 환경만 관리합니다.
+package = false
+# Ubuntu 24.04의 /usr/bin/python3.12만 씁니다(ROS 2 Jazzy와 같은 interpreter).
+python-preference = "only-system"
