@@ -68,14 +68,9 @@ ROS 2 Jazzy의 메시지 바인딩은 Ubuntu 24.04의 numpy(1.26.4) C API로 빌
 
 ## 컨테이너에서 쓸 때
 
-저장소가 컨테이너 `/workspace/hypernova`에 mount되므로 호스트의 `.venv`도 컨테이너에 보입니다. 하지만 venv 안 실행 파일은 호스트 경로를 가리키고 있어 컨테이너에서는 쓸 수 없습니다. 이미지에서는 venv를 저장소 밖에 둡니다.
+저장소가 컨테이너 `/workspace/hypernova`에 mount되므로 호스트의 `.venv`도 컨테이너에 보입니다. 하지만 venv 안 실행 파일은 호스트 경로를 가리키고 있어 컨테이너에서는 쓸 수 없습니다. 이미지에서는 같은 `pyproject.toml`·`uv.lock`으로 venv를 저장소 밖 `/opt/hn-venv`에 따로 만듭니다([`docker/scripts/install_robot_venv.sh`](../../docker/scripts/install_robot_venv.sh), `uv sync --locked`). 컨테이너 안에서는 `/opt/hn-venv/bin/python`으로 실행합니다.
 
-```dockerfile
-ENV UV_PROJECT_ENVIRONMENT=/opt/hn-venv
-RUN ./tools/setup-venv.sh   # pyproject.toml, uv.lock을 COPY한 뒤
-```
-
-이렇게 하면 호스트와 컨테이너가 같은 `uv.lock`을 쓰고, 서로의 venv를 건드리지 않습니다.
+이렇게 하면 호스트와 컨테이너가 같은 `uv.lock`을 쓰고, 서로의 venv를 건드리지 않습니다. 이미지를 만들 때 `uv.lock`이 `pyproject.toml`과 맞지 않으면 빌드가 멈추므로, 두 파일을 같은 커밋에 넣는 규칙은 컨테이너에서도 같습니다.
 
 ## colcon과 같이 쓸 때
 
