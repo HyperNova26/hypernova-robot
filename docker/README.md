@@ -5,21 +5,18 @@ HyperNova의 공통 개발 환경입니다. Ubuntu 24.04 + ROS 2 Jazzy를 기준
 - 왜 이렇게 정했는지, 버전 표: [ADR-0002: 공통 개발 환경](../docs/decisions/0002-dev-environment.md)
 - 진행 상황과 업무: [Notion — 개발 환경 구축](https://app.notion.com/p/3fe45bd8717881099a1dfe62c07a9fca)
 
-> [!NOTE]
-> `docker/` 안의 Dockerfile, `compose.yaml`, `hn` 스크립트는 아직 만드는 중입니다([#14](https://github.com/HyperNova26/hypernova-robot/issues/14)). 아래 [호스트 준비](#호스트-준비)는 지금 바로 해 두면 됩니다.
-
 ## 어떤 이미지를 쓰나
 
 | | 보행팀 — `hn:sim` | 인지팀·SW팀 — `hn:ros` |
 | --- | --- | --- |
 | 베이스 | NVIDIA 공식 Isaac Lab 이미지 (`nvcr.io/nvidia/isaac-lab:3.0.0`) | `ros:jazzy` |
 | 받는 방법 | 각자 PC에서 최초 한 번 빌드 | GitHub(GHCR)에서 완성 이미지 다운로드 |
-| 크기 | 약 20 GB 이상 | 약 3 GB |
+| 크기 | 압축 다운로드 16.7 GB (15.6 GiB), Docker 로컬 51.4 GB | 약 3 GB |
 | 필요 장비 | RTX GPU, VRAM 12 GB 이상 | GPU 불필요, PC(amd64)·Jetson(arm64) |
 
 ### 보행팀 — `hn:sim`
 
-빌드 명령이 Dockerfile 첫 줄(`FROM nvcr.io/nvidia/isaac-lab:3.0.0`)을 보고 **NVIDIA 공식 Isaac Lab 이미지를 자동으로 받아 온 뒤**, 그 위에 우리 레이어만 얹습니다. 따로 받을 필요도, NVIDIA 로그인도 없습니다.
+빌드 명령이 Dockerfile 첫 줄(`FROM nvcr.io/nvidia/isaac-lab:3.0.0`)을 보고 **NVIDIA 공식 Isaac Lab 이미지를 자동으로 받아 온 뒤**, 그 위에 우리 레이어만 얹습니다. 따로 받을 필요도, NVIDIA 로그인도 없습니다. 2026-10-22 amd64 측정값은 압축 다운로드 16.7 GB(15.6 GiB), Docker 로컬 저장 51.4 GB이며, 우리 레이어와 shader cache까지 고려해 **여유 디스크 100 GB 이상**을 권장합니다.
 
 - Isaac Sim 6.2.0 + Isaac Lab 3.0.0 (학습은 PhysX), RSL-RL, torch 2.11 (cu130)
 - ROS 2 Jazzy + 공용 ROS 패키지 (rviz2, rosbag2/MCAP, rosbridge, foxglove bridge, joy/teleop)
@@ -44,6 +41,7 @@ Ubuntu 24.04 기준이고 PC마다 한 번만 하면 됩니다.
 | [2. Docker Engine](#2-docker-engine) | 필수 | 필수 |
 | [3. sudo 없이 docker 쓰기](#3-sudo-없이-docker-쓰기) | 필수 | 필수 |
 | [4. NVIDIA Container Toolkit](#4-nvidia-container-toolkit) | 필수 | 필요 없음 |
+| [5. 여유 디스크](#5-여유-디스크) | 약 100 GB 이상 | 작업량에 따라 다름 |
 
 ### 1. NVIDIA 드라이버
 
@@ -152,6 +150,10 @@ sudo systemctl restart docker
 ```bash
 docker run --rm --gpus all ubuntu nvidia-smi
 ```
+
+### 5. 여유 디스크
+
+`hn:sim`의 Isaac Lab 베이스는 로컬 Docker 저장소에서 약 51.4 GB를 차지합니다. ROS·LIO 레이어, 빌드 cache, Isaac Sim shader cache까지 남기므로 보행팀 PC에는 **여유 디스크 100 GB 이상**을 확보합니다. 처음 받는 압축 레이어 합계는 약 16.7 GB(15.6 GiB)지만, Docker가 푼 뒤의 크기와 같지 않습니다.
 
 ## 처음 시작할 때
 

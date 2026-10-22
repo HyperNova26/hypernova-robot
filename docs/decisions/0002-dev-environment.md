@@ -62,19 +62,21 @@ E로 갑니다.
 | 학습 physics | PhysX | 데모 runtime(Isaac Sim)과 같은 물리 엔진. 두 번째 엔진 검증은 MuJoCo가 맡음 |
 | torch / warp / RSL-RL | 2.11.0+cu130 / 1.17.0 / 5.5.1 | Isaac Lab `uv.lock` 그대로. 따로 올리지 않음 |
 | MuJoCo | 3.12.0 | Isaac Lab lock과 같은 버전. 이미지 안에 MuJoCo 버전을 하나만 둠 |
-| onnx / onnxruntime | 1.22.0 / 1.26.0 (CPU) | Isaac Lab lock과 같음. export opset은 명시(예: 17) |
+| ONNX | 1.22.0 | Isaac Lab venv와 같은 버전. export opset은 명시(예: 17) |
+| ONNX Runtime | 1.26.0 (CPU) | `/opt/hn-venv`에만 설치. Isaac Lab venv에는 포함되지 않으며 추가하지 않음 |
 | Open3D | 0.19.0 | Isaac Lab lock과 같음 |
 | LIO | `ros-jazzy-rko-lio`, FAST-LIO `ROS2` 브랜치 + `livox_ros_driver2` | 소스 빌드분은 `.repos`에 commit 고정 |
 | RMW | `rmw_fastrtps_cpp` | Jazzy 기본값, Isaac Sim이 검증한 조합 |
 | rosbag 저장 형식 | MCAP | Jazzy 기본값 |
 
-robot venv(MuJoCo, onnxruntime, Open3D)는 Isaac Lab venv와 분리해서 시스템 Python 3.12에 `--system-site-packages`로 만듭니다. ROS 노드와 같은 interpreter라서 sim2sim 스크립트를 나중에 실기 노드로 그대로 옮길 수 있고, Isaac Lab의 관측 코드를 실수로 import하지 않습니다.
+robot venv(MuJoCo, ONNX Runtime, Open3D)는 Isaac Lab venv와 분리해서 시스템 Python 3.12에 `--system-site-packages`로 만듭니다. MuJoCo·ONNX·Open3D는 Isaac Lab venv와 같은 버전을 쓰지만, ONNX Runtime 1.26.0은 robot venv 전용입니다. 실제 `isaac-lab:3.0.0`의 Isaac Lab venv에는 ONNX Runtime이 없으므로 추가하지 않습니다. ROS 노드와 같은 interpreter라서 sim2sim 스크립트를 나중에 실기 노드로 그대로 옮길 수 있고, Isaac Lab의 관측 코드를 실수로 import하지 않습니다.
 
 ### 5. 호스트 요구사항
 
 - NVIDIA driver **580.65.06 이상**, 권장 595.x. 설치 후 `apt-mark hold`로 자동 업데이트를 막습니다. 컨테이너는 호스트 드라이버를 그대로 쓰므로 Docker가 이 부분을 대신 지켜 주지 않습니다.
 - Docker Engine 26 이상, Docker Compose 2.25 이상, NVIDIA Container Toolkit
 - `hn:sim`은 RTX GPU가 필요합니다. VRAM 12 GB에서는 headless 학습까지, 캠퍼스 지형 + RTX LiDAR 데모 장면은 16 GB 이상에서 확인합니다.
+- `hn:sim`을 쓰는 PC는 Docker 이미지·빌드 레이어·shader cache를 위해 **여유 디스크 약 100 GB 이상**이 필요합니다. 2026-10-22에 확인한 Isaac Lab 3.0.0 amd64 베이스는 압축 다운로드 16.7 GB(15.6 GiB), Docker 로컬 저장 51.4 GB입니다.
 
 ### 6. 실행 규약
 
@@ -100,7 +102,7 @@ ROS만 쓰는 작업(LIO, 지형, 대시보드, SW 노드)은 네이티브 설�
 - 새 팀원은 저장소 clone, 이미지 받기, `./docker/hn` 실행만으로 시작할 수 있습니다.
 - 모든 SW·AICV 작업이 같은 ROS 배포판과 같은 의존성 버전을 기준으로 합니다.
 - Jetson도 같은 Ubuntu·ROS라서 `hn:ros`를 arm64로 그대로 올릴 수 있습니다.
-- 대신 처음 받을 때 용량이 큽니다. `hn:sim`은 약 20 GB 이상을 받아야 하고 Isaac Sim 첫 실행은 shader 컴파일로 느립니다.
+- 대신 처음 받을 때 용량이 큽니다. 2026-10-22 기준 `hn:sim` 베이스는 압축 레이어 16.7 GB(15.6 GiB)를 내려받고 Docker 로컬에는 51.4 GB를 차지합니다. 우리 레이어와 shader cache까지 고려해 여유 디스크 100 GB 이상을 잡습니다. Isaac Sim 첫 실행은 shader 컴파일로 느립니다.
 - Isaac Sim GUI는 X11 전달이나 livestream이 필요해서 네이티브보다 설정이 한 단계 더 있습니다.
 - Isaac Lab 3.0.0은 막 나온 버전이라 초기 버그가 있을 수 있습니다. S0 smoke test에서 먼저 확인합니다.
 - 두 이미지는 실제 레이어를 공유하지 않습니다. 같은 스크립트로 내용을 맞추는 방식이라, 스크립트를 고칠 때 두 target을 모두 빌드해 확인해야 합니다.
