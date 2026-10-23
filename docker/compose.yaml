@@ -32,8 +32,7 @@ x-hn-environment: &hn-environment
   USER: hn                         # passwd에 없는 UID에서도 getpass.getuser() 같은 호출이 동작하게
   LOGNAME: hn
   ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:?docker/.env.local이 없습니다. ./docker/hn 으로 실행하세요}
-  RMW_IMPLEMENTATION: rmw_fastrtps_cpp
-  FASTRTPS_DEFAULT_PROFILES_FILE: /opt/hn/fastdds.xml
+  # RMW_IMPLEMENTATION, FASTRTPS_DEFAULT_PROFILES_FILE은 이미지(Dockerfile ENV)에 있습니다
   DISPLAY: ${DISPLAY:-}
   QT_X11_NO_MITSHM: "1"
   HN_EDITABLE_PACKAGES: ${HN_EDITABLE_PACKAGES:-}   # entrypoint.sh 참고. 지금은 비어 있음
