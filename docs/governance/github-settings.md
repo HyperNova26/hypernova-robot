@@ -55,6 +55,12 @@ ROS 2 인터페이스 package가 생기면 `sw`, `ai-cv` 공동 소유로 추가
 
 - Secret scanning과 push protection을 켭니다. public 저장소라 비용이 없고, NGC API key나 GHCR token 같은 비밀값이 commit에 섞이면 push 단계에서 막습니다.
 
+## 컨테이너 이미지 (GHCR)
+
+- `hn:ros` 이미지는 `ghcr.io/hypernova26/hn`에 올라갑니다. `main`에 병합될 때 [`docker-ros.yml`](../../.github/workflows/docker-ros.yml)이 `GITHUB_TOKEN`(`packages: write`)으로 올리고, 태그는 `docker/.env`의 `HN_IMAGE_TAG`입니다. PR에서는 빌드와 점검만 합니다.
+- 처음 올라간 패키지는 **private**입니다. 조직 관리자가 한 번 패키지 설정(Package settings → Danger Zone → Change visibility)에서 Public으로 바꿔야 팀원이 로그인 없이 `./docker/hn pull ros`로 받을 수 있습니다. 패키지는 Dockerfile의 `org.opencontainers.image.source` 라벨로 이 저장소와 연결됩니다.
+- public 패키지는 무료입니다. `hn:sim`은 NVIDIA 베이스 이미지를 재배포하지 않으려고 올리지 않습니다([ADR-0002](../decisions/0002-dev-environment.md)).
+
 ## Issue 라벨
 
 - `bug`, `enhancement`, `documentation`, `question`
