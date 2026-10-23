@@ -56,6 +56,8 @@ jobs:
             echo "image=${HN_ROS_IMAGE}"
             echo "build_args<<__BUILD_ARGS__"
             echo "ROS_BASE_IMAGE=${ROS_BASE_IMAGE}"
+            # ros target만 빌드해도 BuildKit은 모든 FROM을 검사하므로 sim 베이스 이름도 넘깁니다(pull은 하지 않음).
+            echo "ISAACLAB_BASE_IMAGE=${ISAACLAB_BASE_IMAGE}"
             echo "ROS_DISTRO=${ROS_DISTRO}"
             echo "ROS_SNAPSHOT_DATE=${ROS_SNAPSHOT_DATE}"
             echo "UV_VERSION=${UV_VERSION}"
