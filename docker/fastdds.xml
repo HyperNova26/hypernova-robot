@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  HyperNova Fast DDS 프로필: UDPv4만 씁니다(shared memory 전송은 끔).
+  이미지 안 /opt/hn/fastdds.xml 이고, compose.yaml이 FASTRTPS_DEFAULT_PROFILES_FILE로 가리킵니다.
+
+  왜 shared memory를 끄나 (2026-10-22 실험: hn:sim 발행, hn:ros와 일회용 컨테이너 구독, 2 MB x 10 Hz)
+    - 기본값(SHM+UDP)은 두 쪽의 IPC namespace나 사용자가 다르면 "토픽 이름은 보이는데 데이터는 0개"가 됩니다.
+      ipc=private, root(host ipc), UID 4242(host ipc) 모두 실패했고, 오류 메시지 없이 조용히 실패합니다.
+    - UDP만 쓰면 위 경우가 모두 통하고, 기본값을 쓰는 상대(호스트에 네이티브로 설치한 ROS 등)와도 통합니다.
+    - 속도 손해는 측정되지 않았습니다. 같은 PC에서 8 MB x 20 Hz, 16 MB x 20 Hz(최대 320 MB/s)까지 유실 없이 받았습니다.
+  구성은 Isaac Lab v3.0.0 docker/.ros/fastdds.xml(UDPv4 전용)을 참고했습니다.
+-->
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+    <transport_descriptors>
+        <transport_descriptor>
+            <transport_id>hn_udp</transport_id>
+            <type>UDPv4</type>
+        </transport_descriptor>
+    </transport_descriptors>
+
+    <participant profile_name="hn_udp_only" is_default_profile="true">
+        <rtps>
+            <userTransports>
+                <transport_id>hn_udp</transport_id>
+            </userTransports>
+            <useBuiltinTransports>false</useBuiltinTransports>
+        </rtps>
+    </participant>
+</profiles>

@@ -19,6 +19,10 @@ $RECYCLE.BIN/
 .env
 .env.*
 !.env.example
+# docker/.env는 버전 고정이라 커밋하고, 개인 설정(.env.local)만 제외한다
+!docker/.env
+!docker/.env.local.example
+docker/.env.local
 *.pem
 *.key
 *.p12
@@ -101,3 +105,4 @@ artifacts/
 exports/local/
 
 CLAUDE.md
+AGENTS.md

@@ -1,0 +1,113 @@
+name: Docker ros image
+
+# hn:ros 이미지를 amd64·arm64로 빌드합니다. 설명: docker/README.md
+#   - Pull Request: docker/나 Python lock을 건드렸을 때 빌드와 점검만 합니다(올리지 않음).
+#   - main에 병합: 빌드해서 GHCR(ghcr.io/hypernova26/hn:ros-<docker/.env의 HN_IMAGE_TAG>)에 올립니다.
+#   - hn:sim은 NVIDIA 베이스 이미지를 재배포하지 않으므로 CI에서 빌드하지 않습니다.
+# 버전은 모두 docker/.env에서 읽어서 ./docker/hn build ros 와 같은 값으로 빌드합니다.
+
+on:
+  pull_request:
+    paths:
+      - "docker/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/docker-ros.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "docker/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/docker-ros.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-ros-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ros:
+    name: build ros (amd64, arm64)
+    runs-on: ubuntu-24.04
+    # arm64는 QEMU 에뮬레이션이라 apt 설치와 FAST-LIO 컴파일이 amd64보다 10배 넘게 느릴 수 있습니다(첫 실행 결과를 보고 조정).
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      packages: write   # main에서 GHCR에 올릴 때만 씁니다(PR에서는 login 단계를 건너뜀)
+    env:
+      PUSH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Read pins from docker/.env
+        id: pins
+        run: |
+          set -euo pipefail
+          set -a
+          . docker/.env
+          set +a
+          {
+            echo "image=${HN_ROS_IMAGE}"
+            echo "build_args<<__BUILD_ARGS__"
+            echo "ROS_BASE_IMAGE=${ROS_BASE_IMAGE}"
+            echo "ROS_DISTRO=${ROS_DISTRO}"
+            echo "ROS_SNAPSHOT_DATE=${ROS_SNAPSHOT_DATE}"
+            echo "UV_VERSION=${UV_VERSION}"
+            echo "UV_SHA256_AMD64=${UV_SHA256_AMD64}"
+            echo "UV_SHA256_ARM64=${UV_SHA256_ARM64}"
+            echo "__BUILD_ARGS__"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU (arm64 emulation)
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # amd64만 먼저 만들어 이미지 안을 점검합니다(multi-platform 결과는 로컬에 load할 수 없음).
+      # 이 빌드가 만든 레이어는 아래 multi-platform 빌드가 cache로 그대로 씁니다.
+      - name: Build amd64 for self-test
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: ros
+          platforms: linux/amd64
+          load: true
+          tags: hn-ros-selftest
+          build-args: ${{ steps.pins.outputs.build_args }}
+          cache-from: type=gha,scope=docker-ros
+          cache-to: type=gha,scope=docker-ros,mode=max
+
+      - name: Self-test (amd64)
+        run: docker run --rm hn-ros-selftest /opt/hn/scripts/selftest.sh
+
+      - name: Log in to GHCR
+        if: env.PUSH == 'true'
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # arm64는 QEMU 에뮬레이션이라 느립니다. 너무 오래 걸리면 ubuntu-24.04-arm runner로 나눠 빌드하는 방법을 검토합니다.
+      - name: Build amd64 + arm64 (push on main)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: ros
+          platforms: linux/amd64,linux/arm64
+          push: ${{ env.PUSH == 'true' }}
+          tags: ${{ steps.pins.outputs.image }}
+          build-args: ${{ steps.pins.outputs.build_args }}
+          cache-from: type=gha,scope=docker-ros
+          cache-to: type=gha,scope=docker-ros,mode=max
