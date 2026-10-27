@@ -1,17 +1,31 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides shared guidance to coding assistants working in this repository. Keep it in Git; personal instructions and settings belong in ignored `CLAUDE.local.md` and `.claude/settings.local.json`.
 
 ## Repo state
 
-- Docs-only scaffold: no code, manifests, tests, or build system yet. Top-level dirs (`description/`, `firmware/`, `ros_pkgs/`, `sim_scenes/`, `policies/`, `tools/`) are README-only. Don't assume ROS packages, URDF, or firmware exist.
+As of 2026-10-27:
+
+- The repo contains Docker image definitions, a locked Python environment (`pyproject.toml`, `uv.lock`), ROS demo scripts, and the PAIR360 terrain pipeline with synthetic tests in `tools/map/tests/`.
+- `description/`, `firmware/`, `ros_pkgs/`, and `policies/` remain README-only scaffolds. Don't assume robot models, ROS packages, firmware, or project-specific policies exist.
 - Don't create empty placeholder directory structures.
-- ADR-0002 (shared dev environment: Docker, ROS 2 Jazzy, Isaac Lab) is only *Proposed*. Don't treat it as adopted; `docs/development/getting-started.md` still says the environment is undecided.
+- Docker setup is implemented and documented in `docker/README.md` and `docs/development/getting-started.md`: Ubuntu 24.04 + ROS 2 Jazzy, with `ros` and `sim` image targets. ADR-0002 still has status *Proposed*; don't describe it as formally Accepted or change its status without a decision.
 - `docs/hypernova-project-handoff.md` is a Korean snapshot (2026-08-14) and partly stale. Its status labels TARGET / CANDIDATE / OPEN mean not done. Don't invent quantitative requirements or assume funding beyond what it states.
 
-## Commands
+## Environment and commands
 
-- Only automated check is markdownlint (CI: `.github/workflows/docs.yml`). Run locally with `npx markdownlint-cli2`. Config in `.markdownlint-cli2.jsonc`: MD013 and MD041 off; inline HTML limited to `div`, `img`, `p`, `strong`.
+Run commands from the repo root unless stated otherwise.
+
+- Host Python tools target Ubuntu 24.04 and `/usr/bin/python3.12`. Prepare `.venv` with `./tools/setup-venv.sh`; check the lock with `uv lock --check`; run scripts with `uv run python <script.py>`. See `docs/development/python-env.md`. Report host mismatches rather than silently changing the interpreter policy.
+- Manage Python dependencies through `uv add`; keep `pyproject.toml` and `uv.lock` together. Don't hand-edit `uv.lock` or install packages directly with pip. ROS packages belong in apt/the ROS image; Isaac Lab, Isaac Sim, and torch stay in the separate Isaac Lab environment.
+- Use `./docker/hn` for containers; it prepares personal configuration, mounts, and permissions. In a container, use `/opt/hn-venv/bin/python` for robot tools and the Isaac Lab launcher for Isaac tasks. Don't use the host `.venv` there or activate the robot venv inside `sim`.
+- Container dependency/pin changes require both `./docker/hn build ros` and `./docker/hn build sim`, plus an `HN_IMAGE_TAG` bump in `docker/.env`; see `docker/README.md`. State explicitly if either build could not be verified.
+
+## Checks
+
+- Markdown: `npx markdownlint-cli2` (CI: `.github/workflows/docs.yml`). Config in `.markdownlint-cli2.jsonc`: MD013 and MD041 off; inline HTML limited to `div`, `img`, `p`, `strong`.
+- Terrain regression tests in the prepared host Python environment: `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run python -m pytest tools/map/tests -q`. See `tools/map/README.md` for coverage and limits. Synthetic tests do not establish real-data semantic accuracy, full-resolution completion, or simulator GUI validation.
+- Docker CI (`.github/workflows/docker-ros.yml`) builds `ros` for amd64/arm64 and runs the amd64 image self-test on relevant changes. It does not build `sim` or run the terrain pytest suite. In a prepared container, `/opt/hn/scripts/selftest.sh` checks the environment; add `--isaac` in `sim` to check Isaac Lab imports.
 
 ## Docs and writing
 
@@ -27,12 +41,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Layout and content rules
 
-- Robot geometry, frames, and joints live only in `description/`; never duplicate them elsewhere.
-- Boundaries: low-level board code in `firmware/`; ROS adapters, runtime nodes, inference nodes, and simulator launch in `ros_pkgs/`; training/eval/export in `policies/`.
+- Robot geometry, robot frames, and joints live only in `description/`; never duplicate them elsewhere. Scene and terrain coordinate settings belong with the scene, such as `sim_scenes/pair360_parking/frame.yaml`.
+- Boundaries: low-level board code in `firmware/`; ROS adapters, runtime nodes, inference nodes, and simulator launch in `ros_pkgs/`; training/eval/export in `policies/`; reusable offline data/conversion tools in `tools/`; scene definitions in `sim_scenes/`.
 - Each ROS package keeps its own `config/`, `launch/`, `test/`. Configs state units, parent/child frame, axis convention, and hardware revision; no secrets.
-- Never commit build outputs, rosbags/MCAP/PCD/PLY, checkpoints/weights, CAD/EDA originals, secrets, or personal `.env`/paths. Files over 10 MiB need a placement decision first (Release asset, submodule, or LFS). No Git LFS yet; decide before the first large mesh.
+- PAIR360 processing lives in `tools/map/`; its scene/frame configuration is `sim_scenes/pair360_parking/frame.yaml`. Follow `tools/map/README.md`: use cropped input, preserve raw data, and write results to the configured external output directory or an explicit separate `--out`. Use a fresh output folder when configuration or code changes; reuse upstream results only through the documented `--reuse-heightfield-from` checks.
+- Never commit build outputs, raw rosbags/MCAP/PCD/PLY, checkpoints/weights (including `.onnx.data` sidecars), CAD/EDA originals, secrets, or personal `.env`/paths. Small regression fixtures require purpose, provenance, and review under `tests/data/`; see `docs/development/repository-policy.md`. Files over 10 MiB need a placement decision first (Release asset, submodule, or LFS). No Git LFS yet; decide before the first large mesh.
+- `docker/.env` is tracked version-pin configuration; `docker/.env.local` is ignored personal configuration. Keep `docker/.env.local.example` tracked and free of secrets. Avoid blanket ignores for required mesh formats or all NumPy arrays; review their placement and provenance.
 - Don't hand-edit generated files. If committed, record source, revision, generation command, and tool versions.
-- External repos are pinned submodules, never copied in. New files carry the license for their path (see `LICENSE.md`); third-party files keep their original notices.
+- External code uses package managers, commit-pinned `.repos` manifests, or pinned submodules; never copy external repositories into the tree. New files carry the license for their path (see `LICENSE.md`); third-party files keep their original notices.
 
 ## Safety
 

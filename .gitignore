@@ -60,7 +60,7 @@ cmake-build-*/
 # Runtime logs and crash artifacts
 *.log
 *.core
-core.*
+core.[0-9]*
 
 # Robot recordings and generated sensor data
 *.bag
@@ -77,6 +77,7 @@ recordings/
 *.pt
 *.pth
 *.onnx
+*.onnx.data
 *.engine
 checkpoints/
 runs/
@@ -103,8 +104,8 @@ __Previews/
 dist/
 artifacts/
 exports/local/
-
-CLAUDE.md
-AGENTS.md
-
 temp/
+
+# Personal AI assistant configuration (shared CLAUDE.md / AGENTS.md stay tracked)
+CLAUDE.local.md
+.claude/settings.local.json
