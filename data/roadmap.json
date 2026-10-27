@@ -79,19 +79,19 @@
     },
     {
       "id": "S3",
-      "name": "",
+      "name": "옷 갈아입기",
       "start": "2026-11-16",
       "end": "2026-11-22"
     },
     {
       "id": "S4",
-      "name": "",
+      "name": "길들이기",
       "start": "2026-11-23",
       "end": "2026-11-29"
     },
     {
       "id": "S5",
-      "name": "",
+      "name": "못 박기",
       "start": "2026-11-30",
       "end": "2026-12-07"
     },
@@ -183,10 +183,10 @@
     {
       "id": "G-003",
       "area": "walk",
-      "milestone": "S1",
-      "title": "MuJoCo 검증 스크립트",
+      "milestone": "S5",
+      "title": "MuJoCo 평지 체크",
       "status": "예정",
-      "due": "2026-11-08",
+      "due": "2026-12-07",
       "url": "https://app.notion.com/p/3fe45bd8717881f18e5ad4f400f587d7"
     },
     {
@@ -278,6 +278,123 @@
       "status": "진행",
       "due": "2026-10-31",
       "url": "https://app.notion.com/p/3fe45bd87178816ca195fe1f133ca535"
+    },
+    {
+      "id": "M-005",
+      "area": "common",
+      "milestone": "S1",
+      "title": "URDF 수령 체크리스트",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/40645bd8717881d2b089f20f4f68f4cf"
+    },
+    {
+      "id": "M-006",
+      "area": "common",
+      "milestone": "S5",
+      "title": "PoC 버전 동결",
+      "status": "예정",
+      "due": "2026-12-07",
+      "url": "https://app.notion.com/p/40645bd87178810db5efe4bbfb1ced9b"
+    },
+    {
+      "id": "M-007",
+      "area": "common",
+      "milestone": "S5",
+      "title": "백업 영상 촬영",
+      "status": "예정",
+      "due": "2026-12-07",
+      "url": "https://app.notion.com/p/40645bd871788156a7b7de9450133497"
+    },
+    {
+      "id": "G-008",
+      "area": "walk",
+      "milestone": "S1",
+      "title": "액추에이터 설정",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/40645bd8717881b99a2aca0314c7afa6"
+    },
+    {
+      "id": "G-009",
+      "area": "walk",
+      "milestone": "S2",
+      "title": "URDF 검수 스크립트",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/40645bd8717881e8852efc832726f81f"
+    },
+    {
+      "id": "G-010",
+      "area": "walk",
+      "milestone": "S4",
+      "title": "데모 경로 합격 테스트",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/40645bd871788198b3a2ceaa0042927a"
+    },
+    {
+      "id": "S-006",
+      "area": "perc",
+      "milestone": "S1",
+      "title": "데모 바닥 메시 전달",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/40645bd87178819e9242cff36b48cb3d"
+    },
+    {
+      "id": "S-007",
+      "area": "perc",
+      "milestone": "S2",
+      "title": "데모 구역 현장 녹화",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/40645bd87178815c9a28d85d01ea9620"
+    },
+    {
+      "id": "S-008",
+      "area": "perc",
+      "milestone": "S3",
+      "title": "FAST-LIO2 안정화",
+      "status": "예정",
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/40645bd8717881c8a5a0fd012333f245"
+    },
+    {
+      "id": "S-009",
+      "area": "perc",
+      "milestone": "S4",
+      "title": "센서부 합격 기준 확정",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/40645bd871788180a604eafdf19ae1fb"
+    },
+    {
+      "id": "S-010",
+      "area": "perc",
+      "milestone": "S4",
+      "title": "대시보드 실데이터 연결",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/40645bd871788157b2ccf23eb4561311"
+    },
+    {
+      "id": "S-011",
+      "area": "perc",
+      "milestone": "S4",
+      "title": "오프라인 지도 정합",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/40645bd871788182b821cbaba38e8a85"
+    },
+    {
+      "id": "S-012",
+      "area": "perc",
+      "milestone": "S5",
+      "title": "보기용 지도 레이어",
+      "status": "예정",
+      "due": "2026-12-07",
+      "url": "https://app.notion.com/p/40645bd87178817092c8e42dad3d908d"
     }
   ]
 }
