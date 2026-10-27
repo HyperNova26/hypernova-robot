@@ -46,6 +46,7 @@ HyperNova AI/CV 팀의 스프린트별 진행 현황을 보여 주는 GitHub Pag
 | `status` | Notion `상태`와 같은 값: `Backlog`, `예정`, `진행`, `검토`, `블로킹`, `완료` |
 | `due` | `YYYY-MM-DD`. 완료 전에 이 날짜가 지나면 "마감 지남"으로 표시 |
 | `url` | Notion 업무 주소. 비워 두면 전체 업무 DB로 연결 |
+| `owners` | 선택. 담당자가 영역 기본 인원(`areas.<영역>.members`)과 다를 때만 적음. 카드의 마감일 옆에 표시 |
 
 `areas`의 `prefix`(공통 M, 보행 G, 인지 S)는 가지 번호 접두어이고, 상태 박스의 팀 이름 옆에도 표시됩니다.
 

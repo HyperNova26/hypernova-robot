@@ -259,7 +259,12 @@
       "title": "대시보드 데이터 구조",
       "status": "예정",
       "due": "2026-11-15",
-      "url": "https://app.notion.com/p/3fe45bd8717881848066dcc35d531a6d"
+      "url": "https://app.notion.com/p/3fe45bd8717881848066dcc35d531a6d",
+      "owners": [
+        "김완준",
+        "장승민",
+        "허재원"
+      ]
     },
     {
       "id": "S-005",

@@ -128,7 +128,7 @@ body{
 .st.s-블로킹::before{content:"⚠ "}
 .st.s-완료{color:var(--muted); border-color:transparent; padding-right:0}
 .title{font-size:15px; font-weight:600; line-height:1.4; overflow-wrap:anywhere}
-.meta{margin-top:6px; font-size:13px; color:var(--muted)}
+.meta{display:flex; flex-wrap:wrap; gap:2px 12px; margin-top:6px; font-size:13px; color:var(--muted)}
 .meta .late{color:var(--alert); font-weight:600}
 
 /* 상태 박스 아래 영역 이름 */
@@ -269,7 +269,7 @@ function branchHTML(R, b, today){
           <span class="st s-${esc(b.status)}">${b.status === '완료' ? '✓ 완료' : esc(b.status)}</span>
         </div>
         <div class="title">${esc(b.title)}</div>
-        ${b.due ? `<div class="meta"><span class="${late ? 'late' : ''}">${late ? '마감 지남 ' : '마감 '}${short(b.due)}</span></div>` : ''}
+        <div class="meta">${b.due ? `<span class="${late ? 'late' : ''}">${late ? '마감 지남 ' : '마감 '}${short(b.due)}</span>` : ''}<span class="who">${esc((b.owners || area.members).join(', '))}</span></div>
       </div>
     </a>
     <span class="limb" aria-hidden="true"></span>
