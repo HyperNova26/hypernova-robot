@@ -13,20 +13,20 @@
 :root{
   --paper:#EDF1EF; --card:#FBFCFB; --ink:#1C272B; --muted:#5E6E70; --hair:#C6D0CC;
   --trunk:#34444A; --walk:#2D6BD0; --perc:#BD3030; --common:#7048C8; --alert:#B45309;
-  --walk-text:var(--walk); --perc-text:var(--perc); --common-text:var(--common);
+  --walk-text:var(--walk); --perc-text:var(--perc); --common-text:var(--common); --urgent:#E02424;
   --center:260px; --half:130px; --reach:44px; --trunk-w:10px;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#12181A; --card:#1B2427; --ink:#E3EAE7; --muted:#93A3A2; --hair:#304043;
-    --trunk:#7F918F; --walk:#6E9CF0; --perc:#EA6A62; --common:#A88BF2; --alert:#F59E0B;
+    --trunk:#7F918F; --walk:#6E9CF0; --perc:#EA6A62; --common:#A88BF2; --alert:#F59E0B; --urgent:#FF5A5A;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"]{
   --paper:#12181A; --card:#1B2427; --ink:#E3EAE7; --muted:#93A3A2; --hair:#304043;
-  --trunk:#7F918F; --walk:#6E9CF0; --perc:#EA6A62; --common:#A88BF2; --alert:#F59E0B;
+  --trunk:#7F918F; --walk:#6E9CF0; --perc:#EA6A62; --common:#A88BF2; --alert:#F59E0B; --urgent:#FF5A5A;
   color-scheme: dark;
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -119,6 +119,13 @@ body{
 
 .top{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px}
 .gid{font-size:12px; color:var(--muted); font-weight:500}
+/* 우선순위: 긴급은 빨강, 나머지는 덜 급할수록 연하게 */
+.pri{font-size:12px; font-weight:700; margin-left:8px}
+.gid:empty + .pri{margin-left:0}
+.pri.p-긴급{color:var(--urgent)}
+.pri.p-높음{color:var(--ink); opacity:.85}
+.pri.p-보통{color:var(--ink); opacity:.55}
+.pri.p-낮음{color:var(--ink); opacity:.35}
 .area-tag{display:none; font-size:12px; font-weight:600; color:var(--ct)}
 .st{font-size:12px; font-weight:600; line-height:1; padding:4px 8px; border-radius:999px; border:1.5px solid currentColor; white-space:nowrap}
 .st.s-진행{background:var(--c); border-color:var(--c); color:var(--on-c)}
@@ -265,7 +272,7 @@ function branchHTML(R, b, today){
     <a class="br" href="${esc(url)}" target="_blank" rel="noopener" aria-label="${esc(label)}">
       <div class="card">
         <div class="top">
-          <span><span class="area-tag">${esc(area.label)} </span><span class="gid">${esc(b.id)}</span></span>
+          <span><span class="area-tag">${esc(area.label)} </span><span class="gid">${esc(b.id)}</span>${b.priority ? `<span class="pri p-${esc(b.priority)}">${esc(b.priority)}</span>` : ''}</span>
           <span class="st s-${esc(b.status)}">${b.status === '완료' ? '✓ 완료' : esc(b.status)}</span>
         </div>
         <div class="title">${esc(b.title)}</div>

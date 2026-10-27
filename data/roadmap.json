@@ -116,6 +116,7 @@
       "milestone": "EDU",
       "title": "Python과 Git·PR 공통 실습",
       "status": "완료",
+      "priority": "높음",
       "due": "2026-10-04",
       "url": "https://app.notion.com/52d45bd87178836785ce81109f9af5cf"
     },
@@ -124,6 +125,7 @@
       "milestone": "EDU",
       "title": "Go2 teleop, 정책 학습·적용 실습",
       "status": "완료",
+      "priority": "높음",
       "due": "2026-10-04",
       "url": "https://app.notion.com/52d45bd87178836785ce81109f9af5cf"
     },
@@ -132,6 +134,7 @@
       "milestone": "EDU",
       "title": "Nav2, FAST-LIO2 실습",
       "status": "완료",
+      "priority": "높음",
       "due": "2026-10-04",
       "url": "https://app.notion.com/52d45bd87178836785ce81109f9af5cf"
     },
@@ -141,6 +144,7 @@
       "milestone": "S0",
       "title": "개발 환경 구축",
       "status": "완료",
+      "priority": "높음",
       "due": "2026-10-23",
       "url": "https://app.notion.com/p/3fe45bd8717881099a1dfe62c07a9fca"
     },
@@ -186,6 +190,7 @@
       "milestone": "S5",
       "title": "MuJoCo 평지 체크",
       "status": "예정",
+      "priority": "낮음",
       "due": "2026-12-07",
       "url": "https://app.notion.com/p/3fe45bd8717881f18e5ad4f400f587d7"
     },
@@ -389,6 +394,7 @@
       "milestone": "S4",
       "title": "오프라인 지도 정합",
       "status": "예정",
+      "priority": "낮음",
       "due": "2026-11-29",
       "url": "https://app.notion.com/p/40645bd871788182b821cbaba38e8a85"
     },
@@ -398,6 +404,7 @@
       "milestone": "S5",
       "title": "보기용 지도 레이어",
       "status": "예정",
+      "priority": "낮음",
       "due": "2026-12-07",
       "url": "https://app.notion.com/p/40645bd87178817092c8e42dad3d908d"
     }
