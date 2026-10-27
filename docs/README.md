@@ -12,6 +12,8 @@
 - [빠른 시작 — 보행](./development/quickstart-locomotion.md) — `hn:sim`에서 학습, ONNX export, onnxruntime 실행
 - [빠른 시작 — 인지·SW](./development/quickstart-perception.md) — `hn:ros`에서 LIO, 시각화, 컨테이너 사이 통신
 - [공용 Python 환경](./development/python-env.md)
+- [PAIR360 주차장 데모 지형](../sim_scenes/pair360_parking/README.md)
+- [PAIR360 맵·지형 변환 도구](../tools/map/README.md)
 - [저장소 및 데이터 정책](./development/repository-policy.md)
 - [라이선스 정책](../LICENSE.md)
 

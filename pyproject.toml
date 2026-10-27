@@ -37,3 +37,8 @@ dependencies = [
 package = false
 # Ubuntu 24.04의 /usr/bin/python3.12만 씁니다(ROS 2 Jazzy와 같은 interpreter).
 python-preference = "only-system"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
