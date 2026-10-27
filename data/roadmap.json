@@ -167,6 +167,24 @@
       "url": "https://app.notion.com/p/3fe45bd8717881f5830fc62356f4ca8a"
     },
     {
+      "id": "M-004",
+      "area": "common",
+      "milestone": "S0",
+      "title": "ML-X·IMU 핸드헬드 마운트",
+      "status": "진행",
+      "due": "2026-10-31",
+      "url": "https://app.notion.com/p/3fe45bd87178816ca195fe1f133ca535"
+    },
+    {
+      "id": "M-005",
+      "area": "common",
+      "milestone": "S1",
+      "title": "URDF 수령 체크리스트",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/40645bd8717881d2b089f20f4f68f4cf"
+    },
+    {
       "id": "G-001",
       "area": "walk",
       "milestone": "S1",
@@ -187,48 +205,11 @@
     {
       "id": "G-003",
       "area": "walk",
-      "milestone": "S5",
-      "title": "MuJoCo 평지 체크",
+      "milestone": "S1",
+      "title": "액추에이터 설정",
       "status": "예정",
-      "priority": "낮음",
-      "due": "2026-12-07",
-      "url": "https://app.notion.com/p/3fe45bd8717881f18e5ad4f400f587d7"
-    },
-    {
-      "id": "G-004",
-      "area": "walk",
-      "milestone": "S2",
-      "title": "보상 튜닝 기록",
-      "status": "예정",
-      "due": "2026-11-15",
-      "url": "https://app.notion.com/p/3fe45bd8717881938d0ac337ce835730"
-    },
-    {
-      "id": "G-005",
-      "area": "walk",
-      "milestone": "S2",
-      "title": "데모 필드 정책 실행",
-      "status": "예정",
-      "due": "2026-11-15",
-      "url": "https://app.notion.com/p/3fe45bd8717881dfb77afadde8a77ea8"
-    },
-    {
-      "id": "G-006",
-      "area": "walk",
-      "milestone": "S2",
-      "title": "로봇 상태 로거",
-      "status": "예정",
-      "due": "2026-11-15",
-      "url": "https://app.notion.com/p/3fe45bd871788192a39fd0e112f4f827"
-    },
-    {
-      "id": "G-007",
-      "area": "walk",
-      "milestone": "S3",
-      "title": "HW URDF 적용",
-      "status": "예정",
-      "due": "2026-11-22",
-      "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e"
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/40645bd8717881b99a2aca0314c7afa6"
     },
     {
       "id": "S-001",
@@ -260,6 +241,63 @@
     {
       "id": "S-004",
       "area": "perc",
+      "milestone": "S1",
+      "title": "CC·3DMASC 준비",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/40645bd87178810cb4d7c7a5217ab652",
+      "owners": [
+        "장승민"
+      ]
+    },
+    {
+      "id": "S-005",
+      "area": "perc",
+      "milestone": "S1",
+      "title": "데모 바닥 메시 전달",
+      "status": "예정",
+      "due": "2026-11-08",
+      "url": "https://app.notion.com/p/40645bd87178819e9242cff36b48cb3d"
+    },
+    {
+      "id": "G-004",
+      "area": "walk",
+      "milestone": "S2",
+      "title": "보상 튜닝 기록",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/3fe45bd8717881938d0ac337ce835730"
+    },
+    {
+      "id": "G-005",
+      "area": "walk",
+      "milestone": "S2",
+      "title": "데모 필드 정책 실행",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/3fe45bd8717881dfb77afadde8a77ea8"
+    },
+    {
+      "id": "G-006",
+      "area": "walk",
+      "milestone": "S2",
+      "title": "로봇 상태 로거",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/3fe45bd871788192a39fd0e112f4f827"
+    },
+    {
+      "id": "G-007",
+      "area": "walk",
+      "milestone": "S2",
+      "title": "URDF 검수 스크립트",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/40645bd8717881e8852efc832726f81f"
+    },
+    {
+      "id": "S-006",
+      "area": "perc",
       "milestone": "S2",
       "title": "대시보드 데이터 구조",
       "status": "예정",
@@ -272,7 +310,7 @@
       ]
     },
     {
-      "id": "S-005",
+      "id": "S-007",
       "area": "perc",
       "milestone": "S2",
       "title": "대시보드 프론트",
@@ -281,22 +319,104 @@
       "url": "https://app.notion.com/p/3fe45bd8717881e1a0fdcc23ef9f8d2e"
     },
     {
-      "id": "M-004",
-      "area": "common",
-      "milestone": "S0",
-      "title": "ML-X·IMU 핸드헬드 마운트",
-      "status": "진행",
-      "due": "2026-10-31",
-      "url": "https://app.notion.com/p/3fe45bd87178816ca195fe1f133ca535"
+      "id": "S-008",
+      "area": "perc",
+      "milestone": "S2",
+      "title": "지면·차량 분리",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/40645bd87178819986c5e7f8d67e5bf8",
+      "owners": [
+        "장승민"
+      ]
     },
     {
-      "id": "M-005",
-      "area": "common",
-      "milestone": "S1",
-      "title": "URDF 수령 체크리스트",
+      "id": "S-009",
+      "area": "perc",
+      "milestone": "S2",
+      "title": "데모 구역 현장 녹화",
       "status": "예정",
-      "due": "2026-11-08",
-      "url": "https://app.notion.com/p/40645bd8717881d2b089f20f4f68f4cf"
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/40645bd87178815c9a28d85d01ea9620"
+    },
+    {
+      "id": "G-008",
+      "area": "walk",
+      "milestone": "S3",
+      "title": "HW URDF 적용",
+      "status": "예정",
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e"
+    },
+    {
+      "id": "S-010",
+      "area": "perc",
+      "milestone": "S3",
+      "title": "지형 시뮬 적용",
+      "status": "예정",
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/40645bd87178815aaa1fd429751ccc2e",
+      "owners": [
+        "장승민"
+      ]
+    },
+    {
+      "id": "S-011",
+      "area": "perc",
+      "milestone": "S3",
+      "title": "루프 클로저 맵 재구성",
+      "status": "예정",
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/40645bd87178817d86c8ce6d3a1ecbcc",
+      "owners": [
+        "장승민"
+      ]
+    },
+    {
+      "id": "S-012",
+      "area": "perc",
+      "milestone": "S3",
+      "title": "FAST-LIO2 안정화",
+      "status": "예정",
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/40645bd8717881c8a5a0fd012333f245"
+    },
+    {
+      "id": "G-009",
+      "area": "walk",
+      "milestone": "S4",
+      "title": "데모 경로 합격 테스트",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/40645bd871788198b3a2ceaa0042927a"
+    },
+    {
+      "id": "S-013",
+      "area": "perc",
+      "milestone": "S4",
+      "title": "센서부 합격 기준 확정",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/40645bd871788180a604eafdf19ae1fb"
+    },
+    {
+      "id": "S-014",
+      "area": "perc",
+      "milestone": "S4",
+      "title": "대시보드 실데이터 연결",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/40645bd871788157b2ccf23eb4561311"
+    },
+    {
+      "id": "S-015",
+      "area": "perc",
+      "milestone": "S4",
+      "title": "오프라인 지도 정합",
+      "status": "예정",
+      "priority": "낮음",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/40645bd871788182b821cbaba38e8a85"
     },
     {
       "id": "M-006",
@@ -317,89 +437,17 @@
       "url": "https://app.notion.com/p/40645bd871788156a7b7de9450133497"
     },
     {
-      "id": "G-008",
-      "area": "walk",
-      "milestone": "S1",
-      "title": "액추에이터 설정",
-      "status": "예정",
-      "due": "2026-11-08",
-      "url": "https://app.notion.com/p/40645bd8717881b99a2aca0314c7afa6"
-    },
-    {
-      "id": "G-009",
-      "area": "walk",
-      "milestone": "S2",
-      "title": "URDF 검수 스크립트",
-      "status": "예정",
-      "due": "2026-11-15",
-      "url": "https://app.notion.com/p/40645bd8717881e8852efc832726f81f"
-    },
-    {
       "id": "G-010",
       "area": "walk",
-      "milestone": "S4",
-      "title": "데모 경로 합격 테스트",
-      "status": "예정",
-      "due": "2026-11-29",
-      "url": "https://app.notion.com/p/40645bd871788198b3a2ceaa0042927a"
-    },
-    {
-      "id": "S-006",
-      "area": "perc",
-      "milestone": "S1",
-      "title": "데모 바닥 메시 전달",
-      "status": "예정",
-      "due": "2026-11-08",
-      "url": "https://app.notion.com/p/40645bd87178819e9242cff36b48cb3d"
-    },
-    {
-      "id": "S-007",
-      "area": "perc",
-      "milestone": "S2",
-      "title": "데모 구역 현장 녹화",
-      "status": "예정",
-      "due": "2026-11-15",
-      "url": "https://app.notion.com/p/40645bd87178815c9a28d85d01ea9620"
-    },
-    {
-      "id": "S-008",
-      "area": "perc",
-      "milestone": "S3",
-      "title": "FAST-LIO2 안정화",
-      "status": "예정",
-      "due": "2026-11-22",
-      "url": "https://app.notion.com/p/40645bd8717881c8a5a0fd012333f245"
-    },
-    {
-      "id": "S-009",
-      "area": "perc",
-      "milestone": "S4",
-      "title": "센서부 합격 기준 확정",
-      "status": "예정",
-      "due": "2026-11-29",
-      "url": "https://app.notion.com/p/40645bd871788180a604eafdf19ae1fb"
-    },
-    {
-      "id": "S-010",
-      "area": "perc",
-      "milestone": "S4",
-      "title": "대시보드 실데이터 연결",
-      "status": "예정",
-      "due": "2026-11-29",
-      "url": "https://app.notion.com/p/40645bd871788157b2ccf23eb4561311"
-    },
-    {
-      "id": "S-011",
-      "area": "perc",
-      "milestone": "S4",
-      "title": "오프라인 지도 정합",
+      "milestone": "S5",
+      "title": "MuJoCo 평지 체크",
       "status": "예정",
       "priority": "낮음",
-      "due": "2026-11-29",
-      "url": "https://app.notion.com/p/40645bd871788182b821cbaba38e8a85"
+      "due": "2026-12-07",
+      "url": "https://app.notion.com/p/3fe45bd8717881f18e5ad4f400f587d7"
     },
     {
-      "id": "S-012",
+      "id": "S-016",
       "area": "perc",
       "milestone": "S5",
       "title": "보기용 지도 레이어",
