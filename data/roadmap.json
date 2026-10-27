@@ -244,6 +244,7 @@
       "milestone": "S1",
       "title": "데모 바닥 메시 전달",
       "status": "예정",
+      "priority": "긴급",
       "due": "2026-11-08",
       "url": "https://app.notion.com/p/40645bd87178819e9242cff36b48cb3d"
     },
