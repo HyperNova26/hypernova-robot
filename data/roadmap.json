@@ -239,18 +239,6 @@
       "url": "https://app.notion.com/p/3fe45bd87178815c85fcc5ecb6116ae0"
     },
     {
-      "id": "S-004",
-      "area": "perc",
-      "milestone": "S1",
-      "title": "CC·3DMASC 준비",
-      "status": "예정",
-      "due": "2026-11-08",
-      "url": "https://app.notion.com/p/40645bd87178810cb4d7c7a5217ab652",
-      "owners": [
-        "장승민"
-      ]
-    },
-    {
       "id": "S-005",
       "area": "perc",
       "milestone": "S1",
@@ -319,18 +307,6 @@
       "url": "https://app.notion.com/p/3fe45bd8717881e1a0fdcc23ef9f8d2e"
     },
     {
-      "id": "S-008",
-      "area": "perc",
-      "milestone": "S2",
-      "title": "지면·차량 분리",
-      "status": "예정",
-      "due": "2026-11-15",
-      "url": "https://app.notion.com/p/40645bd87178819986c5e7f8d67e5bf8",
-      "owners": [
-        "장승민"
-      ]
-    },
-    {
       "id": "S-009",
       "area": "perc",
       "milestone": "S2",
@@ -347,30 +323,6 @@
       "status": "예정",
       "due": "2026-11-22",
       "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e"
-    },
-    {
-      "id": "S-010",
-      "area": "perc",
-      "milestone": "S3",
-      "title": "지형 시뮬 적용",
-      "status": "예정",
-      "due": "2026-11-22",
-      "url": "https://app.notion.com/p/40645bd87178815aaa1fd429751ccc2e",
-      "owners": [
-        "장승민"
-      ]
-    },
-    {
-      "id": "S-011",
-      "area": "perc",
-      "milestone": "S3",
-      "title": "루프 클로저 맵 재구성",
-      "status": "예정",
-      "due": "2026-11-22",
-      "url": "https://app.notion.com/p/40645bd87178817d86c8ce6d3a1ecbcc",
-      "owners": [
-        "장승민"
-      ]
     },
     {
       "id": "S-012",
