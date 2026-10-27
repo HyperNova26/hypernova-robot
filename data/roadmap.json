@@ -239,7 +239,7 @@
       "url": "https://app.notion.com/p/3fe45bd87178815c85fcc5ecb6116ae0"
     },
     {
-      "id": "S-005",
+      "id": "S-004",
       "area": "perc",
       "milestone": "S1",
       "title": "데모 바닥 메시 전달",
@@ -284,7 +284,7 @@
       "url": "https://app.notion.com/p/40645bd8717881e8852efc832726f81f"
     },
     {
-      "id": "S-006",
+      "id": "S-005",
       "area": "perc",
       "milestone": "S2",
       "title": "대시보드 데이터 구조",
@@ -298,7 +298,7 @@
       ]
     },
     {
-      "id": "S-007",
+      "id": "S-006",
       "area": "perc",
       "milestone": "S2",
       "title": "대시보드 프론트",
@@ -307,7 +307,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881e1a0fdcc23ef9f8d2e"
     },
     {
-      "id": "S-009",
+      "id": "S-007",
       "area": "perc",
       "milestone": "S2",
       "title": "데모 구역 현장 녹화",
@@ -325,7 +325,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e"
     },
     {
-      "id": "S-012",
+      "id": "S-008",
       "area": "perc",
       "milestone": "S3",
       "title": "FAST-LIO2 안정화",
@@ -343,7 +343,7 @@
       "url": "https://app.notion.com/p/40645bd871788198b3a2ceaa0042927a"
     },
     {
-      "id": "S-013",
+      "id": "S-009",
       "area": "perc",
       "milestone": "S4",
       "title": "센서부 합격 기준 확정",
@@ -352,7 +352,7 @@
       "url": "https://app.notion.com/p/40645bd871788180a604eafdf19ae1fb"
     },
     {
-      "id": "S-014",
+      "id": "S-010",
       "area": "perc",
       "milestone": "S4",
       "title": "대시보드 실데이터 연결",
@@ -361,7 +361,7 @@
       "url": "https://app.notion.com/p/40645bd871788157b2ccf23eb4561311"
     },
     {
-      "id": "S-015",
+      "id": "S-011",
       "area": "perc",
       "milestone": "S4",
       "title": "오프라인 지도 정합",
@@ -399,7 +399,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881f18e5ad4f400f587d7"
     },
     {
-      "id": "S-016",
+      "id": "S-012",
       "area": "perc",
       "milestone": "S5",
       "title": "보기용 지도 레이어",
