@@ -338,7 +338,7 @@ shared memory를 끈 이유는 실험 결과입니다(2026-10-22, `hn:sim`이 2 
 | `permission denied ... docker.sock` | [3단계](#3-sudo-없이-docker-쓰기) 후 다시 로그인했는지 |
 | `could not select device driver "nvidia"` | [4단계](#4-nvidia-container-toolkit)의 `nvidia-ctk runtime configure`와 docker 재시작 |
 | 호스트에서는 `nvidia-smi`가 되는데 컨테이너에서는 안 됨 | Docker Desktop을 쓰고 있지 않은지, 같은 PC의 터미널에서 실행했는지(WSL·원격·dev container 아님) |
-| 토픽 이름은 보이는데 `ros2 topic echo`에 데이터가 안 옴 | 한쪽이 `docker/fastdds.xml`(UDP 전용 프로파일) 없이 떠 있음. `hn`으로 만든 컨테이너는 항상 적용됩니다. `docker run`으로 직접 띄웠다면 `-e FASTRTPS_DEFAULT_PROFILES_FILE=/opt/hn/fastdds.xml`. `ros2 topic echo`는 토픽이 아직 없으면 바로 끝나므로 타입을 같이 적습니다(`ros2 topic echo /clock rosgraph_msgs/msg/Clock`) |
+| 토픽 이름은 보이는데 `ros2 topic echo`에 데이터가 안 옴 | 한쪽이 `docker/fastdds.xml`(UDP 전용 프로파일) 없이 떠 있음. `hn:sim`·`hn:ros` 이미지는 `docker run`으로 직접 띄워도 이미지 ENV로 항상 적용됩니다. 다른 이미지(예: 순정 `ros:jazzy`)와 섞어 쓸 때는 그쪽에도 `-e FASTRTPS_DEFAULT_PROFILES_FILE=...`로 같은 프로필을 줍니다. `ros2 topic echo`는 토픽이 아직 없으면 바로 끝나므로 타입을 같이 적습니다(`ros2 topic echo /clock rosgraph_msgs/msg/Clock`) |
 | 남의 토픽이 보임 | `docker/.env.local`의 `ROS_DOMAIN_ID`가 다른 사람과 겹치는지. 고친 뒤 `./docker/hn reset` |
 | 컨테이너가 만든 파일이 root 소유 | `docker/.env.local`의 UID·GID가 `id -u`, `id -g`와 같은지. `docker compose`를 직접 쳤다면 `hn`으로 다시 |
 | 저장소에 root 소유 `build/` 폴더가 생김 | `hn`이 아닌 방법으로 컨테이너를 띄웠음. `sudo chown -R $USER:$USER build install log` |

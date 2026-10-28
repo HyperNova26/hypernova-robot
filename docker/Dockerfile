@@ -52,8 +52,11 @@ RUN set -eux; \
     chmod 1777 /home/hn /workspace/hypernova/build /workspace/hypernova/install /workspace/hypernova/log; \
     printf '\n# HyperNova: ROS 환경과 프롬프트 (VS Code 등으로 직접 붙은 셸에서도 같게)\n[ -f /opt/hn/env.sh ] && . /opt/hn/env.sh\n' >> /etc/bash.bashrc
 
+# ROS middleware는 이미지에 둡니다. compose 없이 docker run(CI, Jetson)으로 띄워도 같게 동작하도록.
 ENV HN_TARGET=ros \
     HN_ROS_DISTRO=${ROS_DISTRO} \
+    RMW_IMPLEMENTATION=rmw_fastrtps_cpp \
+    FASTRTPS_DEFAULT_PROFILES_FILE=/opt/hn/fastdds.xml \
     HN_UV=/opt/hn/bin/uv \
     HOME=/home/hn
 
@@ -107,8 +110,11 @@ RUN set -eux; \
 
 # VIRTUAL_ENV, UV_PROJECT_ENVIRONMENT, UV_PYTHON(베이스가 설정한 Isaac Lab venv)은 그대로 둡니다.
 # robot venv는 활성화하지 않고 /opt/hn-venv/bin/python 으로 직접 부릅니다(활성화하면 isaaclab.sh가 거부함).
+# ROS middleware는 이미지에 둡니다. compose 없이 docker run(CI, Jetson)으로 띄워도 같게 동작하도록.
 ENV HN_TARGET=sim \
     HN_ROS_DISTRO=${ROS_DISTRO} \
+    RMW_IMPLEMENTATION=rmw_fastrtps_cpp \
+    FASTRTPS_DEFAULT_PROFILES_FILE=/opt/hn/fastdds.xml \
     HN_UV=/opt/hn/bin/uv \
     HOME=/home/hn
 
