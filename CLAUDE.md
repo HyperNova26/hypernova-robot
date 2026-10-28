@@ -4,7 +4,7 @@ This file provides shared guidance to coding assistants working in this reposito
 
 ## Repo state
 
-As of 2026-10-27:
+As of 2026-10-28:
 
 - The repo contains Docker image definitions, a locked Python environment (`pyproject.toml`, `uv.lock`), ROS demo scripts, and the PAIR360 terrain pipeline with synthetic tests in `tools/map/tests/`.
 - `description/`, `firmware/`, `ros_pkgs/`, and `policies/` remain README-only scaffolds. Don't assume robot models, ROS packages, firmware, or project-specific policies exist.
@@ -44,7 +44,7 @@ Run commands from the repo root unless stated otherwise.
 - Robot geometry, robot frames, and joints live only in `description/`; never duplicate them elsewhere. Scene and terrain coordinate settings belong with the scene, such as `sim_scenes/pair360_parking/frame.yaml`.
 - Boundaries: low-level board code in `firmware/`; ROS adapters, runtime nodes, inference nodes, and simulator launch in `ros_pkgs/`; training/eval/export in `policies/`; reusable offline data/conversion tools in `tools/`; scene definitions in `sim_scenes/`.
 - Each ROS package keeps its own `config/`, `launch/`, `test/`. Configs state units, parent/child frame, axis convention, and hardware revision; no secrets.
-- PAIR360 processing lives in `tools/map/`; its scene/frame configuration is `sim_scenes/pair360_parking/frame.yaml`. Follow `tools/map/README.md`: use cropped input, preserve raw data, and write results to the configured external output directory or an explicit separate `--out`. Use a fresh output folder when configuration or code changes; reuse upstream results only through the documented `--reuse-heightfield-from` checks.
+- PAIR360 processing lives in `tools/map/`; its scene/frame configuration is `sim_scenes/pair360_parking/frame.yaml`. Local data now lives under the repository's ignored `data/`: raw data in `data/PAIR360_data/` (`Calibration/`, `T1_Parking_and_OpenTheater/`, `T3_Parking_and_OpenTheater/`) and results in `data/PAIR360_demo/`. These folders were moved from beside the repository. Follow `tools/map/README.md`: use cropped input, preserve raw data, and pass an explicit `--out data/PAIR360_demo/<new-run>` separated from the input. The YAML default still points to legacy `../PAIR360_demo/2026-10-26_v1`; override it until the configuration is updated. Use a fresh output folder when configuration or code changes; reuse upstream results only through the documented `--reuse-heightfield-from` checks. Containers already expose these files at `/workspace/hypernova/data/` through the code mount; `/data` still uses `HN_DATA_DIR` (default `~/hypernova-data`).
 - Never commit build outputs, raw rosbags/MCAP/PCD/PLY, checkpoints/weights (including `.onnx.data` sidecars), CAD/EDA originals, secrets, or personal `.env`/paths. Small regression fixtures require purpose, provenance, and review under `tests/data/`; see `docs/development/repository-policy.md`. Files over 10 MiB need a placement decision first (Release asset, submodule, or LFS). No Git LFS yet; decide before the first large mesh.
 - `docker/.env` is tracked version-pin configuration; `docker/.env.local` is ignored personal configuration. Keep `docker/.env.local.example` tracked and free of secrets. Avoid blanket ignores for required mesh formats or all NumPy arrays; review their placement and provenance.
 - Don't hand-edit generated files. If committed, record source, revision, generation command, and tool versions.

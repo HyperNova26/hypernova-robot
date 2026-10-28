@@ -338,8 +338,10 @@ def execute(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    default_input = Path(__file__).resolve().parents[2]/"sim_scenes/pair360_parking/T1_parking_Seq0_demo.bin"
     parser.add_argument("--config", type=Path, required=True)
-    parser.add_argument("--input", type=Path, help="Crop only; never the full source map")
+    parser.add_argument("--input", type=Path,
+                        help=f"Crop only; never the full source map (default for transform: {default_input})")
     parser.add_argument("--poses", type=Path, help="T1S0 LiDAR poses, 13 columns")
     parser.add_argument("--out", help="Override output.directory in config; default quick runs use its quick/ subdirectory")
     parser.add_argument("--stages", nargs="+", choices=STAGES)
@@ -348,6 +350,8 @@ def main():
     parser.add_argument("--quick", action="store_true")
     parser.add_argument("--cloudcompare", help="CloudCompare executable (including snap launcher)")
     args = parser.parse_args()
+    if args.input is None and not args.reuse_heightfield_from and (args.stages is None or "transform" in args.stages):
+        args.input = default_input
     try:
         execute(args)
     except (ValueError, RuntimeError, OSError) as exc:

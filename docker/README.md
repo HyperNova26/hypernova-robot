@@ -223,11 +223,14 @@ cd hypernova-robot
 | --- | --- |
 | `/workspace/hypernova` | 이 저장소(호스트와 같은 파일). 호스트에서 저장하면 바로 반영 |
 | `/data` | 호스트 `~/hypernova-data`. rosbag, 학습 결과, 지형 데이터 (`docker/.env.local`의 `HN_DATA_DIR`) |
+| `/workspace/hypernova/data/PAIR360_data`, `/workspace/hypernova/data/PAIR360_demo` | (2026-10-28 기준) 저장소 안 `data/`로 옮긴 PAIR360 원본과 변환 결과. 코드 mount에 이미 포함되며 Git 추적 대상에서는 제외합니다 |
 | `/workspace/isaaclab` | (sim) Isaac Lab. 안의 `logs/`는 `/data/isaaclab/logs`에 연결돼서 학습 결과가 호스트에 남습니다 |
 | `/opt/hn-venv` | robot venv. MuJoCo, onnxruntime, Open3D 등. 저장소 `uv.lock` 그대로 |
 | `/opt/isaaclab-venv` | (sim) Isaac Lab venv. 건드리지 않습니다 |
 | `/opt/ros/jazzy`, `/opt/hn_ws` | 시스템 ROS와 LIO underlay(`ros`에만 내용이 있음) |
 | `/opt/hn` | 이미지에 구워 둔 스크립트(`scripts/selftest.sh` 등)와 설정 |
+
+PAIR360 폴더 이동으로 `/data` mount나 `HN_DATA_DIR` 기본값이 바뀌지는 않습니다. 저장소 최상위 `data/PAIR360_data/`, `data/PAIR360_demo/`는 위의 `/workspace/hypernova/data/` 경로로 읽습니다. PAIR360 변환에는 [맵 도구 안내](../tools/map/README.md)에 따라 새 결과 폴더를 `--out`으로 명시합니다.
 
 - 컨테이너는 **호스트 UID/GID**로 실행됩니다. 그래서 `/workspace/hypernova`와 `/data`에 만든 파일의 주인이 내 계정입니다(root가 아님). 사용자 이름은 `ubuntu`로 보이거나 없을 수 있습니다.
 - Python이 둘입니다. ROS 노드와 같은 interpreter인 robot venv는 `/opt/hn-venv/bin/python`으로 부르고, **`activate`하지 않습니다**. `sim`에서 활성화하면 `isaaclab.sh`가 거부합니다. Isaac Lab은 `./isaaclab.sh -p ...`로 씁니다(`deprecated` 경고는 3.1에서 없어진다는 안내일 뿐 정상 동작).
@@ -304,7 +307,7 @@ shared memory를 끈 이유는 실험 결과입니다(2026-10-22, `hn:sim`이 2 
 
 ## 작업 규칙
 
-- 코드는 컨테이너 안 `/workspace/hypernova`에 연결돼 있습니다. 호스트(VS Code)에서 저장하면 컨테이너에 바로 반영됩니다. 데이터는 `/data`(호스트 `~/hypernova-data`)에 둡니다.
+- 코드는 컨테이너 안 `/workspace/hypernova`에 연결돼 있습니다. 호스트(VS Code)에서 저장하면 컨테이너에 바로 반영됩니다. rosbag·학습 결과는 `/data`(호스트 기본 `~/hypernova-data`)에 둡니다. 저장소 안으로 옮긴 PAIR360 원본·변환 결과는 `/workspace/hypernova/data/PAIR360_data/`와 `/workspace/hypernova/data/PAIR360_demo/`를 사용합니다.
 - git은 호스트에서 씁니다. 컨테이너 안에서는 실행과 빌드만 합니다.
 - 코드나 설정에 개인 절대경로(`/home/이름/...`)를 넣지 않습니다. 저장소 상대경로나 `/data/...`를 씁니다.
 - 패키지가 더 필요하면 컨테이너 안에서 `apt`나 `pip`로 설치하지 말고 Dockerfile을 고치는 PR을 냅니다. 컨테이너를 다시 만들면 안에서 설치한 것은 사라집니다.

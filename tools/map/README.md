@@ -1,6 +1,21 @@
 # PAIR360 crop → 데모 지형 파이프라인
 
-2026-10-27 기준입니다. 한 crop에서 MuJoCo heightfield, Isaac 정적 collision mesh, Nav2 지도, SLAM 인계 자료를 만듭니다. 설정은 [frame.yaml](../../sim_scenes/pair360_parking/frame.yaml) 하나이고, 장면·좌표·라이선스는 [장면 안내](../../sim_scenes/pair360_parking/README.md)에 있습니다. 이 도구는 원시 데이터에 쓰지 않고 모든 처리 결과를 설정의 `output.directory` 또는 명시한 `--out` 아래에 둡니다.
+2026-10-28 기준입니다. 한 crop에서 MuJoCo heightfield, Isaac 정적 collision mesh, Nav2 지도, SLAM 인계 자료를 만듭니다. 설정은 [frame.yaml](../../sim_scenes/pair360_parking/frame.yaml) 하나이고, 장면·좌표·라이선스는 [장면 안내](../../sim_scenes/pair360_parking/README.md)에 있습니다. 이 도구는 원시 데이터에 쓰지 않고 모든 처리 결과를 설정의 `output.directory` 또는 명시한 `--out` 아래에 둡니다.
+
+## 데이터 위치
+
+저장소 옆에 있던 `PAIR360_data/`와 `PAIR360_demo/`는 저장소 최상위의 `data/` 아래로 옮겼습니다. `data/` 전체는 Git 추적 대상에서 제외합니다.
+
+| 저장소 최상위 기준 경로 | 내용 |
+| --- | --- |
+| `data/PAIR360_data/Calibration/` | 원본 calibration |
+| `data/PAIR360_data/T1_Parking_and_OpenTheater/` | T1 원본 데이터와 `extra/`의 지도·pose |
+| `data/PAIR360_data/T3_Parking_and_OpenTheater/` | T3 원본 데이터 |
+| `data/PAIR360_demo/` | 날짜·버전별 변환 결과. 원본과 분리해 보관합니다 |
+
+현재 보관된 실행 폴더는 `data/PAIR360_demo/261026_1200_v0/`와 `data/PAIR360_demo/261026_1800_v1/`입니다. 새 실행은 아래 예시처럼 별도 날짜·버전 폴더를 지정합니다.
+
+현재 사용하는 로컬 crop은 `sim_scenes/pair360_parking/T1_parking_Seq0_demo.bin`에 있으며 Git에 추가하지 않습니다. 아래 명령은 이 crop과 `data/` 아래 원본 pose를 읽습니다. crop을 다른 곳에 보관하면 `CROP`만 실제 위치로 바꿉니다.
 
 ## 실행
 
@@ -9,11 +24,12 @@ ADR-0002의 Ubuntu 24.04 및 `/usr/bin/python3.12`가 필요합니다. `./tools/
 ```bash
 ./tools/setup-venv.sh
 uv lock --check
-RAW=/path/to/PAIR360/T1_Parking_and_OpenTheater/extra
-OUT="../PAIR360_demo/2026-10-26_v1"
+RAW="data/PAIR360_data/T1_Parking_and_OpenTheater/extra"
+CROP="sim_scenes/pair360_parking/T1_parking_Seq0_demo.bin"
+OUT="data/PAIR360_demo/261028_1200_v2"
 uv run python tools/map/pair360_demo.py \
   --config sim_scenes/pair360_parking/frame.yaml \
-  --input "$RAW/T1_parking_Seq0_demo.bin" \
+  --input "$CROP" \
   --poses "$RAW/T1-Parking_and_Peace_Amphitheater-0-lidar_pose.txt" \
   --out "$OUT"
 ```
@@ -28,7 +44,7 @@ QT_QPA_PLATFORM=offscreen CloudCompare -SILENT -AUTO_SAVE OFF \
 
 snap 설치도 `cloudcompare.CloudCompare`로 자동 탐색합니다. `--cloudcompare`로 다른 실행 파일을 지정할 수 있습니다. `cloudcompare.log`, 원본/변환본 SHA256 및 사용한 명령을 남깁니다. 실패하면 중단하고 GUI에서 binary PLY로 다시 저장합니다. 여러 cloud가 들어 있는 BIN도 자동 합치지 않고 중단합니다.
 
-입력·pose 폴더와 출력은 서로 분리해야 합니다. `--out`을 생략하면 저장소 최상위 기준 `output.directory`를 사용합니다. 현재 정식 출력은 `../PAIR360_demo/2026-10-26_v1`이고 `--quick`의 기본 출력은 그 안의 `quick/`입니다. 명시한 `--out`에는 하위 폴더를 자동 추가하지 않습니다. `--quick`은 clean/ground/class voxel과 heightfield·Nav2 grid를 0.2 m로, 임의 mesh 검사점을 2,000개로 줄입니다. 정식 실행에는 `--quick`을 뺍니다.
+입력·pose 폴더와 출력은 서로 분리해야 합니다. `--out`을 생략하면 저장소 최상위 기준 `output.directory`를 사용합니다. **현재 `frame.yaml`의 기본값은 이전 위치인 `../PAIR360_demo/2026-10-26_v1` 그대로이므로, 설정을 바꾸기 전까지는 `--out data/PAIR360_demo/<새_실행_폴더>`를 반드시 지정합니다.** 기본값을 사용할 때만 `--quick`이 그 안의 `quick/`을 선택하며, 명시한 `--out`에는 하위 폴더를 자동 추가하지 않습니다. quick 확인에는 예를 들어 `--quick --out data/PAIR360_demo/261028_1200_v2_quick`을 함께 전달합니다. `--quick`은 clean/ground/class voxel과 heightfield·Nav2 grid를 0.2 m로, 임의 mesh 검사점을 2,000개로 줄입니다. 정식 실행에는 `--quick`을 뺍니다.
 
 ## 단계와 파일
 
@@ -95,8 +111,8 @@ QEM의 boundary weight만으로 경계를 고정했다고 가정하지 않습니
 현재 코드와 ground·분류 설정으로 heightfield 단계까지 끝났다면 이전 실행을 종료한 뒤 아래처럼 **새 출력 폴더**로 이어갑니다. raw 입력은 다시 읽지 않습니다. 기본적으로 `mujoco isaac map2d handoff check`만 실행합니다. 예전 최소 높이 filter 결과는 새 ground 설정과 호환되지 않으므로 재사용하지 않습니다.
 
 ```bash
-OLD_OUT="../PAIR360_demo/2026-10-26_v1"
-OUT="../PAIR360_demo/2026-10-26_v1_tiled"
+OLD_OUT="data/PAIR360_demo/261028_1200_v2"
+OUT="data/PAIR360_demo/261028_1300_v2_tiled"
 uv run python tools/map/pair360_demo.py \
   --config sim_scenes/pair360_parking/frame.yaml \
   --reuse-heightfield-from "$OLD_OUT" \
@@ -113,7 +129,7 @@ MuJoCo는 robot venv에서 엽니다.
 uv run python -m mujoco.viewer --mjcf="$OUT/terrain.xml"
 ```
 
-Isaac Lab에서는 호스트 출력이 `/data/pair360/parking_demo`에 연결된 `hn:sim` 안에서 다음 설정을 씁니다. 도구는 Isaac Sim을 실행하지 않습니다.
+Isaac Lab에서는 위 첫 실행의 출력 `data/PAIR360_demo/261028_1200_v2/`를 `hn:sim` 안의 `/workspace/hypernova/data/PAIR360_demo/261028_1200_v2/`로 읽습니다. 저장소 코드 mount에 이미 포함되므로 별도 데이터 mount는 필요하지 않습니다. 다른 실행을 확인할 때는 아래 `usd_path`도 그 실행 폴더로 바꿉니다. `/data` mount는 기존 `HN_DATA_DIR` 설정을 유지합니다([Docker 안내](../../docker/README.md#컨테이너-안에서-알아-둘-것)). 도구는 Isaac Sim을 실행하지 않습니다.
 
 ```python
 from isaaclab.terrains import TerrainImporterCfg
@@ -121,7 +137,7 @@ from isaaclab.terrains import TerrainImporterCfg
 terrain = TerrainImporterCfg(
     prim_path="/World/ground",
     terrain_type="usd",
-    usd_path="/data/pair360/parking_demo/terrain.usd",
+    usd_path="/workspace/hypernova/data/PAIR360_demo/261028_1200_v2/terrain.usd",
 )
 ```
 

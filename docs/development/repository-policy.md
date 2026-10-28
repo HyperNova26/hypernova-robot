@@ -20,12 +20,21 @@ Git 기록을 가볍게 두고, 파일을 어디에 둘지 매번 고민하지 �
 
 작은 회귀시험 데이터가 꼭 필요하면 `tests/data/` 아래에 목적과 출처를 적고 리뷰를 받습니다.
 
+## 로컬 데이터 위치
+
+2026-10-28 기준으로 PAIR360 원본과 처리 결과는 저장소 최상위의 `data/` 아래에 둡니다. 저장소 옆에 있던 `PAIR360_data/`와 `PAIR360_demo/`를 옮긴 위치이며, `data/` 전체는 `.gitignore`로 Git 추적 대상에서 제외합니다.
+
+- `data/PAIR360_data/`: 원본 `Calibration/`, `T1_Parking_and_OpenTheater/`, `T3_Parking_and_OpenTheater/`입니다. 원본은 읽기만 합니다.
+- `data/PAIR360_demo/`: 날짜·버전별 변환 결과입니다. 기존 `261026_1200_v0/`, `261026_1800_v1/` 결과를 보존하고 새 실행은 별도 폴더에 씁니다.
+
+저장소 안에 있는 로컬 데이터도 Git에 추가하지 않습니다. PAIR360 실행 명령과 이전 YAML 기본 경로를 재정의하는 `--out` 사용법은 [맵 도구 안내](../../tools/map/README.md)를 봅니다. 컨테이너에서는 코드 mount를 통해 `/workspace/hypernova/data/PAIR360_data/`와 `/workspace/hypernova/data/PAIR360_demo/`로 보입니다. `/data`는 기존 `HN_DATA_DIR`(기본 `~/hypernova-data`) mount를 유지합니다.
+
 ## 대형 파일
 
 파일이 10 MiB를 넘거나 자주 바뀌는 바이너리라면, 커밋하기 전에 어디에 둘지부터 정합니다.
 
 1. 실행에 정말 필요한 파일인지 되짚어 봅니다.
-2. 원시 데이터라면 밖에 두고, 그걸 쓰는 package나 policy 가까이에 출처와 버전, checksum을 적습니다.
+2. 원시 데이터라면 Git 추적 밖에 두고(예: 위의 로컬 `data/`), 그걸 쓰는 package나 policy 가까이에 출처와 버전, checksum을 적습니다.
 3. 배포용 산출물이라면 GitHub Release asset을 씁니다.
 4. 독립된 외부 Git 저장소가 필요하면 submodule로 commit을 고정합니다.
 5. 실행에 필요한 대형 mesh라면 Git LFS를 쓸지 먼저 정하고 `.gitattributes`에 추가합니다.

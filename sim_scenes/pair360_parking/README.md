@@ -1,6 +1,6 @@
 # PAIR360 주차장 데모 지형
 
-2026-10-27 기준입니다. PAIR360 T1 Sequence0 지도에서 CloudCompare Cross Section으로 잘라 둔 주차장 crop을 MuJoCo·Isaac Lab·Nav2·SLAM이 같은 좌표로 사용하도록 변환합니다. 원본 전체 지도는 읽지 않습니다.
+2026-10-28 기준입니다. PAIR360 T1 Sequence0 지도에서 CloudCompare Cross Section으로 잘라 둔 주차장 crop을 MuJoCo·Isaac Lab·Nav2·SLAM이 같은 좌표로 사용하도록 변환합니다. 원본 전체 지도는 읽지 않습니다.
 
 ## 출처와 라이선스
 
@@ -8,7 +8,7 @@
 
 PAIR360은 ODbL 1.0입니다. 공유·공개하는 파생 지형, 지도, pose 데이터도 ODbL 1.0을 유지하고 원저자·논문·원본 위치·변경 내용을 표시합니다. 출력의 `ATTRIBUTION.txt`를 함께 전달합니다. 저장소의 도구·설정은 Apache-2.0, 이 문서는 CC BY 4.0이며 데이터 라이선스와 구분합니다.
 
-원시 BIN/PCD/PLY, 생성한 heightfield·mesh·USD·지도·인계 ZIP은 Git에 넣지 않습니다. 원시 데이터 폴더는 읽기만 합니다. BIN 변환도 출력 폴더에 만든 사본에서 수행합니다.
+원시 BIN/PCD/PLY, 생성한 heightfield·mesh·USD·지도·인계 ZIP은 Git에 넣지 않습니다. 원본 데이터는 저장소 최상위 `data/PAIR360_data/`의 `Calibration/`, `T1_Parking_and_OpenTheater/`, `T3_Parking_and_OpenTheater/`에, 변환 결과는 `data/PAIR360_demo/`에 둡니다. 두 폴더는 이전의 저장소 옆 위치에서 옮겼으며 `data/` 전체는 Git 추적 대상에서 제외합니다. 현재 로컬 crop은 `sim_scenes/pair360_parking/T1_parking_Seq0_demo.bin`에 있으며 이 파일도 Git에 추가하지 않습니다. 원시 데이터 폴더는 읽기만 합니다. BIN 변환도 출력 폴더에 만든 사본에서 수행합니다.
 
 ## 좌표계
 
@@ -26,22 +26,23 @@ PAIR360은 ODbL 1.0입니다. 공유·공개하는 파생 지형, 지도, pose �
 
 ## 다시 만들기
 
-저장소 최상위, ADR의 Ubuntu 24.04·Python 3.12 robot venv에서 실행합니다. 아래 변수는 각자의 위치로 정합니다. 현재 `output.directory`는 저장소 옆의 `PAIR360_demo/2026-10-26_v1`입니다. 컨테이너에서 사용할 때는 이 폴더를 `/data` 아래에 연결합니다.
+저장소 최상위, ADR의 Ubuntu 24.04·Python 3.12 robot venv에서 실행합니다. 아래 예시는 현재 데이터 위치와 새 실행 폴더를 사용합니다. **현재 `frame.yaml`의 `output.directory`는 이전 위치인 `../PAIR360_demo/2026-10-26_v1` 그대로이므로, 설정을 바꾸기 전까지는 `--out data/PAIR360_demo/<새_실행_폴더>`를 반드시 지정합니다.** 컨테이너에서는 저장소 코드 mount를 통해 원본을 `/workspace/hypernova/data/PAIR360_data/`, 결과를 `/workspace/hypernova/data/PAIR360_demo/`로 읽습니다. `/data` mount와 `HN_DATA_DIR` 설정은 바뀌지 않았습니다([Docker 안내](../../docker/README.md#컨테이너-안에서-알아-둘-것)).
 
 ```bash
 ./tools/setup-venv.sh
-RAW=/path/to/PAIR360/T1_Parking_and_OpenTheater/extra
-OUT="../PAIR360_demo/2026-10-26_v1"
+RAW="data/PAIR360_data/T1_Parking_and_OpenTheater/extra"
+CROP="sim_scenes/pair360_parking/T1_parking_Seq0_demo.bin"
+OUT="data/PAIR360_demo/261028_1200_v2"
 uv run python tools/map/pair360_demo.py \
   --config sim_scenes/pair360_parking/frame.yaml \
-  --input "$RAW/T1_parking_Seq0_demo.bin" \
+  --input "$CROP" \
   --poses "$RAW/T1-Parking_and_Peace_Amphitheater-0-lidar_pose.txt" \
   --out "$OUT"
 ```
 
 같은 이름의 PLY/PCD가 있으면 BIN보다 먼저 읽습니다. crop 이름이 `demo.bin`이면 그 이름을 전달합니다. CloudCompare 실행 파일을 자동으로 찾지 못하면 `--cloudcompare <실행파일>`을 지정합니다. v2.11.1의 silent/offscreen CLI로 사본을 binary little-endian PLY로 변환합니다. 변환에 실패하면 GUI에서 crop을 binary PLY로 다시 저장해야 합니다.
 
-먼저 `--out`을 생략하고 `--quick`을 붙여 전체 단계를 확인하면 기본 출력 아래 `quick/`에 저장합니다. quick은 voxel·heightfield·2D map이 0.2 m이므로 5 cm 정밀도 확인용이 아닙니다. 명시한 `--out`은 그대로 사용하므로 정식 결과와 다른 폴더를 지정합니다.
+먼저 위 명령의 출력을 `--out data/PAIR360_demo/261028_1200_v2_quick`으로 바꾸고 `--quick`을 붙여 전체 단계를 확인합니다. 명시한 `--out`은 그대로 사용하며 `quick/` 하위 폴더를 자동으로 붙이지 않습니다. quick은 voxel·heightfield·2D map이 0.2 m이므로 5 cm 정밀도 확인용이 아닙니다. 정식 결과와 다른 새 폴더를 지정합니다.
 
 ## 결과와 범위
 
@@ -57,7 +58,7 @@ Nav2 장애물의 기본 높이 범위는 최종 heightfield 위 0.10–1.00 m�
 
 ## 2026-10-26 v1 quick 확인
 
-법선·국소 평면 두 후보·주변 ground 연속성으로 바꾼 뒤 `PAIR360_demo/2026-10-26_v1/quick`에 한 번 실행했습니다. 합성 시험 16개는 26.70초, 실제 quick은 3분 35초에 통과했고 최대 RSS는 약 1.02 GiB였습니다. 이전 변환 PLY와 원본 BIN의 SHA256이 기존 변환 기록과 같은지 확인한 뒤 그 PLY를 읽었습니다. 원시 데이터와 이전 결과는 수정하지 않았습니다.
+법선·국소 평면 두 후보·주변 ground 연속성으로 바꾼 뒤 quick을 한 번 실행했습니다. 현재 보관 위치는 `data/PAIR360_demo/261026_1800_v1/quick/`입니다. 합성 시험 16개는 26.70초, 실제 quick은 3분 35초에 통과했고 최대 RSS는 약 1.02 GiB였습니다. 이전 변환 PLY와 원본 BIN의 SHA256이 기존 변환 기록과 같은지 확인한 뒤 그 PLY를 읽었습니다. 원시 데이터와 이전 결과는 수정하지 않았습니다.
 
 | 항목 | 결과 |
 | --- | --- |
@@ -72,7 +73,7 @@ Nav2 장애물의 기본 높이 범위는 최종 heightfield 위 0.10–1.00 m�
 
 ## 이전 실제 crop quick 확인
 
-2026-10-23에 원본 BIN 사본을 snap CloudCompare v2.11.1로 변환하고 `--quick`을 한 번 실행했습니다. 원본 BIN·pose의 전후 SHA256이 같았습니다. 원본 7,751,328점에서 ground 195,572, cars 4,153, buildings 112,164, other 1,232,081점이 남았습니다.
+2026-10-23에 원본 BIN 사본을 snap CloudCompare v2.11.1로 변환하고 `--quick`을 한 번 실행했습니다. 이전 결과는 현재 `data/PAIR360_demo/261026_1200_v0/parking_demo/`와 `data/PAIR360_demo/261026_1200_v0/parking_demo_quick/`에 보관합니다. 원본 BIN·pose의 전후 SHA256이 같았습니다. 원본 7,751,328점에서 ground 195,572, cars 4,153, buildings 112,164, other 1,232,081점이 남았습니다.
 
 아래 기록과 보관 중인 quick 지도·인계 ZIP은 변경 전 하한 0.20 m 설정으로 생성했습니다. 현재 기본값 0.10 m는 합성 시험으로 확인하며, 실제 데이터 지도와 ZIP은 새 출력 폴더에서 다시 생성해야 합니다.
 
