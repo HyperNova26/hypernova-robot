@@ -142,7 +142,7 @@
       "id": "M-001",
       "area": "common",
       "milestone": "S0",
-      "title": "개발 환경 구축",
+      "title": "개발 환경 구축 Docker",
       "status": "완료",
       "priority": "높음",
       "due": "2026-10-23",
@@ -153,7 +153,7 @@
       "area": "common",
       "milestone": "S0",
       "title": "PAIR360 데모 패치 추출",
-      "status": "진행",
+      "status": "완료",
       "due": "2026-10-25",
       "url": "https://app.notion.com/p/3fe45bd871788106860efb8aba404d74"
     },
@@ -162,7 +162,7 @@
       "area": "common",
       "milestone": "S0",
       "title": "임시 URDF 평지 보행",
-      "status": "예정",
+      "status": "진행",
       "due": "2026-10-31",
       "url": "https://app.notion.com/p/3fe45bd8717881f5830fc62356f4ca8a"
     },
@@ -190,6 +190,7 @@
       "milestone": "S1",
       "title": "데모 지형 학습",
       "status": "예정",
+      "priority": "보통",
       "due": "2026-11-08",
       "url": "https://app.notion.com/p/3fe45bd8717881949fd8c261c803587d"
     },
