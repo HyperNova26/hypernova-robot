@@ -223,14 +223,18 @@ cd hypernova-robot
 | --- | --- |
 | `/workspace/hypernova` | 이 저장소(호스트와 같은 파일). 호스트에서 저장하면 바로 반영 |
 | `/data` | 호스트 `~/hypernova-data`. rosbag, 학습 결과, 지형 데이터 (`docker/.env.local`의 `HN_DATA_DIR`) |
-| `/workspace/hypernova/data/PAIR360_data`, `/workspace/hypernova/data/PAIR360_demo` | (2026-10-28 기준) 저장소 안 `data/`로 옮긴 PAIR360 원본과 변환 결과. 코드 mount에 이미 포함되며 Git 추적 대상에서는 제외합니다 |
+| `/workspace/hypernova/data/PAIR360_data`, `/workspace/hypernova/data/PAIR360_demo` | (2026-10-30 기준) PAIR360 원본과 기존 변환 결과. 코드 mount에 포함되며 Git 추적에서 제외합니다 |
+| `/workspace/hypernova/sim_scenes/MMDD_demo_whole` | 전체 점군 변환기의 USD, MuJoCo XML, metadata. 기본 출력 경로이며 Git 추적에서 제외합니다 |
+| `/workspace/hypernova/sim_scenes/MMDD_demo_disassembled` | 미구현 분해 스크립트가 준비하는 빈 폴더. 파일이나 하위 폴더를 만들지 않으며 Git 추적에서 제외합니다 |
 | `/workspace/isaaclab` | (sim) Isaac Lab. 안의 `logs/`는 `/data/isaaclab/logs`에 연결돼서 학습 결과가 호스트에 남습니다 |
 | `/opt/hn-venv` | robot venv. MuJoCo, onnxruntime, Open3D 등. 저장소 `uv.lock` 그대로 |
 | `/opt/isaaclab-venv` | (sim) Isaac Lab venv. 건드리지 않습니다 |
 | `/opt/ros/jazzy`, `/opt/hn_ws` | 시스템 ROS와 LIO underlay(`ros`에만 내용이 있음) |
 | `/opt/hn` | 이미지에 구워 둔 스크립트(`scripts/selftest.sh` 등)와 설정 |
 
-PAIR360 폴더 이동으로 `/data` mount나 `HN_DATA_DIR` 기본값이 바뀌지는 않습니다. 저장소 최상위 `data/PAIR360_data/`, `data/PAIR360_demo/`는 위의 `/workspace/hypernova/data/` 경로로 읽습니다. PAIR360 변환에는 [맵 도구 안내](../tools/map/README.md)에 따라 새 결과 폴더를 `--out`으로 명시합니다.
+PAIR360 폴더 이동으로 `/data` mount나 `HN_DATA_DIR` 기본값이 바뀌지는 않습니다. 저장소 최상위 `data/PAIR360_data/`, `data/PAIR360_demo/`는 위의 `/workspace/hypernova/data/` 경로로 읽습니다. 현재 [시뮬레이터 장면 변환 안내](../sim_scenes/README.md)의 전체 점군 변환기는 기본적으로 `sim_scenes/MMDD_demo_whole/`에 결과를 만들고 기존 출력 경로는 거부합니다. 다른 위치는 `--output-root`로 지정합니다. Python은 명시한 `HN_MAP_PYTHON`을 우선하고, 그 외에는 컨테이너의 `/opt/hn-venv/bin/python`을 사용합니다. CloudCompare native BIN 변환은 선택적인 CloudCompare 실행 파일이 필요하며, 컨테이너에 설치되어 있다고 가정하지 않습니다.
+
+`tools/map/`의 `.sh`는 같은 이름의 `.py` 구현을 호출하는 실행기입니다. `demo_sim_converter`는 유한한 XYZ 전체를 기본 0.5 m voxel 점유로 변환하여 정적 USD 삼각형 Mesh와 MuJoCo box geom을 내보내며, 지면 추출이나 heightfield 생성, simulator 실행은 수행하지 않습니다. `demo_sim_disassembler`는 입력 파일 확인 후 빈 폴더만 만듭니다. 지면 분리와 후속 차량·기타 객체 분류·분리는 미완료이며, 구현·개선과 실제 PAIR360 데이터 검증은 S-004 후속 작업에서 다룹니다.
 
 - 컨테이너는 **호스트 UID/GID**로 실행됩니다. 그래서 `/workspace/hypernova`와 `/data`에 만든 파일의 주인이 내 계정입니다(root가 아님). 사용자 이름은 `ubuntu`로 보이거나 없을 수 있습니다.
 - Python이 둘입니다. ROS 노드와 같은 interpreter인 robot venv는 `/opt/hn-venv/bin/python`으로 부르고, **`activate`하지 않습니다**. `sim`에서 활성화하면 `isaaclab.sh`가 거부합니다. Isaac Lab은 `./isaaclab.sh -p ...`로 씁니다(`deprecated` 경고는 3.1에서 없어진다는 안내일 뿐 정상 동작).

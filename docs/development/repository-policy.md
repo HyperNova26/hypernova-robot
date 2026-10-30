@@ -22,12 +22,16 @@ Git 기록을 가볍게 두고, 파일을 어디에 둘지 매번 고민하지 �
 
 ## 로컬 데이터 위치
 
-2026-10-28 기준으로 PAIR360 원본과 처리 결과는 저장소 최상위의 `data/` 아래에 둡니다. 저장소 옆에 있던 `PAIR360_data/`와 `PAIR360_demo/`를 옮긴 위치이며, `data/` 전체는 `.gitignore`로 Git 추적 대상에서 제외합니다.
+2026-10-30 기준으로 PAIR360 원본과 이전 처리 결과는 저장소 최상위의 `data/` 아래에 둡니다. 저장소 옆에 있던 `PAIR360_data/`와 `PAIR360_demo/`를 옮긴 위치이며, `data/` 전체는 `.gitignore`로 Git 추적 대상에서 제외합니다.
 
 - `data/PAIR360_data/`: 원본 `Calibration/`, `T1_Parking_and_OpenTheater/`, `T3_Parking_and_OpenTheater/`입니다. 원본은 읽기만 합니다.
-- `data/PAIR360_demo/`: 날짜·버전별 변환 결과입니다. 기존 `261026_1200_v0/`, `261026_1800_v1/` 결과를 보존하고 새 실행은 별도 폴더에 씁니다.
+- `data/PAIR360_demo/`: 이전 날짜·버전별 변환 결과입니다. `261026_1200_v0/`, `261026_1800_v1/` 등 기존 결과는 보존합니다.
+- `sim_scenes/MMDD_demo_whole/`: 현재 전체 점군 변환기의 `terrain.usd`, `terrain.xml`, `scene.json` 생성 위치입니다.
+- `sim_scenes/MMDD_demo_disassembled/`: 미구현 분해 스크립트가 준비하는 빈 출력 폴더입니다. 파일이나 하위 폴더를 만들지 않습니다.
 
-저장소 안에 있는 로컬 데이터도 Git에 추가하지 않습니다. PAIR360 실행 명령과 이전 YAML 기본 경로를 재정의하는 `--out` 사용법은 [맵 도구 안내](../../tools/map/README.md)를 봅니다. 컨테이너에서는 코드 mount를 통해 `/workspace/hypernova/data/PAIR360_data/`와 `/workspace/hypernova/data/PAIR360_demo/`로 보입니다. `/data`는 기존 `HN_DATA_DIR`(기본 `~/hypernova-data`) mount를 유지합니다.
+현재 `tools/map/`의 `.sh` 실행기는 같은 이름의 `.py` 구현을 호출합니다. 변환기는 유한한 XYZ 전체를 기본 0.5 m voxel 점유로 내보내며, 정적 USD 삼각형 Mesh와 MuJoCo box geom을 만듭니다. 지면 추출·heightfield 생성·simulator 실행은 수행하지 않습니다. 지면 분리와 후속 차량·기타 객체 분류·분리는 미완료이며, 구현·개선과 실제 PAIR360 데이터 검증은 S-004 후속 작업에서 다룹니다. 기존 quick 산출물은 두 과정의 정확도를 입증하지 않습니다.
+
+저장소 안의 로컬 데이터와 생성 장면도 Git에 추가하지 않습니다. 날짜별 두 출력 폴더는 해당 이름의 `.gitignore` 규칙으로 제외합니다. 날짜는 Asia/Seoul 기준이며 기존 출력 경로는 덮어쓰지 않습니다. 다른 출력 위치는 `--output-root`로 지정합니다. 실행 명령은 [시뮬레이터 장면 변환 안내](../../sim_scenes/README.md)를 봅니다. 이전 [`frame.yaml`](../../sim_scenes/pair360_parking/frame.yaml)과 장면 산출물은 과거 기록으로 보존하며 현재 변환기에서 읽지 않습니다. 컨테이너에서는 코드 mount를 통해 `/workspace/hypernova/data/PAIR360_data/`와 `/workspace/hypernova/data/PAIR360_demo/`로 보입니다. `/data`는 기존 `HN_DATA_DIR`(기본 `~/hypernova-data`) mount를 유지합니다.
 
 ## 대형 파일
 
