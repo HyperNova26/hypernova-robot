@@ -87,6 +87,10 @@ wandb/
 # Local datasets and ad-hoc downloads
 /data/
 
+# Generated map scenes (Asia/Seoul MMDD output directories)
+/sim_scenes/[0-9][0-9][0-9][0-9]_demo_whole/
+/sim_scenes/[0-9][0-9][0-9][0-9]_demo_disassembled/
+
 # CAD / EDA temporary and generated files
 ~$*.SLDPRT
 ~$*.SLDASM
