@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "generated_at": "2026-10-30T06:42:55.500515+00:00",
+  "folder_date_timezone": "Asia/Seoul",
+  "folder_date_mmdd": "1030",
+  "source": {
+    "path": "/home/airlab/Project-HyperNova/hypernova-robot/data/PAIR360_data/T1_Parking_and_OpenTheater/T1_parking_Seq0_demo.bin",
+    "sha256": "f3b22a067521030e4cff035c98b33daa3546cf39ba0271c2940191da8bd73c50",
+    "license": "Inherited from source; license is user supplied and not determined by this converter",
+    "conversion": {
+      "method": "CloudCompare native BIN, temporary input copy",
+      "executable": "/snap/bin/cloudcompare.CloudCompare",
+      "converted_sha256": "f09b81cf894bf422ce638ca93a993af2f06a21e1d50c4c48720a5fde9937f2f5",
+      "coordinate_policy": "CloudCompare PLY export coordinates; no extra global shift or leveling applied"
+    }
+  },
+  "generator": {
+    "script": "tools/map/demo_sim_converter.sh",
+    "sha256": "cec94f674847637f4ff552b27a0804e29c964e29b772a9c12d173452d2c9da65",
+    "arguments": [
+      "data/PAIR360_data/T1_Parking_and_OpenTheater/T1_parking_Seq0_demo.bin"
+    ],
+    "python": "3.12.14",
+    "versions": {
+      "numpy": "1.26.4",
+      "open3d": "0.19.0",
+      "usd-core": "26.11"
+    }
+  },
+  "units": "m",
+  "up_axis": "Z",
+  "axes": {
+    "x": "+X unchanged",
+    "y": "+Y unchanged",
+    "z": "+Z up"
+  },
+  "transform": {
+    "formula": "local = (input - origin_input) * scale",
+    "origin_input": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "scale": 1.0,
+    "input_units_assumption": "m, Z-up before explicit scale"
+  },
+  "voxel_size_m": 0.5,
+  "voxel_convention": "floor(local/voxel_size); lower-inclusive, upper-exclusive cells; no semantic filtering",
+  "bounds": {
+    "input_finite": {
+      "min": [
+        -81.3052749633789,
+        64.42131042480469,
+        -12.098955154418945
+      ],
+      "max": [
+        64.14539337158203,
+        223.58726501464844,
+        38.09461975097656
+      ]
+    },
+    "local_points": {
+      "min": [
+        -81.3052749633789,
+        64.42131042480469,
+        -12.098955154418945
+      ],
+      "max": [
+        64.14539337158203,
+        223.58726501464844,
+        38.09461975097656
+      ]
+    },
+    "voxel_geometry": {
+      "min": [
+        -81.5,
+        64.0,
+        -12.5
+      ],
+      "max": [
+        64.5,
+        224.0,
+        38.5
+      ]
+    }
+  },
+  "counts": {
+    "input_points": 7751328,
+    "finite_points": 7751328,
+    "nonfinite_removed": 0,
+    "occupied_voxels": 350693,
+    "boxes": 75832,
+    "usd_vertices": 412845,
+    "usd_faces": 714730,
+    "usd_boundary_rectangles": 357365
+  },
+  "limits": {
+    "max_geoms": 100000,
+    "max_usd_boundary_faces": 1000000
+  },
+  "files": {
+    "isaac": "terrain.usd",
+    "mujoco": "terrain.xml",
+    "manifest": "scene.json"
+  },
+  "caveats": [
+    "Every finite XYZ record contributes; no ground/car/outlier classification is performed.",
+    "Occupied voxels approximate samples, not measured solid interiors or the exact original surface.",
+    "Voxelization can thicken surfaces and close gaps smaller than the chosen voxel size.",
+    "MuJoCo static boxes preserve occupied-cell union; USD uses its exposed boundary only, with float32 vertex precision.",
+    "No simulator GUI, robot dynamics, or physical validation is implied by successful file generation."
+  ]
+}
