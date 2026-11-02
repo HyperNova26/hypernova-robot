@@ -171,7 +171,7 @@
       "area": "common",
       "milestone": "S0",
       "title": "ML-X·IMU 핸드헬드 마운트",
-      "status": "진행",
+      "status": "완료",
       "due": "2026-10-31",
       "url": "https://app.notion.com/p/3fe45bd87178816ca195fe1f133ca535"
     },
@@ -202,15 +202,6 @@
       "status": "예정",
       "due": "2026-11-08",
       "url": "https://app.notion.com/p/3fe45bd87178813f801beeed99cdba84"
-    },
-    {
-      "id": "G-003",
-      "area": "walk",
-      "milestone": "S1",
-      "title": "액추에이터 설정",
-      "status": "예정",
-      "due": "2026-11-08",
-      "url": "https://app.notion.com/p/40645bd8717881b99a2aca0314c7afa6"
     },
     {
       "id": "S-001",
