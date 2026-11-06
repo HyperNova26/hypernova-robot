@@ -1,0 +1,122 @@
+{
+  "name": "hypernova-main-board",
+  "owner_uuid": "2ddf0c30fcb4b368bb8320e0deca579d",
+  "creator_uuid": "2ddf0c30fcb4b368bb8320e0deca579d",
+  "created_at": "2026-11-05 19:18:19",
+  "updated_at": "2026-11-05 19:18:19",
+  "modifier_uuid": "2ddf0c30fcb4b368bb8320e0deca579d",
+  "content": "",
+  "archive": false,
+  "cbb_project": 0,
+  "thumb": "",
+  "ticket": 1,
+  "g_ticket": 1,
+  "boards": [],
+  "block_symbol_attrs_groups": {},
+  "default_sheet": "",
+  "branch_uuid": "",
+  "pcb_count": 1,
+  "format": "folder",
+  "profile": {
+    "boards": {
+      "35ca1c1726bd7d74": {
+        "uuid": "35ca1c1726bd7d74",
+        "title": "Board1",
+        "zIndex": 1
+      },
+      "aea48b0df5393fbf": {
+        "uuid": "aea48b0df5393fbf",
+        "title": "Board2",
+        "zIndex": 2
+      }
+    },
+    "schematics": {
+      "87feeeccf81a1078": {
+        "uuid": "87feeeccf81a1078",
+        "name": "Schematic1",
+        "board": "35ca1c1726bd7d74",
+        "source": "",
+        "version": "1793932689732",
+        "updateTime": 1793932689732
+      }
+    },
+    "sheets": {
+      "bcd319b3b663030b": {
+        "uuid": "bcd319b3b663030b",
+        "title": "JETSON LINK",
+        "schematic_uuid": "87feeeccf81a1078",
+        "zIndex": 1,
+        "source": "",
+        "version": "1793932679238",
+        "updateTime": 1793932679238
+      },
+      "a6bdf22aa5ab07fe": {
+        "uuid": "a6bdf22aa5ab07fe",
+        "title": "MCU",
+        "schematic_uuid": "87feeeccf81a1078",
+        "zIndex": 1.1666667,
+        "source": "",
+        "version": "1793932681500",
+        "updateTime": 1793932681500
+      },
+      "dab21609d16dd6b7": {
+        "uuid": "dab21609d16dd6b7",
+        "title": "POWER",
+        "schematic_uuid": "87feeeccf81a1078",
+        "zIndex": 1.3333334,
+        "source": "",
+        "version": "1793932683665",
+        "updateTime": 1793932683665
+      },
+      "f59312dbc9dbf5b9": {
+        "uuid": "f59312dbc9dbf5b9",
+        "title": "RS485 1-2",
+        "schematic_uuid": "87feeeccf81a1078",
+        "zIndex": 1.5000001,
+        "source": "",
+        "version": "1793932685707",
+        "updateTime": 1793932685707
+      },
+      "0b9a87610eec9d07": {
+        "uuid": "0b9a87610eec9d07",
+        "title": "RS485 3-4",
+        "schematic_uuid": "87feeeccf81a1078",
+        "zIndex": 1.6666668,
+        "source": "",
+        "version": "1793932687749",
+        "updateTime": 1793932687749
+      },
+      "8cae75ebb2c1feff": {
+        "uuid": "8cae75ebb2c1feff",
+        "title": "SENSORS",
+        "schematic_uuid": "87feeeccf81a1078",
+        "zIndex": 1.8333335,
+        "source": "",
+        "version": "1793932689732",
+        "updateTime": 1793932689732
+      }
+    },
+    "pcbs": {
+      "b011c520da707a0d": {
+        "uuid": "b011c520da707a0d",
+        "title": "PCB1",
+        "board": "35ca1c1726bd7d74",
+        "parent_uuid": "",
+        "source": "",
+        "version": "1793933727939",
+        "updateTime": 1793933727939
+      }
+    },
+    "panels": {},
+    "blockSymbols": {},
+    "owner": {
+      "uuid": "2ddf0c30fcb4b368bb8320e0deca579d"
+    },
+    "simSchematics": {},
+    "simulations": {}
+  },
+  "config": {
+    "defaultSheet": "",
+    "settings": {}
+  }
+}

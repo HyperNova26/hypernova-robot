@@ -1,0 +1,9 @@
+*.eprj3 text eol=lf
+*.epcb2 text eol=lf
+*.esch2 text eol=lf
+*.ecfg text eol=lf
+*.svg text eol=lf
+*.png binary
+
+*.jpg binary
+*.evar text eol=lf

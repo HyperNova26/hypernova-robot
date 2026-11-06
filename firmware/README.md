@@ -12,3 +12,5 @@ target마다 가능하면 이만큼은 남깁니다.
 - watchdog, safe state, fault code
 
 빌드된 binary와 개인 IDE 설정은 커밋하지 않습니다. release에 binary가 필요하면 source commit, toolchain, checksum, 지원 보드 revision을 같이 배포합니다.
+
+메인 제어 보드 Rev A의 [CubeMX 설정](main-control-board/main-control-board.ioc)과 [하드웨어·핀맵·펌웨어 조건](../hardware/main-control-board/README.md)을 함께 관리합니다.

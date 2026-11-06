@@ -1,0 +1,9 @@
+# Manufacturing packages are generated locally and are not versioned.
+manufacturing/
+exports/
+*_backup/
+*.zip
+*.step
+*.stp
+*.obj
+*.mtl

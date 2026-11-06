@@ -1,0 +1,53 @@
+{
+  "verified_at": "2026-11-06T03:06:38.471504+00:00",
+  "drc": {
+    "ms": 16825,
+    "pass": true,
+    "err": null,
+    "res": []
+  },
+  "netlist": {
+    "match": true,
+    "schematic": {
+      "parts": 145,
+      "pins": 480,
+      "nets": 89
+    },
+    "pcb": {
+      "parts": 145,
+      "pins": 480,
+      "nets": 89
+    },
+    "diff": []
+  },
+  "assembly": {
+    "parts": 106,
+    "bom_rows": 43,
+    "cpl_rows": 106,
+    "excluded": 39,
+    "missing_lcsc": 0,
+    "missing_3d_model": 0,
+    "bom_document_matches": true
+  },
+  "geometry_matches_g2": true,
+  "tracks": 1212,
+  "vias": 491,
+  "source_sha256": {
+    "hypernova-main-board.eprj3": "d2b068772b80be996b163a58bd8468c3969ab3fb7f9b89c4d81e54cd0edfbab8",
+    "pcb/PCB1.epcb2": "ef5b4e9da492f104736efbdc7be04cdd6cb53330d8247368410fac8c53bbbf02",
+    "sch/Schematic1/RS485 1-2.esch2": "627da595257dd76c9d1281922fbb5d44d5a464b1dc329fddaa89a1997e08133c",
+    "sch/Schematic1/Schematic1.evar": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sch/Schematic1/POWER.esch2": "0e247342331da8af2376243be636968edec93c2981f2a561f0f868f0bd562f49",
+    "sch/Schematic1/RS485 3-4.esch2": "76f154cd5c0a3a99450d369c67efb7a68ecdfb7353e509a071c71fe775a0a383",
+    "sch/Schematic1/MCU.esch2": "af18f00f0b275dabef2d1c9cc0bae6516e65ee834b43b6e9d1d21e0614c48963",
+    "sch/Schematic1/SENSORS.esch2": "b5bf33aacfafac5d608fde82adab65bd6cfdb33f1124c37fb308994ac239ba4a",
+    "sch/Schematic1/JETSON LINK.esch2": "55bd0246e40355da92f60f0ce829c22d2e4b8d4e1a28697e6faa13be97bcc3de",
+    "sch/Schematic1/Schematic1.ecfg": "99c0c92fe7cc119d75710875e33a190607e8c2997d82b3ad0b205d2ac8aa8751"
+  },
+  "manufacturing_sha256": {
+    "BOM.csv": "4a1bc433f41fcce36a89c19467e23f1bbf98498c9a96202fbf816ea0277de92c",
+    "gerber.zip": "0836e9bb387335b50a5670a573d8e16ece2d0e0890161f253074d9725f7405ff",
+    "CPL.csv": "1def7a35b2ac9a79b2e50b750c4b1bbf1428db8e73d96132a60c83a1d00139c0"
+  },
+  "vendor_review_complete": false
+}
