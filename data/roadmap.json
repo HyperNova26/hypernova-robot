@@ -208,9 +208,12 @@
       "area": "perc",
       "milestone": "S1",
       "title": "ML-X 데이터 수신",
-      "status": "진행",
+      "status": "완료",
       "due": "2026-11-08",
-      "url": "https://app.notion.com/p/3fe45bd87178818e9b96f9de57eb6cdb"
+      "url": "https://app.notion.com/p/3fe45bd87178818e9b96f9de57eb6cdb",
+      "owners": [
+        "김완준"
+      ]
     },
     {
       "id": "S-002",
@@ -219,7 +222,10 @@
       "title": "핸드헬드 FAST-LIO2 실행",
       "status": "진행",
       "due": "2026-11-08",
-      "url": "https://app.notion.com/p/3fe45bd8717881b2b226c42a7417afd8"
+      "url": "https://app.notion.com/p/3fe45bd8717881b2b226c42a7417afd8",
+      "owners": [
+        "김완준"
+      ]
     },
     {
       "id": "S-003",
@@ -304,9 +310,12 @@
       "area": "perc",
       "milestone": "S2",
       "title": "데모 구역 현장 녹화",
-      "status": "예정",
+      "status": "진행",
       "due": "2026-11-15",
-      "url": "https://app.notion.com/p/40645bd87178815c9a28d85d01ea9620"
+      "url": "https://app.notion.com/p/40645bd87178815c9a28d85d01ea9620",
+      "owners": [
+        "김완준"
+      ]
     },
     {
       "id": "G-008",
