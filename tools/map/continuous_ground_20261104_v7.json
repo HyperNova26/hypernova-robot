@@ -1,0 +1,3237 @@
+{
+  "version": "20261104_continuous_v7",
+  "source_sha256": "d4304a3564d2514b93afe2bb8212e26d2d5e7e51ca39074b0fe393f06634fbb3",
+  "purpose": "User-authorized approximate car-free simulation ground; full fill within pavement domain; tree areas excluded",
+  "restore_road": [
+    {
+      "id": "upper_road_curved_low_surface",
+      "polygon_xy": [
+        [
+          -20,
+          181.5
+        ],
+        [
+          -15,
+          181.5
+        ],
+        [
+          -10,
+          182
+        ],
+        [
+          -5,
+          182.5
+        ],
+        [
+          0,
+          182.5
+        ],
+        [
+          5,
+          181.8
+        ],
+        [
+          10,
+          181
+        ],
+        [
+          15,
+          180
+        ],
+        [
+          20,
+          179
+        ],
+        [
+          25,
+          178
+        ],
+        [
+          30,
+          177
+        ],
+        [
+          35,
+          176.2
+        ],
+        [
+          45,
+          176
+        ],
+        [
+          55,
+          176
+        ],
+        [
+          64,
+          177
+        ],
+        [
+          65,
+          187
+        ],
+        [
+          56,
+          187.5
+        ],
+        [
+          47,
+          188
+        ],
+        [
+          38,
+          188.4
+        ],
+        [
+          31,
+          189.5
+        ],
+        [
+          25,
+          190.5
+        ],
+        [
+          19,
+          191.5
+        ],
+        [
+          13,
+          192.4
+        ],
+        [
+          7,
+          193
+        ],
+        [
+          0,
+          193.5
+        ],
+        [
+          -7,
+          194
+        ],
+        [
+          -14,
+          194
+        ],
+        [
+          -20,
+          193
+        ]
+      ],
+      "evidence": "원본 평면도와 Y=183/190 단면에서 이어지는 낮은 도로 표면을 확인했다. 아래 경계는 X 증가에 따라 Y=182에서 176, 반대 경계는 193에서 187 부근으로 휜다. 사진 5·6과의 정확한 일치는 미확정이다."
+    }
+  ],
+  "exclude": [
+    {
+      "id": "trunk_A_284",
+      "polygon_xy": [
+        [
+          -7.8,
+          179.68
+        ],
+        [
+          -5.67,
+          179.68
+        ],
+        [
+          -5.67,
+          181.82
+        ],
+        [
+          -7.8,
+          181.82
+        ]
+      ],
+      "evidence": "원본의 좁은 수직 기둥 후보. 기존 객체 범위에 0.7m 검토 여유를 둔 제외선이며 로봇별 충돌 여유는 아니다. 나뭇잎 전체를 제외하지 않는다."
+    },
+    {
+      "id": "trunk_B_273",
+      "polygon_xy": [
+        [
+          36.07,
+          176.2
+        ],
+        [
+          37.9,
+          176.2
+        ],
+        [
+          37.9,
+          178.12
+        ],
+        [
+          36.07,
+          178.12
+        ]
+      ],
+      "evidence": "경사로 아래쪽 가장자리의 좁은 기둥 후보. 상부 나뭇잎과 바닥을 분리하고 기둥 주변만 제외한다."
+    },
+    {
+      "id": "trunk_C_304",
+      "polygon_xy": [
+        [
+          60.86,
+          185.13
+        ],
+        [
+          63.21,
+          185.13
+        ],
+        [
+          63.21,
+          188.03
+        ],
+        [
+          60.86,
+          188.03
+        ]
+      ],
+      "evidence": "경사로 높은 끝의 기둥 후보 주변. 경사로 끝을 가로로 자르는 기준으로 사용하지 않는다."
+    },
+    {
+      "id": "upper_road_south_tree_line_outside",
+      "polygon_xy": [
+        [
+          -20,
+          175
+        ],
+        [
+          65,
+          175
+        ],
+        [
+          64,
+          177
+        ],
+        [
+          55,
+          176
+        ],
+        [
+          45,
+          176
+        ],
+        [
+          35,
+          176.2
+        ],
+        [
+          30,
+          177
+        ],
+        [
+          25,
+          178
+        ],
+        [
+          20,
+          179
+        ],
+        [
+          15,
+          180
+        ],
+        [
+          10,
+          181
+        ],
+        [
+          5,
+          181.8
+        ],
+        [
+          0,
+          182.5
+        ],
+        [
+          -5,
+          182.5
+        ],
+        [
+          -10,
+          182
+        ],
+        [
+          -15,
+          181.5
+        ],
+        [
+          -20,
+          181.5
+        ]
+      ],
+      "evidence": "사용자가 경사로 시작부터 끝까지 옆으로 늘어선 나무줄의 뒤를 제외하라고 확인했다. 원본 저면·연석이 이어지는 남쪽 경계의 바깥을 제외한다. 수관 외곽으로 도로 폭을 정하지 않는다."
+    },
+    {
+      "id": "upper_road_north_tree_line_outside",
+      "polygon_xy": [
+        [
+          -20,
+          193
+        ],
+        [
+          -14,
+          194
+        ],
+        [
+          -7,
+          194
+        ],
+        [
+          0,
+          193.5
+        ],
+        [
+          7,
+          193
+        ],
+        [
+          13,
+          192.4
+        ],
+        [
+          19,
+          191.5
+        ],
+        [
+          25,
+          190.5
+        ],
+        [
+          31,
+          189.5
+        ],
+        [
+          38,
+          188.4
+        ],
+        [
+          47,
+          188
+        ],
+        [
+          56,
+          187.5
+        ],
+        [
+          65,
+          187
+        ],
+        [
+          65,
+          198
+        ],
+        [
+          35,
+          202
+        ],
+        [
+          -20,
+          204
+        ]
+      ],
+      "evidence": "경사로 반대편도 낮은 도로 표면이 끝나는 곡선을 따라 제외했다. 기둥선 밖 높은 수목 구역을 닫고, 도로 쪽 나뭇잎 아래 실측 저면은 유지한다."
+    },
+    {
+      "polygon_xy": [
+        [
+          -17.725,
+          66.855
+        ],
+        [
+          -18.252,
+          68.128
+        ],
+        [
+          -19.525,
+          68.655
+        ],
+        [
+          -20.798,
+          68.128
+        ],
+        [
+          -21.325,
+          66.855
+        ],
+        [
+          -20.798,
+          65.582
+        ],
+        [
+          -19.525,
+          65.055
+        ],
+        [
+          -18.252,
+          65.582
+        ]
+      ],
+      "evidence": "Raw trunk and high returns verified in prior object review; approximate footprint margin, not robot-specific clearance",
+      "id": "T09"
+    },
+    {
+      "polygon_xy": [
+        [
+          -19.76,
+          77.735
+        ],
+        [
+          -20.199,
+          78.796
+        ],
+        [
+          -21.26,
+          79.235
+        ],
+        [
+          -22.321,
+          78.796
+        ],
+        [
+          -22.76,
+          77.735
+        ],
+        [
+          -22.321,
+          76.674
+        ],
+        [
+          -21.26,
+          76.235
+        ],
+        [
+          -20.199,
+          76.674
+        ]
+      ],
+      "evidence": "Raw trunk and high returns verified in prior object review; approximate footprint margin, not robot-specific clearance",
+      "id": "T39"
+    },
+    {
+      "polygon_xy": [
+        [
+          -21.25,
+          108.26
+        ],
+        [
+          -21.689,
+          109.321
+        ],
+        [
+          -22.75,
+          109.76
+        ],
+        [
+          -23.811,
+          109.321
+        ],
+        [
+          -24.25,
+          108.26
+        ],
+        [
+          -23.811,
+          107.199
+        ],
+        [
+          -22.75,
+          106.76
+        ],
+        [
+          -21.689,
+          107.199
+        ]
+      ],
+      "evidence": "Raw trunk and high returns verified in prior object review; approximate footprint margin, not robot-specific clearance",
+      "id": "T130"
+    }
+  ],
+  "vehicles": [
+    {
+      "id": "V19",
+      "polygon_xy": [
+        [
+          -23.5,
+          65.5
+        ],
+        [
+          -20.5,
+          65.5
+        ],
+        [
+          -20.5,
+          69.5
+        ],
+        [
+          -23.5,
+          69.5
+        ]
+      ],
+      "z_bounds": [
+        0.18,
+        2.79
+      ],
+      "evidence": "parking_atlas_01: compact raised body."
+    },
+    {
+      "id": "V20",
+      "polygon_xy": [
+        [
+          -28,
+          67.5
+        ],
+        [
+          -23,
+          67.5
+        ],
+        [
+          -23,
+          71
+        ],
+        [
+          -28,
+          71
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.12
+      ],
+      "evidence": "parking_atlas_01: compact raised body; lower clip excludes local floor."
+    },
+    {
+      "id": "V22",
+      "polygon_xy": [
+        [
+          -61,
+          101
+        ],
+        [
+          -56,
+          101
+        ],
+        [
+          -56,
+          104.5
+        ],
+        [
+          -61,
+          104.5
+        ]
+      ],
+      "z_bounds": [
+        0.77,
+        2.58
+      ],
+      "evidence": "parking_atlas_02: compact body in parking lane."
+    },
+    {
+      "id": "V23",
+      "polygon_xy": [
+        [
+          -63.5,
+          177
+        ],
+        [
+          -59,
+          177
+        ],
+        [
+          -59,
+          180.5
+        ],
+        [
+          -63.5,
+          180.5
+        ]
+      ],
+      "z_bounds": [
+        2.07,
+        4.3
+      ],
+      "evidence": "parking_atlas_05: compact body; not bus-labelled."
+    },
+    {
+      "id": "V24",
+      "polygon_xy": [
+        [
+          -44.5,
+          190.5
+        ],
+        [
+          -39,
+          190.5
+        ],
+        [
+          -39,
+          194.5
+        ],
+        [
+          -44.5,
+          194.5
+        ]
+      ],
+      "z_bounds": [
+        1.81,
+        2.8
+      ],
+      "evidence": "parking_atlas_05: compact body."
+    },
+    {
+      "id": "V37_75",
+      "polygon_xy": [
+        [
+          -39.5,
+          74.7
+        ],
+        [
+          -34.5,
+          74.7
+        ],
+        [
+          -34.5,
+          76.8
+        ],
+        [
+          -39.5,
+          76.8
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.6
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y75: continuous low body; lower clip is above floor."
+    },
+    {
+      "id": "V37_78",
+      "polygon_xy": [
+        [
+          -39.5,
+          77.2
+        ],
+        [
+          -34.5,
+          77.2
+        ],
+        [
+          -34.5,
+          79.4
+        ],
+        [
+          -39.5,
+          79.4
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y78 low roof; lower clip is above floor."
+    },
+    {
+      "id": "V37_82",
+      "polygon_xy": [
+        [
+          -39.5,
+          81.7
+        ],
+        [
+          -34.5,
+          81.7
+        ],
+        [
+          -34.5,
+          83.5
+        ],
+        [
+          -39.5,
+          83.5
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.6
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y82 low roof; lower clip is above floor."
+    },
+    {
+      "id": "V37_85",
+      "polygon_xy": [
+        [
+          -39.5,
+          84.1
+        ],
+        [
+          -34.5,
+          84.1
+        ],
+        [
+          -34.5,
+          86.3
+        ],
+        [
+          -39.5,
+          86.3
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.8
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y85 low roof; lower clip is above floor."
+    },
+    {
+      "id": "V37_89",
+      "polygon_xy": [
+        [
+          -39.5,
+          87.6
+        ],
+        [
+          -34.5,
+          87.6
+        ],
+        [
+          -34.5,
+          88.7
+        ],
+        [
+          -39.5,
+          88.7
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.8
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y89 low body; lower clip is above floor."
+    },
+    {
+      "id": "V37_94",
+      "polygon_xy": [
+        [
+          -39.5,
+          93.1
+        ],
+        [
+          -34.5,
+          93.1
+        ],
+        [
+          -34.5,
+          95.5
+        ],
+        [
+          -39.5,
+          95.5
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        2.2
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y94 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_97",
+      "polygon_xy": [
+        [
+          -39.5,
+          95.7
+        ],
+        [
+          -34.5,
+          95.7
+        ],
+        [
+          -34.5,
+          97.7
+        ],
+        [
+          -39.5,
+          97.7
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.6
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y97 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_101",
+      "polygon_xy": [
+        [
+          -39.5,
+          101.7
+        ],
+        [
+          -34.5,
+          101.7
+        ],
+        [
+          -34.5,
+          102.5
+        ],
+        [
+          -39.5,
+          102.5
+        ]
+      ],
+      "z_bounds": [
+        0.2,
+        1.7
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y101: lower clip is above floor."
+    },
+    {
+      "id": "V37_105",
+      "polygon_xy": [
+        [
+          -39.5,
+          104.7
+        ],
+        [
+          -34.5,
+          104.7
+        ],
+        [
+          -34.5,
+          106.5
+        ],
+        [
+          -39.5,
+          106.5
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        2.0
+      ],
+      "evidence": "dense_parking_profiles_02 x37_y105 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_108",
+      "polygon_xy": [
+        [
+          -39.5,
+          107.2
+        ],
+        [
+          -34.5,
+          107.2
+        ],
+        [
+          -34.5,
+          109.3
+        ],
+        [
+          -39.5,
+          109.3
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.6
+      ],
+      "evidence": "dense_parking_profiles_02 x37_y108 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_110",
+      "polygon_xy": [
+        [
+          -39.5,
+          109.4
+        ],
+        [
+          -34.5,
+          109.4
+        ],
+        [
+          -34.5,
+          111.4
+        ],
+        [
+          -39.5,
+          111.4
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_02 x37_y110 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_113",
+      "polygon_xy": [
+        [
+          -39.5,
+          112
+        ],
+        [
+          -34.5,
+          112
+        ],
+        [
+          -34.5,
+          114
+        ],
+        [
+          -39.5,
+          114
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_02 x37_y113 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_115",
+      "polygon_xy": [
+        [
+          -39.5,
+          114.3
+        ],
+        [
+          -34.5,
+          114.3
+        ],
+        [
+          -34.5,
+          116.4
+        ],
+        [
+          -39.5,
+          116.4
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_02 x37_y115 low body; lower clip is above floor."
+    },
+    {
+      "id": "V26_75",
+      "polygon_xy": [
+        [
+          -28.5,
+          75.1
+        ],
+        [
+          -23.5,
+          75.1
+        ],
+        [
+          -23.5,
+          76.7
+        ],
+        [
+          -28.5,
+          76.7
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_02 x26_y75: compact low body; lower clip is above floor."
+    },
+    {
+      "id": "V26_78",
+      "polygon_xy": [
+        [
+          -28.5,
+          77.1
+        ],
+        [
+          -23.5,
+          77.1
+        ],
+        [
+          -23.5,
+          79.4
+        ],
+        [
+          -28.5,
+          79.4
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_02 x26_y78: lower clip excludes floor and upper return."
+    },
+    {
+      "id": "V26_82",
+      "polygon_xy": [
+        [
+          -28.5,
+          81.7
+        ],
+        [
+          -23.5,
+          81.7
+        ],
+        [
+          -23.5,
+          83.5
+        ],
+        [
+          -28.5,
+          83.5
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.4
+      ],
+      "evidence": "dense_parking_profiles_02 x26_y82: lower clip is above floor."
+    },
+    {
+      "id": "V26_85",
+      "polygon_xy": [
+        [
+          -27.5,
+          84.8
+        ],
+        [
+          -23.5,
+          84.8
+        ],
+        [
+          -23.5,
+          86.5
+        ],
+        [
+          -27.5,
+          86.5
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_03 x26_y85: lower clip excludes floor."
+    },
+    {
+      "id": "V26_89",
+      "polygon_xy": [
+        [
+          -27.8,
+          89.4
+        ],
+        [
+          -24.2,
+          89.4
+        ],
+        [
+          -24.2,
+          90.4
+        ],
+        [
+          -27.8,
+          90.4
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.3
+      ],
+      "evidence": "dense_parking_profiles_03 x26_y89: lower clip excludes floor and east high returns."
+    },
+    {
+      "id": "V26_94",
+      "polygon_xy": [
+        [
+          -28.5,
+          93.7
+        ],
+        [
+          -23.5,
+          93.7
+        ],
+        [
+          -23.5,
+          95.5
+        ],
+        [
+          -28.5,
+          95.5
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_03 x26_y94: lower clip is above floor."
+    },
+    {
+      "id": "V26_97",
+      "polygon_xy": [
+        [
+          -28.5,
+          95.6
+        ],
+        [
+          -23.5,
+          95.6
+        ],
+        [
+          -23.5,
+          98.3
+        ],
+        [
+          -28.5,
+          98.3
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_03 x26_y97: lower clip excludes floor and tall eastern returns."
+    },
+    {
+      "id": "V26_101",
+      "polygon_xy": [
+        [
+          -28.5,
+          100.5
+        ],
+        [
+          -23.5,
+          100.5
+        ],
+        [
+          -23.5,
+          102.5
+        ],
+        [
+          -28.5,
+          102.5
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.4
+      ],
+      "evidence": "dense_parking_profiles_03 x26_y101: lower clip is above floor."
+    },
+    {
+      "polygon_xy": [
+        [
+          -81,
+          211.5
+        ],
+        [
+          -76,
+          211.5
+        ],
+        [
+          -76,
+          223.5
+        ],
+        [
+          -81,
+          223.5
+        ]
+      ],
+      "id": "B1"
+    },
+    {
+      "polygon_xy": [
+        [
+          -77.5,
+          211.5
+        ],
+        [
+          -72,
+          211.5
+        ],
+        [
+          -72,
+          223.5
+        ],
+        [
+          -77.5,
+          223.5
+        ]
+      ],
+      "id": "B2"
+    },
+    {
+      "polygon_xy": [
+        [
+          -73,
+          211.5
+        ],
+        [
+          -65.5,
+          211.5
+        ],
+        [
+          -65.5,
+          223.5
+        ],
+        [
+          -73,
+          223.5
+        ]
+      ],
+      "id": "B3"
+    },
+    {
+      "id": "v7_north_large_vehicle_1",
+      "polygon_xy": [
+        [
+          -81,
+          211.5
+        ],
+        [
+          -65,
+          211.5
+        ],
+        [
+          -65,
+          223.5
+        ],
+        [
+          -81,
+          223.5
+        ]
+      ],
+      "evidence": "Raw vehicle-body YZ profile; exclude all points in footprint as terrain-height supports, interpolate from adjoining pavement."
+    },
+    {
+      "id": "v7_north_large_vehicle_2",
+      "polygon_xy": [
+        [
+          -47,
+          211.5
+        ],
+        [
+          -36,
+          211.5
+        ],
+        [
+          -36,
+          223.5
+        ],
+        [
+          -47,
+          223.5
+        ]
+      ],
+      "evidence": "Raw vehicle-body YZ profile; exclude all points in footprint as terrain-height supports, interpolate from adjoining pavement."
+    },
+    {
+      "id": "v7_north_large_vehicle_3",
+      "polygon_xy": [
+        [
+          -31,
+          211.5
+        ],
+        [
+          -22,
+          211.5
+        ],
+        [
+          -22,
+          223.5
+        ],
+        [
+          -31,
+          223.5
+        ]
+      ],
+      "evidence": "Raw vehicle-body YZ profile; exclude all points in footprint as terrain-height supports, interpolate from adjoining pavement."
+    }
+  ],
+  "extend_ground": [
+    {
+      "id": "northwest_bus_floor",
+      "evidence": "User identifies three buses at this edge; inspected raw top and height sections; approximate car-free pavement design",
+      "polygon_xy": [
+        [
+          -81,
+          210
+        ],
+        [
+          -63,
+          210
+        ],
+        [
+          -63,
+          223.5
+        ],
+        [
+          -81,
+          223.5
+        ]
+      ]
+    },
+    {
+      "id": "v7_north_vehicle_pavement_band",
+      "polygon_xy": [
+        [
+          -81,
+          210
+        ],
+        [
+          -16,
+          210
+        ],
+        [
+          -16,
+          223.5
+        ],
+        [
+          -81,
+          223.5
+        ]
+      ],
+      "evidence": "Raw top view and YZ sections at X=-76,-58,-42,-26 show continuous pavement between three large vehicle bodies; previous narrow northwest extension missed two bodies and adjoining pavement."
+    },
+    {
+      "id": "v7_east_low_road_corridor",
+      "polygon_xy": [
+        [
+          -16.25,
+          64
+        ],
+        [
+          -10.25,
+          64
+        ],
+        [
+          -10.25,
+          120
+        ],
+        [
+          -10.75,
+          145
+        ],
+        [
+          -11.5,
+          175
+        ],
+        [
+          -16.25,
+          175
+        ]
+      ],
+      "evidence": "Reviewed raw XZ sections: low continuous returns east of old X=-16 edge; boundary stops before tall dense vegetation/structural returns. Supersedes unreviewed -5.5 candidate in diagnostic JSON."
+    }
+  ],
+  "force_allow": [
+    {
+      "id": "V19",
+      "polygon_xy": [
+        [
+          -23.5,
+          65.5
+        ],
+        [
+          -20.5,
+          65.5
+        ],
+        [
+          -20.5,
+          69.5
+        ],
+        [
+          -23.5,
+          69.5
+        ]
+      ],
+      "z_bounds": [
+        0.18,
+        2.79
+      ],
+      "evidence": "parking_atlas_01: compact raised body."
+    },
+    {
+      "id": "V20",
+      "polygon_xy": [
+        [
+          -28,
+          67.5
+        ],
+        [
+          -23,
+          67.5
+        ],
+        [
+          -23,
+          71
+        ],
+        [
+          -28,
+          71
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.12
+      ],
+      "evidence": "parking_atlas_01: compact raised body; lower clip excludes local floor."
+    },
+    {
+      "id": "V22",
+      "polygon_xy": [
+        [
+          -61,
+          101
+        ],
+        [
+          -56,
+          101
+        ],
+        [
+          -56,
+          104.5
+        ],
+        [
+          -61,
+          104.5
+        ]
+      ],
+      "z_bounds": [
+        0.77,
+        2.58
+      ],
+      "evidence": "parking_atlas_02: compact body in parking lane."
+    },
+    {
+      "id": "V23",
+      "polygon_xy": [
+        [
+          -63.5,
+          177
+        ],
+        [
+          -59,
+          177
+        ],
+        [
+          -59,
+          180.5
+        ],
+        [
+          -63.5,
+          180.5
+        ]
+      ],
+      "z_bounds": [
+        2.07,
+        4.3
+      ],
+      "evidence": "parking_atlas_05: compact body; not bus-labelled."
+    },
+    {
+      "id": "V24",
+      "polygon_xy": [
+        [
+          -44.5,
+          190.5
+        ],
+        [
+          -39,
+          190.5
+        ],
+        [
+          -39,
+          194.5
+        ],
+        [
+          -44.5,
+          194.5
+        ]
+      ],
+      "z_bounds": [
+        1.81,
+        2.8
+      ],
+      "evidence": "parking_atlas_05: compact body."
+    },
+    {
+      "id": "V37_75",
+      "polygon_xy": [
+        [
+          -39.5,
+          74.7
+        ],
+        [
+          -34.5,
+          74.7
+        ],
+        [
+          -34.5,
+          76.8
+        ],
+        [
+          -39.5,
+          76.8
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.6
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y75: continuous low body; lower clip is above floor."
+    },
+    {
+      "id": "V37_78",
+      "polygon_xy": [
+        [
+          -39.5,
+          77.2
+        ],
+        [
+          -34.5,
+          77.2
+        ],
+        [
+          -34.5,
+          79.4
+        ],
+        [
+          -39.5,
+          79.4
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y78 low roof; lower clip is above floor."
+    },
+    {
+      "id": "V37_82",
+      "polygon_xy": [
+        [
+          -39.5,
+          81.7
+        ],
+        [
+          -34.5,
+          81.7
+        ],
+        [
+          -34.5,
+          83.5
+        ],
+        [
+          -39.5,
+          83.5
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.6
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y82 low roof; lower clip is above floor."
+    },
+    {
+      "id": "V37_85",
+      "polygon_xy": [
+        [
+          -39.5,
+          84.1
+        ],
+        [
+          -34.5,
+          84.1
+        ],
+        [
+          -34.5,
+          86.3
+        ],
+        [
+          -39.5,
+          86.3
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.8
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y85 low roof; lower clip is above floor."
+    },
+    {
+      "id": "V37_89",
+      "polygon_xy": [
+        [
+          -39.5,
+          87.6
+        ],
+        [
+          -34.5,
+          87.6
+        ],
+        [
+          -34.5,
+          88.7
+        ],
+        [
+          -39.5,
+          88.7
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.8
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y89 low body; lower clip is above floor."
+    },
+    {
+      "id": "V37_94",
+      "polygon_xy": [
+        [
+          -39.5,
+          93.1
+        ],
+        [
+          -34.5,
+          93.1
+        ],
+        [
+          -34.5,
+          95.5
+        ],
+        [
+          -39.5,
+          95.5
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        2.2
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y94 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_97",
+      "polygon_xy": [
+        [
+          -39.5,
+          95.7
+        ],
+        [
+          -34.5,
+          95.7
+        ],
+        [
+          -34.5,
+          97.7
+        ],
+        [
+          -39.5,
+          97.7
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.6
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y97 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_101",
+      "polygon_xy": [
+        [
+          -39.5,
+          101.7
+        ],
+        [
+          -34.5,
+          101.7
+        ],
+        [
+          -34.5,
+          102.5
+        ],
+        [
+          -39.5,
+          102.5
+        ]
+      ],
+      "z_bounds": [
+        0.2,
+        1.7
+      ],
+      "evidence": "dense_parking_profiles_01 x37_y101: lower clip is above floor."
+    },
+    {
+      "id": "V37_105",
+      "polygon_xy": [
+        [
+          -39.5,
+          104.7
+        ],
+        [
+          -34.5,
+          104.7
+        ],
+        [
+          -34.5,
+          106.5
+        ],
+        [
+          -39.5,
+          106.5
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        2.0
+      ],
+      "evidence": "dense_parking_profiles_02 x37_y105 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_108",
+      "polygon_xy": [
+        [
+          -39.5,
+          107.2
+        ],
+        [
+          -34.5,
+          107.2
+        ],
+        [
+          -34.5,
+          109.3
+        ],
+        [
+          -39.5,
+          109.3
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.6
+      ],
+      "evidence": "dense_parking_profiles_02 x37_y108 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_110",
+      "polygon_xy": [
+        [
+          -39.5,
+          109.4
+        ],
+        [
+          -34.5,
+          109.4
+        ],
+        [
+          -34.5,
+          111.4
+        ],
+        [
+          -39.5,
+          111.4
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_02 x37_y110 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_113",
+      "polygon_xy": [
+        [
+          -39.5,
+          112
+        ],
+        [
+          -34.5,
+          112
+        ],
+        [
+          -34.5,
+          114
+        ],
+        [
+          -39.5,
+          114
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_02 x37_y113 compact body; lower clip is above floor."
+    },
+    {
+      "id": "V37_115",
+      "polygon_xy": [
+        [
+          -39.5,
+          114.3
+        ],
+        [
+          -34.5,
+          114.3
+        ],
+        [
+          -34.5,
+          116.4
+        ],
+        [
+          -39.5,
+          116.4
+        ]
+      ],
+      "z_bounds": [
+        0.15,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_02 x37_y115 low body; lower clip is above floor."
+    },
+    {
+      "id": "V26_75",
+      "polygon_xy": [
+        [
+          -28.5,
+          75.1
+        ],
+        [
+          -23.5,
+          75.1
+        ],
+        [
+          -23.5,
+          76.7
+        ],
+        [
+          -28.5,
+          76.7
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_02 x26_y75: compact low body; lower clip is above floor."
+    },
+    {
+      "id": "V26_78",
+      "polygon_xy": [
+        [
+          -28.5,
+          77.1
+        ],
+        [
+          -23.5,
+          77.1
+        ],
+        [
+          -23.5,
+          79.4
+        ],
+        [
+          -28.5,
+          79.4
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_02 x26_y78: lower clip excludes floor and upper return."
+    },
+    {
+      "id": "V26_82",
+      "polygon_xy": [
+        [
+          -28.5,
+          81.7
+        ],
+        [
+          -23.5,
+          81.7
+        ],
+        [
+          -23.5,
+          83.5
+        ],
+        [
+          -28.5,
+          83.5
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.4
+      ],
+      "evidence": "dense_parking_profiles_02 x26_y82: lower clip is above floor."
+    },
+    {
+      "id": "V26_85",
+      "polygon_xy": [
+        [
+          -27.5,
+          84.8
+        ],
+        [
+          -23.5,
+          84.8
+        ],
+        [
+          -23.5,
+          86.5
+        ],
+        [
+          -27.5,
+          86.5
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_03 x26_y85: lower clip excludes floor."
+    },
+    {
+      "id": "V26_89",
+      "polygon_xy": [
+        [
+          -27.8,
+          89.4
+        ],
+        [
+          -24.2,
+          89.4
+        ],
+        [
+          -24.2,
+          90.4
+        ],
+        [
+          -27.8,
+          90.4
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.3
+      ],
+      "evidence": "dense_parking_profiles_03 x26_y89: lower clip excludes floor and east high returns."
+    },
+    {
+      "id": "V26_94",
+      "polygon_xy": [
+        [
+          -28.5,
+          93.7
+        ],
+        [
+          -23.5,
+          93.7
+        ],
+        [
+          -23.5,
+          95.5
+        ],
+        [
+          -28.5,
+          95.5
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_03 x26_y94: lower clip is above floor."
+    },
+    {
+      "id": "V26_97",
+      "polygon_xy": [
+        [
+          -28.5,
+          95.6
+        ],
+        [
+          -23.5,
+          95.6
+        ],
+        [
+          -23.5,
+          98.3
+        ],
+        [
+          -28.5,
+          98.3
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.5
+      ],
+      "evidence": "dense_parking_profiles_03 x26_y97: lower clip excludes floor and tall eastern returns."
+    },
+    {
+      "id": "V26_101",
+      "polygon_xy": [
+        [
+          -28.5,
+          100.5
+        ],
+        [
+          -23.5,
+          100.5
+        ],
+        [
+          -23.5,
+          102.5
+        ],
+        [
+          -28.5,
+          102.5
+        ]
+      ],
+      "z_bounds": [
+        -0.1,
+        1.4
+      ],
+      "evidence": "dense_parking_profiles_03 x26_y101: lower clip is above floor."
+    },
+    {
+      "id": "northwest_bus_floor",
+      "evidence": "User identifies three buses at this edge; inspected raw top and height sections; approximate car-free pavement design",
+      "polygon_xy": [
+        [
+          -81,
+          210
+        ],
+        [
+          -63,
+          210
+        ],
+        [
+          -63,
+          223.5
+        ],
+        [
+          -81,
+          223.5
+        ]
+      ]
+    },
+    {
+      "id": "v7_north_vehicle_pavement_band",
+      "polygon_xy": [
+        [
+          -81,
+          210
+        ],
+        [
+          -16,
+          210
+        ],
+        [
+          -16,
+          223.5
+        ],
+        [
+          -81,
+          223.5
+        ]
+      ],
+      "evidence": "Raw top view and YZ sections at X=-76,-58,-42,-26 show continuous pavement between three large vehicle bodies; previous narrow northwest extension missed two bodies and adjoining pavement."
+    },
+    {
+      "id": "v7_east_low_road_corridor",
+      "polygon_xy": [
+        [
+          -16.25,
+          64
+        ],
+        [
+          -10.25,
+          64
+        ],
+        [
+          -10.25,
+          120
+        ],
+        [
+          -10.75,
+          145
+        ],
+        [
+          -11.5,
+          175
+        ],
+        [
+          -16.25,
+          175
+        ]
+      ],
+      "evidence": "Reviewed raw XZ sections: low continuous returns east of old X=-16 edge; boundary stops before tall dense vegetation/structural returns. Supersedes unreviewed -5.5 candidate in diagnostic JSON."
+    }
+  ],
+  "display_colour": "one blue ground layer",
+  "provenance": "Observed and interpolated heights remain distinguishable in ground_surface.npz",
+  "bus_evidence": "data/PAIR360_demo/20261104_bus_extent_v5/north_edge_bus_candidates.png",
+  "frame": "raw PAIR360 XYZ metres, no rotation or origin transform",
+  "review_policy": "Approximate shape acceptable per user. Vehicle identities use user labels and geometric manual review; no trained semantic ground truth is claimed.",
+  "parent_version": "20261104_continuous_v6",
+  "tree_exclusion": [
+    {
+      "id": "v7_reviewed_tree_01",
+      "polygon_xy": [
+        [
+          -22.0,
+          65.0
+        ],
+        [
+          -21.5,
+          65.0
+        ],
+        [
+          -19.0,
+          66.0
+        ],
+        [
+          -18.5,
+          66.5
+        ],
+        [
+          -18.0,
+          67.5
+        ],
+        [
+          -18.0,
+          68.5
+        ],
+        [
+          -18.5,
+          69.0
+        ],
+        [
+          -22.0,
+          69.0
+        ],
+        [
+          -22.5,
+          68.5
+        ],
+        [
+          -23.5,
+          67.0
+        ],
+        [
+          -23.5,
+          66.0
+        ],
+        [
+          -23.0,
+          65.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_03",
+      "polygon_xy": [
+        [
+          -20.5,
+          76.5
+        ],
+        [
+          -20.0,
+          82.0
+        ],
+        [
+          -20.0,
+          86.5
+        ],
+        [
+          -20.5,
+          87.0
+        ],
+        [
+          -21.0,
+          87.0
+        ],
+        [
+          -23.5,
+          84.5
+        ],
+        [
+          -24.5,
+          78.5
+        ],
+        [
+          -24.5,
+          77.0
+        ],
+        [
+          -24.0,
+          76.5
+        ],
+        [
+          -22.5,
+          75.5
+        ],
+        [
+          -21.5,
+          75.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_06",
+      "polygon_xy": [
+        [
+          -24.0,
+          89.5
+        ],
+        [
+          -22.0,
+          87.5
+        ],
+        [
+          -21.5,
+          87.5
+        ],
+        [
+          -20.0,
+          89.0
+        ],
+        [
+          -19.5,
+          91.5
+        ],
+        [
+          -19.5,
+          92.0
+        ],
+        [
+          -20.0,
+          92.5
+        ],
+        [
+          -22.0,
+          93.0
+        ],
+        [
+          -22.5,
+          93.0
+        ],
+        [
+          -24.0,
+          91.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_08",
+      "polygon_xy": [
+        [
+          -23.0,
+          101.0
+        ],
+        [
+          -21.5,
+          99.5
+        ],
+        [
+          -20.5,
+          99.5
+        ],
+        [
+          -18.0,
+          102.0
+        ],
+        [
+          -18.0,
+          106.0
+        ],
+        [
+          -20.0,
+          116.5
+        ],
+        [
+          -20.5,
+          117.0
+        ],
+        [
+          -23.0,
+          118.5
+        ],
+        [
+          -23.5,
+          118.5
+        ],
+        [
+          -24.5,
+          118.0
+        ],
+        [
+          -25.0,
+          117.5
+        ],
+        [
+          -26.5,
+          109.0
+        ],
+        [
+          -26.5,
+          108.5
+        ],
+        [
+          -26.0,
+          106.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_09",
+      "polygon_xy": [
+        [
+          -75.0,
+          120.5
+        ],
+        [
+          -74.5,
+          118.5
+        ],
+        [
+          -74.0,
+          118.0
+        ],
+        [
+          -73.0,
+          117.5
+        ],
+        [
+          -70.5,
+          117.5
+        ],
+        [
+          -41.5,
+          119.0
+        ],
+        [
+          -22.5,
+          120.5
+        ],
+        [
+          -20.5,
+          121.5
+        ],
+        [
+          -20.0,
+          122.0
+        ],
+        [
+          -19.5,
+          125.5
+        ],
+        [
+          -19.5,
+          128.0
+        ],
+        [
+          -20.0,
+          128.5
+        ],
+        [
+          -21.0,
+          128.5
+        ],
+        [
+          -73.0,
+          124.5
+        ],
+        [
+          -74.5,
+          123.0
+        ],
+        [
+          -75.0,
+          122.0
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_11",
+      "polygon_xy": [
+        [
+          -25.5,
+          142.5
+        ],
+        [
+          -23.5,
+          135.0
+        ],
+        [
+          -21.5,
+          129.5
+        ],
+        [
+          -21.0,
+          129.0
+        ],
+        [
+          -20.0,
+          129.0
+        ],
+        [
+          -19.5,
+          129.5
+        ],
+        [
+          -18.5,
+          133.0
+        ],
+        [
+          -18.0,
+          138.5
+        ],
+        [
+          -18.0,
+          139.0
+        ],
+        [
+          -19.5,
+          145.0
+        ],
+        [
+          -20.0,
+          146.0
+        ],
+        [
+          -20.5,
+          146.5
+        ],
+        [
+          -24.5,
+          147.0
+        ],
+        [
+          -25.0,
+          147.0
+        ],
+        [
+          -25.5,
+          146.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_14",
+      "polygon_xy": [
+        [
+          -74.5,
+          146.5
+        ],
+        [
+          -74.5,
+          147.0
+        ],
+        [
+          -75.0,
+          150.5
+        ],
+        [
+          -76.0,
+          151.5
+        ],
+        [
+          -78.5,
+          151.5
+        ],
+        [
+          -79.5,
+          150.5
+        ],
+        [
+          -81.0,
+          148.0
+        ],
+        [
+          -81.0,
+          147.0
+        ],
+        [
+          -80.0,
+          146.0
+        ],
+        [
+          -78.0,
+          145.0
+        ],
+        [
+          -77.0,
+          145.0
+        ],
+        [
+          -75.0,
+          146.0
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_15",
+      "polygon_xy": [
+        [
+          -37.0,
+          146.0
+        ],
+        [
+          -34.5,
+          146.0
+        ],
+        [
+          -22.5,
+          148.5
+        ],
+        [
+          -22.0,
+          149.0
+        ],
+        [
+          -21.5,
+          150.0
+        ],
+        [
+          -21.5,
+          152.0
+        ],
+        [
+          -22.0,
+          152.5
+        ],
+        [
+          -26.5,
+          155.0
+        ],
+        [
+          -35.0,
+          155.5
+        ],
+        [
+          -36.5,
+          155.5
+        ],
+        [
+          -42.0,
+          150.5
+        ],
+        [
+          -42.5,
+          150.0
+        ],
+        [
+          -42.5,
+          149.5
+        ],
+        [
+          -41.5,
+          148.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_16",
+      "polygon_xy": [
+        [
+          -71.0,
+          147.0
+        ],
+        [
+          -67.0,
+          146.5
+        ],
+        [
+          -59.0,
+          146.5
+        ],
+        [
+          -58.5,
+          147.0
+        ],
+        [
+          -57.5,
+          148.5
+        ],
+        [
+          -57.5,
+          149.0
+        ],
+        [
+          -58.0,
+          150.5
+        ],
+        [
+          -58.5,
+          151.0
+        ],
+        [
+          -66.0,
+          152.5
+        ],
+        [
+          -68.5,
+          152.5
+        ],
+        [
+          -70.0,
+          152.0
+        ],
+        [
+          -72.0,
+          150.0
+        ],
+        [
+          -72.0,
+          149.5
+        ],
+        [
+          -71.5,
+          147.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_17",
+      "polygon_xy": [
+        [
+          -57.0,
+          150.0
+        ],
+        [
+          -53.5,
+          146.5
+        ],
+        [
+          -52.5,
+          146.5
+        ],
+        [
+          -47.0,
+          147.5
+        ],
+        [
+          -46.5,
+          148.0
+        ],
+        [
+          -45.5,
+          149.5
+        ],
+        [
+          -45.5,
+          152.5
+        ],
+        [
+          -46.5,
+          153.5
+        ],
+        [
+          -47.0,
+          153.5
+        ],
+        [
+          -56.5,
+          152.5
+        ],
+        [
+          -57.0,
+          152.0
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_19",
+      "polygon_xy": [
+        [
+          -64.5,
+          176.0
+        ],
+        [
+          -64.5,
+          182.5
+        ],
+        [
+          -65.0,
+          183.0
+        ],
+        [
+          -66.5,
+          183.0
+        ],
+        [
+          -72.5,
+          181.5
+        ],
+        [
+          -73.5,
+          181.0
+        ],
+        [
+          -75.0,
+          179.5
+        ],
+        [
+          -75.0,
+          178.0
+        ],
+        [
+          -74.5,
+          176.0
+        ],
+        [
+          -72.5,
+          174.0
+        ],
+        [
+          -67.5,
+          174.0
+        ],
+        [
+          -66.5,
+          174.5
+        ],
+        [
+          -65.0,
+          175.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_20",
+      "polygon_xy": [
+        [
+          -58.0,
+          176.5
+        ],
+        [
+          -53.5,
+          175.0
+        ],
+        [
+          -53.0,
+          175.0
+        ],
+        [
+          -51.5,
+          175.5
+        ],
+        [
+          -51.0,
+          176.0
+        ],
+        [
+          -50.0,
+          177.5
+        ],
+        [
+          -50.0,
+          178.0
+        ],
+        [
+          -50.5,
+          181.0
+        ],
+        [
+          -52.0,
+          182.5
+        ],
+        [
+          -53.5,
+          183.0
+        ],
+        [
+          -54.0,
+          183.0
+        ],
+        [
+          -55.0,
+          182.5
+        ],
+        [
+          -56.5,
+          181.5
+        ],
+        [
+          -58.5,
+          180.0
+        ],
+        [
+          -59.0,
+          179.5
+        ],
+        [
+          -59.0,
+          178.5
+        ],
+        [
+          -58.5,
+          177.0
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_21",
+      "polygon_xy": [
+        [
+          -40.5,
+          182.5
+        ],
+        [
+          -40.5,
+          178.5
+        ],
+        [
+          -39.0,
+          177.0
+        ],
+        [
+          -37.0,
+          175.5
+        ],
+        [
+          -36.5,
+          175.5
+        ],
+        [
+          -36.0,
+          176.0
+        ],
+        [
+          -34.5,
+          180.5
+        ],
+        [
+          -34.5,
+          182.0
+        ],
+        [
+          -35.5,
+          183.0
+        ],
+        [
+          -38.5,
+          185.0
+        ],
+        [
+          -39.0,
+          185.0
+        ],
+        [
+          -39.5,
+          184.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_22",
+      "polygon_xy": [
+        [
+          -28.0,
+          179.5
+        ],
+        [
+          -26.0,
+          177.5
+        ],
+        [
+          -23.0,
+          176.0
+        ],
+        [
+          -22.5,
+          176.0
+        ],
+        [
+          -21.0,
+          176.5
+        ],
+        [
+          -20.5,
+          177.0
+        ],
+        [
+          -20.0,
+          178.0
+        ],
+        [
+          -19.5,
+          180.0
+        ],
+        [
+          -19.5,
+          182.0
+        ],
+        [
+          -20.0,
+          183.0
+        ],
+        [
+          -21.0,
+          184.0
+        ],
+        [
+          -23.0,
+          185.5
+        ],
+        [
+          -23.5,
+          185.5
+        ],
+        [
+          -25.0,
+          185.0
+        ],
+        [
+          -26.0,
+          184.5
+        ],
+        [
+          -27.5,
+          183.0
+        ],
+        [
+          -28.0,
+          180.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_24",
+      "polygon_xy": [
+        [
+          -72.0,
+          200.5
+        ],
+        [
+          -73.5,
+          199.5
+        ],
+        [
+          -74.0,
+          199.0
+        ],
+        [
+          -74.5,
+          198.0
+        ],
+        [
+          -75.0,
+          196.0
+        ],
+        [
+          -75.0,
+          195.0
+        ],
+        [
+          -74.5,
+          193.5
+        ],
+        [
+          -74.0,
+          193.0
+        ],
+        [
+          -68.5,
+          192.0
+        ],
+        [
+          -67.0,
+          192.0
+        ],
+        [
+          -65.5,
+          192.5
+        ],
+        [
+          -64.5,
+          193.5
+        ],
+        [
+          -64.5,
+          194.0
+        ],
+        [
+          -65.0,
+          197.0
+        ],
+        [
+          -66.5,
+          200.0
+        ],
+        [
+          -67.0,
+          200.5
+        ],
+        [
+          -68.5,
+          201.0
+        ],
+        [
+          -69.0,
+          201.0
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_25",
+      "polygon_xy": [
+        [
+          -56.0,
+          193.5
+        ],
+        [
+          -53.0,
+          193.0
+        ],
+        [
+          -51.5,
+          193.0
+        ],
+        [
+          -50.5,
+          194.0
+        ],
+        [
+          -49.0,
+          196.0
+        ],
+        [
+          -49.0,
+          198.5
+        ],
+        [
+          -50.0,
+          199.5
+        ],
+        [
+          -52.0,
+          201.0
+        ],
+        [
+          -55.0,
+          201.0
+        ],
+        [
+          -57.0,
+          200.0
+        ],
+        [
+          -59.0,
+          198.0
+        ],
+        [
+          -60.0,
+          196.5
+        ],
+        [
+          -60.0,
+          196.0
+        ],
+        [
+          -59.5,
+          195.5
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_26",
+      "polygon_xy": [
+        [
+          -41.5,
+          195.0
+        ],
+        [
+          -38.5,
+          194.0
+        ],
+        [
+          -36.0,
+          194.0
+        ],
+        [
+          -35.0,
+          195.0
+        ],
+        [
+          -34.0,
+          196.5
+        ],
+        [
+          -33.5,
+          197.5
+        ],
+        [
+          -33.5,
+          198.5
+        ],
+        [
+          -34.0,
+          199.5
+        ],
+        [
+          -36.0,
+          201.5
+        ],
+        [
+          -37.0,
+          202.0
+        ],
+        [
+          -37.5,
+          202.0
+        ],
+        [
+          -42.5,
+          200.0
+        ],
+        [
+          -43.0,
+          199.5
+        ],
+        [
+          -43.0,
+          198.0
+        ],
+        [
+          -42.5,
+          196.0
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    },
+    {
+      "id": "v7_reviewed_tree_27",
+      "polygon_xy": [
+        [
+          -28.0,
+          200.5
+        ],
+        [
+          -28.0,
+          197.0
+        ],
+        [
+          -25.0,
+          194.0
+        ],
+        [
+          -23.0,
+          194.0
+        ],
+        [
+          -21.5,
+          195.0
+        ],
+        [
+          -21.0,
+          195.5
+        ],
+        [
+          -20.0,
+          198.0
+        ],
+        [
+          -20.0,
+          198.5
+        ],
+        [
+          -20.5,
+          200.5
+        ],
+        [
+          -21.5,
+          201.5
+        ],
+        [
+          -24.5,
+          202.5
+        ],
+        [
+          -25.5,
+          202.5
+        ],
+        [
+          -26.5,
+          202.0
+        ]
+      ],
+      "evidence": "Reviewed original local-height top view: high canopy and lower returns coincide. Approximate no-go footprint follows user request to exclude tree areas, including beneath canopy.",
+      "diagnostic": "data/PAIR360_demo/20261104_tree_extent_v7/parking_tree_review.png"
+    }
+  ],
+  "v7_review": {
+    "selected_tree_candidate_ids": [
+      1,
+      3,
+      6,
+      8,
+      9,
+      11,
+      14,
+      15,
+      16,
+      17,
+      19,
+      20,
+      21,
+      22,
+      24,
+      25,
+      26,
+      27
+    ],
+    "road_diagnostic": "data/PAIR360_demo/20261104_road_extent_v7/REVIEW_CORRECTION.md",
+    "bus_diagnostic": "data/PAIR360_demo/20261104_final_correction_review/north_band_yz_profiles.png",
+    "scope": "Three user correction classes; accepted ramp retained. Raw XYZ and original points unchanged. Inferred floor remains approximate."
+  }
+}

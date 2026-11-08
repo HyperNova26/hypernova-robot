@@ -91,6 +91,11 @@ wandb/
 /sim_scenes/[0-9][0-9][0-9][0-9]_demo_whole/
 /sim_scenes/[0-9][0-9][0-9][0-9]_demo_disassembled/
 
+# S-004 local review input and generated scene files; keep only code and documentation in Git.
+/sim_scenes/S004_ground_final/input/
+/sim_scenes/S004_ground_final/review/*.npz
+/sim_scenes/S004_ground_final/result/
+
 # CAD / EDA temporary and generated files
 ~$*.SLDPRT
 ~$*.SLDASM

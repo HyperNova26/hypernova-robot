@@ -1,5 +1,18 @@
 # 시뮬레이터 장면 변환 안내
 
+## S-004 ground 최종 전달본
+
+현재 로컬 전달본과 재현 절차는 [S-004 안내](S004_ground_final/README.md)에 있습니다. Git에는 코드·판단 설정·문서만 올리며, 원본 점군과 생성된 장면 파일은 로컬에 보관합니다.
+
+- CloudCompare: `S004_ground_final/input/original.ply`와 `result/`의 점군·메시
+- MuJoCo: `S004_ground_final/result/mujoco/view_mujoco.py`
+- Isaac Sim: `S004_ground_final/result/isaac/scene.usda`
+- 재현 명령: `tools/map/reproduce_s004_final.py`
+
+MuJoCo 충돌 검사와 USD 재열기는 확인했습니다. M-002 공통 frame 합의와 보행팀의 Isaac Lab 로봇 보행 검증은 남아 있습니다. 아래 전체 점군 변환기와 빈 폴더 분해 도구의 기능은 별개입니다.
+
+## 기존 전체 점군 변환 도구
+
 2026-10-30 기준입니다. `tools/map/`의 도구는 `.sh` 실행기와 같은 이름의 `.py` 구현 파일로 구성됩니다. `.sh`는 환경과 Python 실행기를 선택하고 인수를 전달합니다.
 
 - [`demo_sim_converter.sh`](../tools/map/demo_sim_converter.sh) / [`demo_sim_converter.py`](../tools/map/demo_sim_converter.py): 점군 전체를 공통 voxel 점유로 변환하여 USD와 MuJoCo XML을 만듭니다.

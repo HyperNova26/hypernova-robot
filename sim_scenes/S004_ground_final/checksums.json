@@ -1,0 +1,20 @@
+{
+  "rebuild_inputs": {
+    "sim_scenes/S004_ground_final/input/original.ply": "d4304a3564d2514b93afe2bb8212e26d2d5e7e51ca39074b0fe393f06634fbb3",
+    "sim_scenes/S004_ground_final/review/classification.npz": "a0cda85083ae5e4d7526aac2a4319849b117ceb53f8f9b546ac0ce8e6f3bbe44",
+    "sim_scenes/S004_ground_final/review/protocol.json": "cfbebe0d69e4bb850d448143d0983183576062cdbb34ab2efe303b494503fe22",
+    "sim_scenes/S004_ground_final/review/design_policy.npz": "0b0c9df2ae89f2d2e4d2d5e912bd45f34eaf8ed4e7335a31b3245099e7bc4fae",
+    "tools/map/continuous_ground_20261104_v7.json": "988a54e4b9f0f72988058a2440c6e5fe4429d1ff1811c18a8e6c4a6bdcac933c"
+  },
+  "final_mesh_sha256": "eae981c66598cc8d6bcd7d2dcd27759a90cd80ea5e1e3f76697e20d093a3f8af",
+  "release_files": {
+    "result/ground.ply": "1c1251c96216b861be8e9ff1ecaff224ecfd949762710be44ccb0085b2369a60",
+    "result/non_ground.ply": "401a87a411d6e6e1e9f28a7c2b07060fd6e084a52b5ef3ff4c3d3dcd8f04b51e",
+    "result/ground_mesh.ply": "eae981c66598cc8d6bcd7d2dcd27759a90cd80ea5e1e3f76697e20d093a3f8af",
+    "result/ground_surface.npz": "147b217bc0e98c278accca2fcda01bcb474b9cbeda0965bc43c913b72892180c",
+    "result/isaac/ground_collision.usdc": "601d940452f5e440c96be76899b8a66bfb6d329a47586b9beb32b1c2b2d48d81",
+    "result/mujoco/scene.xml": "f670e4daa0f1b16edb188cb7acf69fb72dc34d955a3edf3127217c4f2ca42d38",
+    "frame.json": "02784e6a47ec67be44fb02d4c5d48e5d0e846325291908d81fe90abea530a3bc",
+    "result/partition.json": "6a48134ddc0f899190983d0f53aaa6d32d4041fb51e337d7573fd091c0988e2a"
+  }
+}
