@@ -13,7 +13,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--convert', action='store_true', help='Convert DAE to STL using installed trimesh and pycollada')
     args = parser.parse_args()
-    model = Path(__file__).resolve().parents[2] / 'description/hypernova_go2'
+    model = Path(__file__).resolve().parents[2] / 'description/hn_v0_go2'
     manifest = json.loads((model / 'mesh_manifest.json').read_text())
     target = model / 'meshes'
     target.mkdir(exist_ok=True)

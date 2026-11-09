@@ -7,7 +7,7 @@ Run inside Isaac Sim after URDF import, with fixed-joint merging disabled:
 
     import runpy
     module = runpy.run_path('/absolute/repo/ros_pkgs/isaac/attach_front_lidar.py')
-    sensor = module['attach_front_lidar']('/World/hypernova_go2/front_lidar')
+    sensor = module['attach_front_lidar']('/World/hn_v0_go2/front_lidar')
 
 Use the actual imported frame path. Keep ``sensor`` alive; play the timeline to
 render. ``sensor.get_data('generic-model-output')`` retrieves the raw output.
@@ -27,7 +27,7 @@ from pathlib import Path
 
 DEFAULT_CONFIG = (
     Path(__file__).resolve().parents[2]
-    / 'description/hypernova_go2/config/front_lidar.json'
+    / 'description/hn_v0_go2/config/front_lidar.json'
 )
 
 

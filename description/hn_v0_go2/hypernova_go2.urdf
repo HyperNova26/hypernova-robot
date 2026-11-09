@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<robot name="hypernova_go2_proxy">
+<robot name="hn_v0_go2_proxy">
   <!--
 SPDX-License-Identifier: BSD-3-Clause
 Derived from Unitree Robotics unitree_ros, commit 38a9b00ecbff0b70e85a7627eb9c65db9a2341f7.
