@@ -1,0 +1,30 @@
+{
+  "repository": "https://github.com/unitreerobotics/unitree_ros",
+  "revision": "38a9b00ecbff0b70e85a7627eb9c65db9a2341f7",
+  "license": "BSD-3-Clause",
+  "assets": {
+    "base.dae": "e52bebbb5c7ff1f6aedee620c9b5b349f6e965360ecc63a9bb743eeff2d0be64",
+    "calf.dae": "29872fa1a435b92bc2b395fdfa7f0aee26101db3c494681896bd4ef24ee7883c",
+    "calf_mirror.dae": "79c66be7ed06760bd5001c067a1fb0ac517f639d8b1a5f89be471903b3f359e1",
+    "foot.dae": "ffbd95fd641866ce9bd277aa249b92dafc9148d70131fa2c52709a35ce5b710b",
+    "hip.dae": "8735e10617afe252cef0844c1d139d15bc6d4c653660d742fea9fe05c2704d8f",
+    "thigh.dae": "a622381ae308897ff143b8bbf02f075457c342b22984205040424a5a983246fa",
+    "thigh_mirror.dae": "c7bae0b0565c2aa4b7cc15a538d795e9153e0f10c821cc18429e92693172bdc6"
+  },
+  "conversion": {
+    "command": "python3 tools/description/fetch_go2_meshes.py --convert",
+    "python": "3.12",
+    "trimesh": "4.11.1",
+    "pycollada": "0.9.3",
+    "method": "Bake DAE scene transforms to STL; no simplification; meters; URDF material replaces embedded colors"
+  },
+  "converted_assets": {
+    "base.stl": "81e0ae9a1d687f2c0d414ae3a13dc9326df6fe4b879eaa085ec89588a7c12560",
+    "calf.stl": "c0c081b9d10245117211efc6c9ae19fe62209018b6b9af2feed97f62793b13d3",
+    "calf_mirror.stl": "b7250c062db4bbe465a41129324be378d248f72561b6fdd215735c7553ed8c5c",
+    "foot.stl": "3f30f4431e8b67ed6609c350d6e0724c91d8716e40588f63f23a0baf715410ea",
+    "hip.stl": "63116636c1ae96ca77473ef13909838fc99c2b6beae05d961c5f44106306df4c",
+    "thigh.stl": "82d6bb89e99ec70f7cffea16c778e044fd1114c4ebe97b29460775aa41ecc2df",
+    "thigh_mirror.stl": "266ab98ee5c74dde881579d20af869ae973eeeb7d96c62080c455d501fbb0aba"
+  }
+}

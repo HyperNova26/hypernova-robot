@@ -83,6 +83,9 @@ checkpoints/
 runs/
 results/
 wandb/
+# 정책 예외(2026-11-10, PR #21 리뷰 요청): v0 Rough 대표 checkpoint 하나만 추적합니다.
+# sha256 e50fa99677e1621429ffd0bbbdb4706c589ad99f3ccb49ec420c4c0fc6be27f4
+!/policies/hn_locomotion/pretrained/hn_go2v0_rough_model_3849.pt
 
 # Local datasets and ad-hoc downloads
 /data/

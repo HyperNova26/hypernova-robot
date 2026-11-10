@@ -1,0 +1,20 @@
+{
+  "license": "Apache-2.0",
+  "as_of": "2026-10-30",
+  "hardware_revision": "provisional-go2-surrogate",
+  "frame": "front_lidar",
+  "axes": "+X forward, +Y left, +Z up; azimuth about +Z, elevation above XY",
+  "target": "Isaac Sim 6.0 experimental RTX API; not a native RTX JSON profile",
+  "horizontal_fov_deg": 120.0,
+  "vertical_fov_deg": 35.0,
+  "horizontal_samples": 121,
+  "vertical_samples": 36,
+  "scan_rate_hz": 10,
+  "near_range_m": 0.1,
+  "far_range_m": 100.0,
+  "assumptions": [
+    "Only field of view is user specified. Sampling, scan rate and range are provisional simulation choices.",
+    "Idealized simultaneous flash scan; this is not a calibrated vendor scanning pattern or intensity/noise model.",
+    "Mount pose is defined only by the URDF front_lidar fixed joint."
+  ]
+}
