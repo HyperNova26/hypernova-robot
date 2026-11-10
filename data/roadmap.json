@@ -253,10 +253,13 @@
       "id": "G-004",
       "area": "walk",
       "milestone": "S2",
-      "title": "보상 튜닝 기록",
+      "title": "V1 보상 튜닝 기록",
       "status": "예정",
-      "due": "2026-11-15",
-      "url": "https://app.notion.com/p/3fe45bd8717881938d0ac337ce835730"
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/3fe45bd8717881938d0ac337ce835730",
+      "owners": [
+        "조재대"
+      ]
     },
     {
       "id": "G-005",
@@ -274,16 +277,10 @@
       "title": "로봇 상태 로거",
       "status": "예정",
       "due": "2026-11-15",
-      "url": "https://app.notion.com/p/3fe45bd871788192a39fd0e112f4f827"
-    },
-    {
-      "id": "G-007",
-      "area": "walk",
-      "milestone": "S2",
-      "title": "URDF 검수 스크립트",
-      "status": "예정",
-      "due": "2026-11-15",
-      "url": "https://app.notion.com/p/40645bd8717881e8852efc832726f81f"
+      "url": "https://app.notion.com/p/3fe45bd871788192a39fd0e112f4f827",
+      "owners": [
+        "정찬원"
+      ]
     },
     {
       "id": "S-005",
@@ -306,7 +303,10 @@
       "title": "대시보드 프론트",
       "status": "예정",
       "due": "2026-11-15",
-      "url": "https://app.notion.com/p/3fe45bd8717881e1a0fdcc23ef9f8d2e"
+      "url": "https://app.notion.com/p/3fe45bd8717881e1a0fdcc23ef9f8d2e",
+      "owners": [
+        "장승민"
+      ]
     },
     {
       "id": "S-007",
@@ -326,7 +326,7 @@
       "milestone": "S3",
       "title": "URDF v1 적용 + 학습 수정",
       "status": "예정",
-      "due": "2026-11-22",
+      "due": "2026-11-15",
       "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e",
       "owners": [
         "조재대"
