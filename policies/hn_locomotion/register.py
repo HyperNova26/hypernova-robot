@@ -30,8 +30,8 @@ def register_tasks() -> list[str]:
             entry_point="isaaclab.envs:ManagerBasedRLEnv",
             disable_env_checker=True,
             kwargs={
-                "env_cfg_entry_point": f"{_PKG}.env_cfg:{env_cfg}",
-                "rsl_rl_cfg_entry_point": f"{_PKG}.env_cfg:{agent_cfg}",
+                "env_cfg_entry_point": f"{_PKG}.envs.hn_v0_go2:{env_cfg}",
+                "rsl_rl_cfg_entry_point": f"{_PKG}.envs.hn_v0_go2:{agent_cfg}",
                 "default_agent": "rsl_rl",
             },
         )
