@@ -2,7 +2,8 @@
 # Copyright 2026 HYPERNOVA contributors
 """hypernova_go2 v0 URDF를 Isaac Lab ArticulationCfg로 정의합니다.
 
-- 형상·관성·관절 한계의 원본은 description/hypernova_go2/hypernova_go2.urdf(feat/urdf-v0-go2)입니다.
+- 형상·관성·관절 한계의 원본은 저장소의 description/hn_v0_go2/hypernova_go2.urdf입니다.
+  mesh는 git에 없으므로 처음 한 번 `python3 tools/description/fetch_go2_meshes.py --convert`로 받습니다.
 - 모터 한계(effort, velocity)는 URDF 값을 그대로 씁니다. Isaac Lab의 UNITREE_GO2_CFG(calf 45.43 N·m, 15.70 rad/s)와
   다르므로(URDF calf 35.55 N·m, 20 rad/s) Go2 설정을 그대로 가져오지 않습니다.
 - PD gain(stiffness 25, damping 0.5)과 초기 자세는 Isaac Lab UNITREE_GO2_CFG 값을 따릅니다. 실기 값이 정해지면 바꿉니다.
@@ -17,11 +18,14 @@ import isaaclab.sim as sim_utils
 from isaaclab.actuators import DCMotorCfg
 from isaaclab.assets.articulation import ArticulationCfg
 
-# /data는 호스트 ~/hypernova-data입니다. 다른 위치에 두었으면 환경변수로 바꿉니다.
-URDF_PATH = os.environ.get("HN_GO2_URDF", "/data/urdf_v0/description/hypernova_go2/hypernova_go2.urdf")
-# 변환된 USD를 캐시해 두는 폴더. URDF가 바뀌지 않으면 다음 실행부터 다시 변환하지 않습니다.
-# *_foot을 분리한 변환 결과는 합친 버전(/data/urdf_v0/usd)과 섞이지 않게 따로 둡니다.
-USD_DIR = os.environ.get("HN_GO2_USD_DIR", "/data/urdf_v0/usd_feet")
+# 저장소 루트 기준으로 찾으므로 호스트와 컨테이너(/workspace/hypernova) 모두 같은 경로를 씁니다.
+# 다른 URDF를 쓰려면 환경변수로 바꿉니다.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+URDF_PATH = os.environ.get("HN_GO2_URDF", os.path.join(_REPO_ROOT, "description/hn_v0_go2/hypernova_go2.urdf"))
+# 변환된 USD를 캐시해 두는 폴더. 생성 파일이라 저장소 밖(/data = 호스트 ~/hypernova-data)에 둡니다.
+# URDF가 바뀌지 않으면 다음 실행부터 다시 변환하지 않습니다.
+# 예전 /data/urdf_v0 URDF로 만든 캐시(/data/urdf_v0/usd, usd_feet)와 섞이지 않게 따로 둡니다.
+USD_DIR = os.environ.get("HN_GO2_USD_DIR", "/data/usd/hn_v0_go2")
 
 # 발 접촉·속도를 쓰는 보상은 이 이름으로 발 body를 찾습니다.
 # merge_fixed_joints=False라서 *_foot(구 충돌체, calf에서 (0, 0, -0.213) m)이 별도 body입니다.
