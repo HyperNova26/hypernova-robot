@@ -324,10 +324,13 @@
       "id": "G-008",
       "area": "walk",
       "milestone": "S3",
-      "title": "HW URDF 적용",
+      "title": "URDF v1 적용 + 학습 수정",
       "status": "예정",
       "due": "2026-11-22",
-      "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e"
+      "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e",
+      "owners": [
+        "조재대"
+      ]
     },
     {
       "id": "S-008",
