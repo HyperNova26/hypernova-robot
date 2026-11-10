@@ -322,19 +322,6 @@
       ]
     },
     {
-      "id": "S-013",
-      "area": "perc",
-      "milestone": "S2",
-      "title": "데모루트 보완 검토",
-      "status": "예정",
-      "priority": "보통",
-      "due": "2026-11-15",
-      "url": "https://app.notion.com/p/41445bd8717880d99a3fce31ea3b6535",
-      "owners": [
-        "김완준"
-      ]
-    },
-    {
       "id": "G-011",
       "area": "walk",
       "milestone": "S2",
