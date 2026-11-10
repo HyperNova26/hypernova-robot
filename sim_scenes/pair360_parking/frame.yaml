@@ -1,0 +1,125 @@
+# SPDX-License-Identifier: Apache-2.0
+source:
+  dataset: PAIR360 (ODbL 1.0) — Kim et al., RA-L 2024
+  url: https://airlabkhu.github.io/PAIR-360-Dataset/
+  map: Traversal1/Parking_and_Open_theater/extra/T1_parking_Seq0.pcd
+  map_frame: T1S0 LIO map (= first LiDAR frame of Sequence0)
+demo_frame:
+  convention: ENU-aligned, x=East y=North z=up, meters
+  origin_in_map: [-31.9364, 110.2582, -0.4447]
+  yaw_map_to_enu_deg: -93.17
+T_demo_from_map_unleveled:
+  - [-0.055299, 0.998470, 0.0, -111.855531]
+  - [-0.998470, -0.055299, 0.0, -25.790396]
+  - [0.0, 0.0, 1.0, 0.444700]
+  - [0.0, 0.0, 0.0, 1.0]
+gps_anchor: {lat: 37.240409, lon: 127.083344, accuracy_m: 3}
+robot_start: {xyz: [0, 0, 0], yaw_deg: 0}
+output:
+  directory: ../PAIR360_demo/2026-10-26_v1  # 저장소 최상위 기준. quick은 하위 quick/에 저장합니다.
+processing:
+  seed: 360
+  leveling:
+    radius_m: 5.0
+    abs_z_m: 0.3
+    distance_threshold_m: 0.03
+    iterations: 1000
+    min_points: 50
+    max_fit_points: 100000
+    warn_tilt_deg: 3.0
+    origin_check_radius_m: 1.0
+    origin_z_tolerance_m: 0.10
+  clean: {voxel_m: 0.03, neighbors: 20, std_ratio: 2.0}
+  ground:
+    voxel_m: 0.1
+    grid_m: 0.5
+    patch_radius_m: 0.85
+    max_patch_points: 256
+    normal_radius_m: 0.4
+    normal_max_neighbors: 30
+    normal_min_neighbors: 8
+    min_planarity: 0.2
+    normal_angle_deg: 20.0
+    min_plane_points: 8
+    min_xy_spread_m: 0.08
+    fit_distance_m: 0.04
+    layer_separation_m: 0.10
+    max_slope_m_per_m: 0.4
+    seed_radius_m: 1.0
+    seed_height_m: 0.08
+    neighbor_radius_m: 1.0
+    neighbor_agreement_fraction: 0.6
+    continuity_m: 0.08
+    ambiguity_margin_m: 0.03
+    above_m: 0.12
+    below_m: 0.10
+  classes:
+    voxel_m: 0.1
+    normal_radius_m: 0.4
+    normal_max_neighbors: 30
+    normal_min_neighbors: 8
+    min_planarity: 0.15
+    surface_radius_m: 0.35
+    graph_max_neighbors: 16
+    surface_angle_deg: 25.0
+    surface_plane_distance_m: 0.08
+    surface_min_points: 8
+    object_radius_m: 0.35
+    object_min_points: 8
+    object_min_height_m: 0.20
+    label_transfer_voxels: 1.75
+    roof_normal_min_z: 0.8
+    roof_patch_fraction: 0.7
+    roof_min_length_m: 1.5
+    roof_min_width_m: 0.6
+    car_footprint_padding_m: 0.45
+    car_side_angle_deg: 30.0
+    car_min_roof_fraction: 0.10
+    car_min_side_fraction: 0.05
+    car_length_m: [3.5, 6.0]
+    car_width_m: [1.5, 2.5]
+    car_height_m: [1.2, 2.2]
+    vertical_normal_max_abs_z: 0.35
+  heightfield:
+    resolution_m: 0.05
+    fill: linear
+    median_window: 3
+    max_cells: 16000000
+  mujoco:
+    walk_box: [-40.0, 40.0, -40.0, 40.0]
+    walk_box_status: placeholder_80x80_m_clipped_to_data
+    base_m: 0.5
+  isaac:
+    tile_cells: 256
+    max_error_m: 0.02
+    target_triangle_ratio: 0.1
+    boundary_weight: 100.0
+    random_samples: 10000
+    check_batch_size: 200000
+    max_attempts: 5
+  map2d:
+    min_height_m: 0.1
+    max_height_m: 1.0
+    dilation_cells: 1
+  handoff: {max_pose_gap_s: 2.0}
+quick:
+  clean_voxel_m: 0.2
+  ground_voxel_m: 0.2
+  class_voxel_m: 0.2
+  resolution_m: 0.2
+  random_samples: 2000
+# 데이터에서 생성한 값만 복사합니다. 파이프라인은 이 절을 입력으로 쓰지 않습니다.
+generated_from_data:
+  status: real_data_quick_passed_2026-10-23
+  input_name: T1_parking_Seq0_demo.bin
+  input_sha256: f3b22a067521030e4cff035c98b33daa3546cf39ba0271c2940191da8bd73c50
+  reference: frame_resolved.yaml in the quick output directory
+  reference_map2d_min_height_m: 0.2
+  T_demo_from_map:
+    - [-0.05529487657789864, 0.9984701142901434, 0.0004772783152518708, -111.85519966839306]
+    - [-0.9983207305991896, -0.055294862654662415, 0.017277651034993364, -25.7784016736308]
+    - [0.017277609242464936, 0.00047888874515456263, 0.9998506163323214, 0.6849733097452808]
+    - [0.0, 0.0, 0.0, 1.0]
+  tilt_deg: 0.9903634311672903
+  origin_ground_z_m: 0.005502477189014088
+  map_origin_in_demo_z_m: -0.25864348810775883

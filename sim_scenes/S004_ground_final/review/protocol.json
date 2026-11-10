@@ -1,0 +1,1095 @@
+{
+  "manual_decisions": {
+    "source_sha256": "d4304a3564d2514b93afe2bb8212e26d2d5e7e51ca39074b0fe393f06634fbb3",
+    "coordinate_frame": "original raw XYZ, metres; no rotation, scale or origin change",
+    "restore_search_band_interiors": true,
+    "restore_road": [
+      {
+        "id": "upper_road_curved_low_surface",
+        "polygon_xy": [
+          [
+            -20,
+            181.5
+          ],
+          [
+            -15,
+            181.5
+          ],
+          [
+            -10,
+            182
+          ],
+          [
+            -5,
+            182.5
+          ],
+          [
+            0,
+            182.5
+          ],
+          [
+            5,
+            181.8
+          ],
+          [
+            10,
+            181
+          ],
+          [
+            15,
+            180
+          ],
+          [
+            20,
+            179
+          ],
+          [
+            25,
+            178
+          ],
+          [
+            30,
+            177
+          ],
+          [
+            35,
+            176.2
+          ],
+          [
+            45,
+            176
+          ],
+          [
+            55,
+            176
+          ],
+          [
+            64,
+            177
+          ],
+          [
+            65,
+            187
+          ],
+          [
+            56,
+            187.5
+          ],
+          [
+            47,
+            188
+          ],
+          [
+            38,
+            188.4
+          ],
+          [
+            31,
+            189.5
+          ],
+          [
+            25,
+            190.5
+          ],
+          [
+            19,
+            191.5
+          ],
+          [
+            13,
+            192.4
+          ],
+          [
+            7,
+            193
+          ],
+          [
+            0,
+            193.5
+          ],
+          [
+            -7,
+            194
+          ],
+          [
+            -14,
+            194
+          ],
+          [
+            -20,
+            193
+          ]
+        ],
+        "evidence": "\uc6d0\ubcf8 \ud3c9\uba74\ub3c4\uc640 Y=183/190 \ub2e8\uba74\uc5d0\uc11c \uc774\uc5b4\uc9c0\ub294 \ub0ae\uc740 \ub3c4\ub85c \ud45c\uba74\uc744 \ud655\uc778\ud588\ub2e4. \uc544\ub798 \uacbd\uacc4\ub294 X \uc99d\uac00\uc5d0 \ub530\ub77c Y=182\uc5d0\uc11c 176, \ubc18\ub300 \uacbd\uacc4\ub294 193\uc5d0\uc11c 187 \ubd80\uadfc\uc73c\ub85c \ud71c\ub2e4. \uc0ac\uc9c4 5\u00b76\uacfc\uc758 \uc815\ud655\ud55c \uc77c\uce58\ub294 \ubbf8\ud655\uc815\uc774\ub2e4."
+      }
+    ],
+    "exclude": [
+      {
+        "id": "trunk_A_284",
+        "polygon_xy": [
+          [
+            -7.8,
+            179.68
+          ],
+          [
+            -5.67,
+            179.68
+          ],
+          [
+            -5.67,
+            181.82
+          ],
+          [
+            -7.8,
+            181.82
+          ]
+        ],
+        "evidence": "\uc6d0\ubcf8\uc758 \uc881\uc740 \uc218\uc9c1 \uae30\ub465 \ud6c4\ubcf4. \uae30\uc874 \uac1d\uccb4 \ubc94\uc704\uc5d0 0.7m \uac80\ud1a0 \uc5ec\uc720\ub97c \ub454 \uc81c\uc678\uc120\uc774\uba70 \ub85c\ubd07\ubcc4 \ucda9\ub3cc \uc5ec\uc720\ub294 \uc544\ub2c8\ub2e4. \ub098\ubb47\uc78e \uc804\uccb4\ub97c \uc81c\uc678\ud558\uc9c0 \uc54a\ub294\ub2e4."
+      },
+      {
+        "id": "trunk_B_273",
+        "polygon_xy": [
+          [
+            36.07,
+            176.2
+          ],
+          [
+            37.9,
+            176.2
+          ],
+          [
+            37.9,
+            178.12
+          ],
+          [
+            36.07,
+            178.12
+          ]
+        ],
+        "evidence": "\uacbd\uc0ac\ub85c \uc544\ub798\ucabd \uac00\uc7a5\uc790\ub9ac\uc758 \uc881\uc740 \uae30\ub465 \ud6c4\ubcf4. \uc0c1\ubd80 \ub098\ubb47\uc78e\uacfc \ubc14\ub2e5\uc744 \ubd84\ub9ac\ud558\uace0 \uae30\ub465 \uc8fc\ubcc0\ub9cc \uc81c\uc678\ud55c\ub2e4."
+      },
+      {
+        "id": "trunk_C_304",
+        "polygon_xy": [
+          [
+            60.86,
+            185.13
+          ],
+          [
+            63.21,
+            185.13
+          ],
+          [
+            63.21,
+            188.03
+          ],
+          [
+            60.86,
+            188.03
+          ]
+        ],
+        "evidence": "\uacbd\uc0ac\ub85c \ub192\uc740 \ub05d\uc758 \uae30\ub465 \ud6c4\ubcf4 \uc8fc\ubcc0. \uacbd\uc0ac\ub85c \ub05d\uc744 \uac00\ub85c\ub85c \uc790\ub974\ub294 \uae30\uc900\uc73c\ub85c \uc0ac\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4."
+      },
+      {
+        "id": "upper_road_south_tree_line_outside",
+        "polygon_xy": [
+          [
+            -20,
+            175
+          ],
+          [
+            65,
+            175
+          ],
+          [
+            64,
+            177
+          ],
+          [
+            55,
+            176
+          ],
+          [
+            45,
+            176
+          ],
+          [
+            35,
+            176.2
+          ],
+          [
+            30,
+            177
+          ],
+          [
+            25,
+            178
+          ],
+          [
+            20,
+            179
+          ],
+          [
+            15,
+            180
+          ],
+          [
+            10,
+            181
+          ],
+          [
+            5,
+            181.8
+          ],
+          [
+            0,
+            182.5
+          ],
+          [
+            -5,
+            182.5
+          ],
+          [
+            -10,
+            182
+          ],
+          [
+            -15,
+            181.5
+          ],
+          [
+            -20,
+            181.5
+          ]
+        ],
+        "evidence": "\uc0ac\uc6a9\uc790\uac00 \uacbd\uc0ac\ub85c \uc2dc\uc791\ubd80\ud130 \ub05d\uae4c\uc9c0 \uc606\uc73c\ub85c \ub298\uc5b4\uc120 \ub098\ubb34\uc904\uc758 \ub4a4\ub97c \uc81c\uc678\ud558\ub77c\uace0 \ud655\uc778\ud588\ub2e4. \uc6d0\ubcf8 \uc800\uba74\u00b7\uc5f0\uc11d\uc774 \uc774\uc5b4\uc9c0\ub294 \ub0a8\ucabd \uacbd\uacc4\uc758 \ubc14\uae65\uc744 \uc81c\uc678\ud55c\ub2e4. \uc218\uad00 \uc678\uacfd\uc73c\ub85c \ub3c4\ub85c \ud3ed\uc744 \uc815\ud558\uc9c0 \uc54a\ub294\ub2e4."
+      },
+      {
+        "id": "upper_road_north_tree_line_outside",
+        "polygon_xy": [
+          [
+            -20,
+            193
+          ],
+          [
+            -14,
+            194
+          ],
+          [
+            -7,
+            194
+          ],
+          [
+            0,
+            193.5
+          ],
+          [
+            7,
+            193
+          ],
+          [
+            13,
+            192.4
+          ],
+          [
+            19,
+            191.5
+          ],
+          [
+            25,
+            190.5
+          ],
+          [
+            31,
+            189.5
+          ],
+          [
+            38,
+            188.4
+          ],
+          [
+            47,
+            188
+          ],
+          [
+            56,
+            187.5
+          ],
+          [
+            65,
+            187
+          ],
+          [
+            65,
+            198
+          ],
+          [
+            35,
+            202
+          ],
+          [
+            -20,
+            204
+          ]
+        ],
+        "evidence": "\uacbd\uc0ac\ub85c \ubc18\ub300\ud3b8\ub3c4 \ub0ae\uc740 \ub3c4\ub85c \ud45c\uba74\uc774 \ub05d\ub098\ub294 \uace1\uc120\uc744 \ub530\ub77c \uc81c\uc678\ud588\ub2e4. \uae30\ub465\uc120 \ubc16 \ub192\uc740 \uc218\ubaa9 \uad6c\uc5ed\uc744 \ub2eb\uace0, \ub3c4\ub85c \ucabd \ub098\ubb47\uc78e \uc544\ub798 \uc2e4\uce21 \uc800\uba74\uc740 \uc720\uc9c0\ud55c\ub2e4."
+      }
+    ],
+    "vehicles": [
+      {
+        "id": "V19",
+        "polygon_xy": [
+          [
+            -23.5,
+            65.5
+          ],
+          [
+            -20.5,
+            65.5
+          ],
+          [
+            -20.5,
+            69.5
+          ],
+          [
+            -23.5,
+            69.5
+          ]
+        ],
+        "z_bounds": [
+          0.18,
+          2.79
+        ],
+        "evidence": "parking_atlas_01: compact raised body."
+      },
+      {
+        "id": "V20",
+        "polygon_xy": [
+          [
+            -28,
+            67.5
+          ],
+          [
+            -23,
+            67.5
+          ],
+          [
+            -23,
+            71
+          ],
+          [
+            -28,
+            71
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.12
+        ],
+        "evidence": "parking_atlas_01: compact raised body; lower clip excludes local floor."
+      },
+      {
+        "id": "V22",
+        "polygon_xy": [
+          [
+            -61,
+            101
+          ],
+          [
+            -56,
+            101
+          ],
+          [
+            -56,
+            104.5
+          ],
+          [
+            -61,
+            104.5
+          ]
+        ],
+        "z_bounds": [
+          0.77,
+          2.58
+        ],
+        "evidence": "parking_atlas_02: compact body in parking lane."
+      },
+      {
+        "id": "V23",
+        "polygon_xy": [
+          [
+            -63.5,
+            177
+          ],
+          [
+            -59,
+            177
+          ],
+          [
+            -59,
+            180.5
+          ],
+          [
+            -63.5,
+            180.5
+          ]
+        ],
+        "z_bounds": [
+          2.07,
+          4.3
+        ],
+        "evidence": "parking_atlas_05: compact body; not bus-labelled."
+      },
+      {
+        "id": "V24",
+        "polygon_xy": [
+          [
+            -44.5,
+            190.5
+          ],
+          [
+            -39,
+            190.5
+          ],
+          [
+            -39,
+            194.5
+          ],
+          [
+            -44.5,
+            194.5
+          ]
+        ],
+        "z_bounds": [
+          1.81,
+          2.8
+        ],
+        "evidence": "parking_atlas_05: compact body."
+      },
+      {
+        "id": "V37_75",
+        "polygon_xy": [
+          [
+            -39.5,
+            74.7
+          ],
+          [
+            -34.5,
+            74.7
+          ],
+          [
+            -34.5,
+            76.8
+          ],
+          [
+            -39.5,
+            76.8
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.6
+        ],
+        "evidence": "dense_parking_profiles_01 x37_y75: continuous low body; lower clip is above floor."
+      },
+      {
+        "id": "V37_78",
+        "polygon_xy": [
+          [
+            -39.5,
+            77.2
+          ],
+          [
+            -34.5,
+            77.2
+          ],
+          [
+            -34.5,
+            79.4
+          ],
+          [
+            -39.5,
+            79.4
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.5
+        ],
+        "evidence": "dense_parking_profiles_01 x37_y78 low roof; lower clip is above floor."
+      },
+      {
+        "id": "V37_82",
+        "polygon_xy": [
+          [
+            -39.5,
+            81.7
+          ],
+          [
+            -34.5,
+            81.7
+          ],
+          [
+            -34.5,
+            83.5
+          ],
+          [
+            -39.5,
+            83.5
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.6
+        ],
+        "evidence": "dense_parking_profiles_01 x37_y82 low roof; lower clip is above floor."
+      },
+      {
+        "id": "V37_85",
+        "polygon_xy": [
+          [
+            -39.5,
+            84.1
+          ],
+          [
+            -34.5,
+            84.1
+          ],
+          [
+            -34.5,
+            86.3
+          ],
+          [
+            -39.5,
+            86.3
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.8
+        ],
+        "evidence": "dense_parking_profiles_01 x37_y85 low roof; lower clip is above floor."
+      },
+      {
+        "id": "V37_89",
+        "polygon_xy": [
+          [
+            -39.5,
+            87.6
+          ],
+          [
+            -34.5,
+            87.6
+          ],
+          [
+            -34.5,
+            88.7
+          ],
+          [
+            -39.5,
+            88.7
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.8
+        ],
+        "evidence": "dense_parking_profiles_01 x37_y89 low body; lower clip is above floor."
+      },
+      {
+        "id": "V37_94",
+        "polygon_xy": [
+          [
+            -39.5,
+            93.1
+          ],
+          [
+            -34.5,
+            93.1
+          ],
+          [
+            -34.5,
+            95.5
+          ],
+          [
+            -39.5,
+            95.5
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          2.2
+        ],
+        "evidence": "dense_parking_profiles_01 x37_y94 compact body; lower clip is above floor."
+      },
+      {
+        "id": "V37_97",
+        "polygon_xy": [
+          [
+            -39.5,
+            95.7
+          ],
+          [
+            -34.5,
+            95.7
+          ],
+          [
+            -34.5,
+            97.7
+          ],
+          [
+            -39.5,
+            97.7
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.6
+        ],
+        "evidence": "dense_parking_profiles_01 x37_y97 compact body; lower clip is above floor."
+      },
+      {
+        "id": "V37_101",
+        "polygon_xy": [
+          [
+            -39.5,
+            101.7
+          ],
+          [
+            -34.5,
+            101.7
+          ],
+          [
+            -34.5,
+            102.5
+          ],
+          [
+            -39.5,
+            102.5
+          ]
+        ],
+        "z_bounds": [
+          0.2,
+          1.7
+        ],
+        "evidence": "dense_parking_profiles_01 x37_y101: lower clip is above floor."
+      },
+      {
+        "id": "V37_105",
+        "polygon_xy": [
+          [
+            -39.5,
+            104.7
+          ],
+          [
+            -34.5,
+            104.7
+          ],
+          [
+            -34.5,
+            106.5
+          ],
+          [
+            -39.5,
+            106.5
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          2.0
+        ],
+        "evidence": "dense_parking_profiles_02 x37_y105 compact body; lower clip is above floor."
+      },
+      {
+        "id": "V37_108",
+        "polygon_xy": [
+          [
+            -39.5,
+            107.2
+          ],
+          [
+            -34.5,
+            107.2
+          ],
+          [
+            -34.5,
+            109.3
+          ],
+          [
+            -39.5,
+            109.3
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.6
+        ],
+        "evidence": "dense_parking_profiles_02 x37_y108 compact body; lower clip is above floor."
+      },
+      {
+        "id": "V37_110",
+        "polygon_xy": [
+          [
+            -39.5,
+            109.4
+          ],
+          [
+            -34.5,
+            109.4
+          ],
+          [
+            -34.5,
+            111.4
+          ],
+          [
+            -39.5,
+            111.4
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.5
+        ],
+        "evidence": "dense_parking_profiles_02 x37_y110 compact body; lower clip is above floor."
+      },
+      {
+        "id": "V37_113",
+        "polygon_xy": [
+          [
+            -39.5,
+            112
+          ],
+          [
+            -34.5,
+            112
+          ],
+          [
+            -34.5,
+            114
+          ],
+          [
+            -39.5,
+            114
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.5
+        ],
+        "evidence": "dense_parking_profiles_02 x37_y113 compact body; lower clip is above floor."
+      },
+      {
+        "id": "V37_115",
+        "polygon_xy": [
+          [
+            -39.5,
+            114.3
+          ],
+          [
+            -34.5,
+            114.3
+          ],
+          [
+            -34.5,
+            116.4
+          ],
+          [
+            -39.5,
+            116.4
+          ]
+        ],
+        "z_bounds": [
+          0.15,
+          1.5
+        ],
+        "evidence": "dense_parking_profiles_02 x37_y115 low body; lower clip is above floor."
+      },
+      {
+        "id": "V26_75",
+        "polygon_xy": [
+          [
+            -28.5,
+            75.1
+          ],
+          [
+            -23.5,
+            75.1
+          ],
+          [
+            -23.5,
+            76.7
+          ],
+          [
+            -28.5,
+            76.7
+          ]
+        ],
+        "z_bounds": [
+          -0.1,
+          1.5
+        ],
+        "evidence": "dense_parking_profiles_02 x26_y75: compact low body; lower clip is above floor."
+      },
+      {
+        "id": "V26_78",
+        "polygon_xy": [
+          [
+            -28.5,
+            77.1
+          ],
+          [
+            -23.5,
+            77.1
+          ],
+          [
+            -23.5,
+            79.4
+          ],
+          [
+            -28.5,
+            79.4
+          ]
+        ],
+        "z_bounds": [
+          -0.1,
+          1.5
+        ],
+        "evidence": "dense_parking_profiles_02 x26_y78: lower clip excludes floor and upper return."
+      },
+      {
+        "id": "V26_82",
+        "polygon_xy": [
+          [
+            -28.5,
+            81.7
+          ],
+          [
+            -23.5,
+            81.7
+          ],
+          [
+            -23.5,
+            83.5
+          ],
+          [
+            -28.5,
+            83.5
+          ]
+        ],
+        "z_bounds": [
+          -0.1,
+          1.4
+        ],
+        "evidence": "dense_parking_profiles_02 x26_y82: lower clip is above floor."
+      },
+      {
+        "id": "V26_85",
+        "polygon_xy": [
+          [
+            -27.5,
+            84.8
+          ],
+          [
+            -23.5,
+            84.8
+          ],
+          [
+            -23.5,
+            86.5
+          ],
+          [
+            -27.5,
+            86.5
+          ]
+        ],
+        "z_bounds": [
+          -0.1,
+          1.5
+        ],
+        "evidence": "dense_parking_profiles_03 x26_y85: lower clip excludes floor."
+      },
+      {
+        "id": "V26_89",
+        "polygon_xy": [
+          [
+            -27.8,
+            89.4
+          ],
+          [
+            -24.2,
+            89.4
+          ],
+          [
+            -24.2,
+            90.4
+          ],
+          [
+            -27.8,
+            90.4
+          ]
+        ],
+        "z_bounds": [
+          -0.1,
+          1.3
+        ],
+        "evidence": "dense_parking_profiles_03 x26_y89: lower clip excludes floor and east high returns."
+      },
+      {
+        "id": "V26_94",
+        "polygon_xy": [
+          [
+            -28.5,
+            93.7
+          ],
+          [
+            -23.5,
+            93.7
+          ],
+          [
+            -23.5,
+            95.5
+          ],
+          [
+            -28.5,
+            95.5
+          ]
+        ],
+        "z_bounds": [
+          -0.1,
+          1.5
+        ],
+        "evidence": "dense_parking_profiles_03 x26_y94: lower clip is above floor."
+      },
+      {
+        "id": "V26_97",
+        "polygon_xy": [
+          [
+            -28.5,
+            95.6
+          ],
+          [
+            -23.5,
+            95.6
+          ],
+          [
+            -23.5,
+            98.3
+          ],
+          [
+            -28.5,
+            98.3
+          ]
+        ],
+        "z_bounds": [
+          -0.1,
+          1.5
+        ],
+        "evidence": "dense_parking_profiles_03 x26_y97: lower clip excludes floor and tall eastern returns."
+      },
+      {
+        "id": "V26_101",
+        "polygon_xy": [
+          [
+            -28.5,
+            100.5
+          ],
+          [
+            -23.5,
+            100.5
+          ],
+          [
+            -23.5,
+            102.5
+          ],
+          [
+            -28.5,
+            102.5
+          ]
+        ],
+        "z_bounds": [
+          -0.1,
+          1.4
+        ],
+        "evidence": "dense_parking_profiles_03 x26_y101: lower clip is above floor."
+      }
+    ],
+    "inspect_regions": [
+      {
+        "id": "upper_road_and_slope",
+        "bounds_xy": [
+          -22,
+          67,
+          173,
+          205
+        ]
+      },
+      {
+        "id": "slope_lower_junction",
+        "bounds_xy": [
+          -25,
+          8,
+          176,
+          201
+        ]
+      },
+      {
+        "id": "parking_south",
+        "bounds_xy": [
+          -82,
+          -16,
+          64,
+          120
+        ]
+      },
+      {
+        "id": "parking_north",
+        "bounds_xy": [
+          -82,
+          -16,
+          120,
+          205
+        ]
+      },
+      {
+        "id": "parking_tree_vehicle_edge",
+        "bounds_xy": [
+          -40,
+          -16,
+          64,
+          120
+        ]
+      },
+      {
+        "id": "old_scope_edge_east",
+        "bounds_xy": [
+          -23,
+          -4,
+          60,
+          176
+        ]
+      }
+    ],
+    "limits": [
+      "\ub098\ubb34\uc904 \ub4a4 \uc81c\uc678\ub294 \uc0ac\uc6a9\uc790\uac00 \ud655\uc778\ud55c \ubc29\ud5a5\uc744 \ubc18\uc601\ud588\ub2e4. \uc88c\ud45c \uacbd\uacc4\ub294 \uc6d0\ubcf8 \uc800\uba74\u00b7\ub2e8\uba74\uc744 \ubcf4\uace0 \uc815\ud55c \uadfc\uc0ac \ub2e4\uac01\ud615\uc774\uba70, \uce21\ub7c9\ub41c \uc5f0\uc11d\uc120\uc774\ub098 \ub85c\ubd07 \ucda9\ub3cc \uc5ec\uc720\ub294 \uc544\ub2c8\ub2e4.",
+      "2\u00b73\ubc88 \ubc84\uc2a4\ub294 '\ub9e8 \uc67c\ucabd \uacbd\uc0ac\ub85c \uc544\ub798'\ub77c\ub294 \uc124\uba85\uae4c\uc9c0 \ub300\uc870\ud588\uc9c0\ub9cc \uc6d0\ubcf8\uc758 \ud2b9\uc815 \ucc28\uccb4\ub85c \ud655\uc815\ud558\uc9c0 \ubabb\ud588\ub2e4. \ubc84\uc2a4 \uc81c\uac70 \uc644\ub8cc\ub85c \ud45c\uc2dc\ud558\uc9c0 \uc54a\ub294\ub2e4. 5\u00b76\ubc88\ub3c4 \ud654\uba74 \uc88c\ud45c\uc640 \uc815\ud655\ud55c \uc815\ud569\uc740 \uc5c6\uc73c\uba70 \uc0c1\ubd80 \ub3c4\ub85c\uc758 \uc2e4\uce21 \uc5f0\uc18d\uc131\uc744 \uadfc\uac70\ub85c \uc218\uc815\ud588\ub2e4.",
+      "\ucc28\ub7c9 \uc218\ub3d9 \uac80\ud1a0\ub294 \uae30\uc874 \ud45c\uc2dc \ubc16 26\uac1c \ubc94\uc704\ub97c \ucd94\uac00\ud588\ub2e4. \ubc00\uc9d1\ud55c \ub450 \uc8fc\ucc28\uc5f4\uc758 \uc704\u00b7\uc606 \ub2e8\uba74\uc744 \ud655\uc778\ud588\uc9c0\ub9cc \ub098\uba38\uc9c0 \uc8fc\ucc28\uc7a5\uc758 \ubaa8\ub4e0 \ucc28\ub7c9\uc744 \ube60\uc9d0\uc5c6\uc774 \uac80\ud1a0\ud588\ub2e4\ub294 \ub73b\uc740 \uc544\ub2c8\ub2e4.",
+      "\uc9c1\uc0ac\uac01\ud615 \uac80\uc0c9\ub760 \uc804\uccb4\ub97c \uc81c\uc678\ud558\ub358 \ucc98\ub9ac\ub9cc \ud574\uc81c\ud588\ub2e4. \uae30\uc874 \uad6d\uc18c \uc2dd\uc7ac\u00b7\uae30\ub465 \uc81c\uc678 \ub9c8\uc2a4\ud06c\ub294 \uc720\uc9c0\ud558\uba70, \uc774 \ub9c8\uc2a4\ud06c\ub3c4 \uc644\uc804\ud55c \uc758\ubbf8 \ubd84\ub958 \uc815\ub2f5\uc740 \uc544\ub2c8\ub2e4.",
+      "\ucc28\ub7c9 \uc544\ub798 \ubcf4\uac04\uc740 \uc8fc\ubcc0 \uc2e4\uce21\uc810\uc5d0 \uadfc\uac70\ud55c \ucd94\uc815\uc774\ub2e4. \ubbf8\uad00\uce21 \uc815\ub2f5 \ub192\uc774\uc640 \ube44\uad50\ud55c \uacb0\uacfc\uac00 \uc544\ub2c8\uba70 \uc9c0\uc9c0\uc810 \ubd80\uc871\u00b7\ub2e8\ucc28\u00b7\uc81c\uc678 \uacbd\uacc4\uc5d0\uc11c\ub294 \ube48\uce78\uc774 \ub0a8\ub294\ub2e4.",
+      "\uc774\uc911 \uc9c0\uba74\uacfc \uc794\uc5ec \uc624\ubd84\ub958, \uc6d0\ubcf8 \ud76c\uc18c \uad6c\uac04\uc740 \ub0a8\uc544 \uc788\ub2e4. \uc774 \ud30c\uc77c\uc740 \ucd5c\uc885 \ubcf4\ud589 \uac00\ub2a5 \uc9c0\ub3c4\ub098 \uc644\uc131\ub41c \ubb3c\ub9ac \uc9c0\ud615\uc774 \uc544\ub2c8\ub2e4."
+    ]
+  },
+  "baseline": "data/PAIR360_demo/20261104_three_type_restored_v2",
+  "source_sha256": "d4304a3564d2514b93afe2bb8212e26d2d5e7e51ca39074b0fe393f06634fbb3",
+  "script_sha256": "464e180f282842eb2154127cede3c8e0aba5e670ec5afed60f78f7b43d99634a",
+  "stop": "manual PC corrections and CC export; no mesh or walking certification",
+  "inferred_policy": "reuse bounded fit_patch; observed-only references, no extrapolation, no smoothing across exclusion",
+  "input_decisions_sha256": "d89e0cb628e6a51252eb5c3e3b66ae37e86181bfffe6c56d2c5c5d1bbe46725e",
+  "upstream_hashes": {
+    "data/PAIR360_demo/20261104_three_type_restored_v2/classification.npz": "db4eb084ff37f279ca536270cca3ddc61c1926dca6b4c68dd542121ba48b795d",
+    "data/PAIR360_demo/20261103_ground_scope_v2/point_labels.npz": "658094b716101cb9638efd0b407b89e1627c8d044dcf181b854b883bbe69fb67",
+    "data/PAIR360_demo/20261104_car_free_design_v1/design_policy.npz": "0b0c9df2ae89f2d2e4d2d5e912bd45f34eaf8ed4e7335a31b3245099e7bc4fae",
+    "data/PAIR360_demo/20261103_ground_review_v1/comparison/csf_masks.npy": "776189fbe9fcf34b99f201bdc267df3e57d8ff1aa495aa8abc15ef75151d506e"
+  },
+  "closed_band_change": "restore_search_band_interiors uses original permitted component mask; it does not remove planting or column components",
+  "steps_policy": "original design low-step labels plus fresh elongated low relief; no fill across one-cell step margin"
+}

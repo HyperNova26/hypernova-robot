@@ -1,0 +1,16 @@
+{
+  "source_frame": "raw_PAIR360_XYZ",
+  "export_frame": "raw_PAIR360_XYZ",
+  "units": "metre",
+  "up_axis": "Z",
+  "origin_subtracted_xyz": [0, 0, 0],
+  "scale": 1,
+  "rotation_matrix": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+  "translation_xyz": [0, 0, 0],
+  "source_to_export_matrix": [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
+  "formula": "p_export = p_source",
+  "ground_leveling_applied": false,
+  "historical_frame_yaml_applied": false,
+  "m002_common_frame": "not yet agreed with walking team; no transform inferred",
+  "scope": "Same identity transform applies to collision mesh, MuJoCo hfields and all source point-cloud layers."
+}
