@@ -1,5 +1,4 @@
 ---
-title: HyperNova Project Handoff
 document_role: standalone-context
 snapshot_date: 2026-08-14
 timezone: Asia/Seoul
@@ -23,6 +22,7 @@ HyperNova의 기획과 현재 상태를 이어받을 수 있도록 만든 독립
 배포하기 전에 프로젝트 책임자가 공개 범위를 검토해야 한다.
 
 > [!CAUTION]
+>
 > - HyperNova가 현재 700만 원을 확보했다고 가정하지 않는다.
 > - 현재 가용 현금은 PoC 용도의 300만 원이다.
 > - 현재 외부 지원은 SOSLab사의 ML-X 120 Flash LiDAR 2대 무상대여뿐이다.

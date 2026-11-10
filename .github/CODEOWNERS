@@ -1,0 +1,15 @@
+# 코드 소유자
+#
+# 여러 팀이 같이 쓰는 경로만 적습니다. 여기 없는 경로는 소유자 승인 없이 병합할 수 있습니다.
+# 아래쪽 규칙이 위쪽 규칙보다 우선합니다. 팀은 저장소에 write 이상 권한이 있어야 인식됩니다.
+# 운영 방식: docs/governance/github-settings.md
+
+# 프로젝트 전체 결정과 저장소 운영
+/.github/          @HyperNova26/leads
+/docs/decisions/   @HyperNova26/leads
+
+# 공용 개발 환경 (AICV·SW가 같은 이미지를 씀)
+/docker/           @HyperNova26/ai-cv @HyperNova26/sw
+
+# 실기와 시뮬레이션이 같이 쓰는 기체 정의
+/description/      @HyperNova26/hw @HyperNova26/ai-cv

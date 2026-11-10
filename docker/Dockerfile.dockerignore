@@ -1,0 +1,10 @@
+# build context는 저장소 최상위입니다. Dockerfile이 COPY하는 파일만 보냅니다
+# (.venv, .git, 데이터가 context에 섞여 들어가거나 캐시를 깨지 않게 하기 위함).
+*
+!pyproject.toml
+!uv.lock
+!docker/entrypoint.sh
+!docker/env.sh
+!docker/fastdds.xml
+!docker/ros/
+!docker/scripts/

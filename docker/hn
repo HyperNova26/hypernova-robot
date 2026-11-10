@@ -1,0 +1,420 @@
+#!/usr/bin/env bash
+# HyperNova 개발 환경 진입 스크립트.
+#
+#   ./docker/hn build sim|ros    이미지 빌드 (sim은 Isaac Lab 베이스를 자동으로 받아 옵니다)
+#   ./docker/hn pull ros         완성된 ros 이미지를 GHCR에서 받기
+#   ./docker/hn sim [명령...]    보행팀: 컨테이너를 켜고(꺼져 있을 때만) 셸 열기
+#   ./docker/hn ros [명령...]    인지팀·SW팀: 위와 같음
+#   ./docker/hn train|play [인자...]  보행팀: Isaac Lab 학습·재생(physics=isaacsim_physx 자동)
+#   ./docker/hn stop [sim|ros]   컨테이너 멈추기
+#   ./docker/hn reset [sim|ros]  컨테이너 지우기 (volume의 빌드 결과·캐시는 남음)
+#   ./docker/hn status           설정, 이미지, 컨테이너 상태
+#
+# 저장소 안 어디서 실행해도 됩니다. 설명: docker/README.md
+set -euo pipefail
+
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+DOCKER_DIR="$(dirname "$SELF")"
+REPO_ROOT="$(dirname "$DOCKER_DIR")"
+ENV_FILE="$DOCKER_DIR/.env"
+ENV_LOCAL="$DOCKER_DIR/.env.local"
+ENV_LOCAL_EXAMPLE="$DOCKER_DIR/.env.local.example"
+COMPOSE_FILE="$DOCKER_DIR/compose.yaml"
+PROJECT=hypernova
+README="docker/README.md"
+
+MIN_DRIVER="580.65.06"     # ADR-0002 §5. Isaac Sim 6.2, CUDA 13
+MIN_COMPOSE="2.25"         # --env-file을 여러 번 쓰려면 필요
+
+info() { printf '[hn] %s\n' "$*"; }
+warn() { printf '[hn] 경고: %s\n' "$*" >&2; }
+die()  { printf '[hn] 오류: %s\n' "$*" >&2; exit 1; }
+
+usage() {
+  cat <<'EOF'
+HyperNova 개발 환경
+
+사용법: ./docker/hn <명령> [인자]
+
+  build sim|ros      이미지를 빌드합니다 (sim은 Isaac Lab 베이스를 자동으로 받아 옵니다)
+  pull ros           완성된 ros 이미지를 GHCR에서 받습니다
+  sim  [명령...]     보행팀: 컨테이너를 켜고(꺼져 있을 때만) 셸을 엽니다. 명령을 주면 그 명령을 실행합니다
+  train|play [인자...]  보행팀: Isaac Lab 학습·재생. physics=isaacsim_physx를 자동으로 붙입니다(컨테이너 안에서는 hn-rl)
+  ros  [명령...]     인지팀·SW팀: 위와 같음
+  stop  [sim|ros]    컨테이너를 멈춥니다 (빌드 결과와 캐시는 그대로)
+  reset [sim|ros]    컨테이너를 지웁니다. 꼬였을 때, 또는 docker/.env.local을 고친 뒤에 씁니다 (volume은 남음)
+  status             설정, 이미지, 컨테이너 상태
+
+처음 쓰는 사람:   ./docker/hn build sim && ./docker/hn sim      (보행팀)
+                  ./docker/hn pull ros  && ./docker/hn ros      (인지팀·SW팀)
+같은 명령을 터미널마다 다시 치면 같은 컨테이너에 셸이 하나 더 열립니다.
+EOF
+}
+
+# ---------------------------------------------------------------------------------------
+# 설정 파일
+# ---------------------------------------------------------------------------------------
+
+# docker/.env.local이 없으면 예시 파일로 만듭니다(처음 한 번). 무엇을 했는지 출력합니다.
+ensure_env_local() {
+  if [ -f "$ENV_LOCAL" ]; then
+    return 0
+  fi
+  local uid gid dom data
+  uid="$(id -u)"
+  gid="$(id -g)"
+  if [ "$uid" -eq 0 ]; then
+    die "root(sudo)로 실행하지 마세요. 컨테이너 안에서 만든 파일의 주인이 root가 됩니다. docker 그룹에 들어간 일반 계정으로 실행하세요 ($README 3단계)."
+  fi
+  dom=$((RANDOM % 100 + 1))
+  data="$HOME/hypernova-data"
+  awk -v uid="$uid" -v gid="$gid" -v dom="$dom" -v data="$data" '
+    /^HOST_UID=/       { print "HOST_UID=" uid; next }
+    /^HOST_GID=/       { print "HOST_GID=" gid; next }
+    /^ROS_DOMAIN_ID=/  { print "ROS_DOMAIN_ID=" dom; next }
+    /^HN_DATA_DIR=/    { print "HN_DATA_DIR=" data; next }
+    { print }' "$ENV_LOCAL_EXAMPLE" > "$ENV_LOCAL"
+  info "docker/.env.local을 만들었습니다 (개인 설정이라 커밋하지 않습니다)."
+  info "  HOST_UID=$uid  HOST_GID=$gid  ROS_DOMAIN_ID=$dom (1~100 중 무작위)"
+  info "  HN_DATA_DIR=$data  (컨테이너 안에서는 /data)"
+  info "  값을 고쳤다면 ./docker/hn reset 으로 컨테이너를 다시 만들어야 반영됩니다."
+}
+
+# .env와 .env.local 값을 이 스크립트에서 읽습니다. 셸에 이미 export된 같은 이름의 변수(예: ROS_DOMAIN_ID)보다
+# 이 파일들이 우선하도록, compose를 부르기 전에 여기서 덮어씁니다.
+load_env() {
+  set -a
+  # shellcheck disable=SC1090
+  . "$ENV_FILE"
+  if [ -f "$ENV_LOCAL" ]; then
+    # shellcheck disable=SC1090
+    . "$ENV_LOCAL"
+  fi
+  set +a
+  HN_DATA_DIR="${HN_DATA_DIR:-$HOME/hypernova-data}"
+
+  # -p: 셸의 COMPOSE_PROJECT_NAME이 있어도 항상 같은 프로젝트(volume 이름)를 씁니다.
+  COMPOSE_ARGS=(-p "$PROJECT" --project-directory "$DOCKER_DIR" -f "$COMPOSE_FILE" --env-file "$ENV_FILE")
+  if [ -f "$ENV_LOCAL" ]; then
+    COMPOSE_ARGS+=(--env-file "$ENV_LOCAL")
+  fi
+}
+
+compose() { docker compose "${COMPOSE_ARGS[@]}" "$@"; }
+
+image_of() {
+  case "$1" in
+    sim) printf '%s' "$HN_SIM_IMAGE" ;;
+    ros) printf '%s' "$HN_ROS_IMAGE" ;;
+  esac
+}
+
+have_image() { docker image inspect "$1" > /dev/null 2>&1; }
+
+check_service() {
+  case "${1:-}" in
+    sim | ros) ;;
+    *) die "sim 또는 ros 를 지정하세요. 예: ./docker/hn $2 sim" ;;
+  esac
+}
+
+# a >= b (버전 비교)
+version_ge() { [ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -n1)" = "$2" ]; }
+
+human_size() {
+  awk -v b="$1" 'BEGIN { printf "%.1f GB", b / 1e9 }'
+}
+
+# ---------------------------------------------------------------------------------------
+# 사전 점검
+# ---------------------------------------------------------------------------------------
+
+need_docker() {
+  command -v docker > /dev/null 2>&1 \
+    || die "docker가 설치돼 있지 않습니다. $README 의 '2. Docker Engine'을 따라 설치하세요."
+  local out
+  if ! out="$(docker info --format '{{.ServerVersion}}' 2>&1)"; then
+    case "$out" in
+      *"permission denied"*)
+        die "docker 소켓에 접근할 권한이 없습니다. 'docker' 그룹에 들어간 뒤 로그아웃·로그인(VS Code는 완전히 종료 후 재시작)해야 합니다. $README 의 '3. sudo 없이 docker 쓰기' 참고." ;;
+      *"Cannot connect to the Docker daemon"* | *"Is the docker daemon running"* | *"failed to connect to the docker API"*)
+        die "Docker 데몬에 연결할 수 없습니다. 꺼져 있다면 'sudo systemctl start docker'. Docker Desktop이나 원격·WSL 터미널이 아닌, 이 PC의 Docker Engine이어야 합니다 ($README 2단계)." ;;
+      *)
+        die "docker info가 실패했습니다: $out" ;;
+    esac
+  fi
+  local ver
+  ver="$(docker compose version --short 2> /dev/null || true)"
+  ver="${ver#v}"
+  [ -n "$ver" ] || die "docker compose 플러그인이 없습니다. $README 2단계의 docker-compose-plugin을 설치하세요."
+  version_ge "$ver" "$MIN_COMPOSE" \
+    || die "Docker Compose $ver 는 너무 낮습니다. $MIN_COMPOSE 이상이 필요합니다 ($README 2단계)."
+}
+
+need_nvidia() {
+  docker info --format '{{json .Runtimes}}' 2> /dev/null | grep -q '"nvidia"' \
+    || die "Docker에 NVIDIA 런타임이 없습니다. NVIDIA Container Toolkit을 설치·설정하세요. $README 의 '4. NVIDIA Container Toolkit' 참고 (확인: docker run --rm --gpus all ubuntu nvidia-smi)."
+  command -v nvidia-smi > /dev/null 2>&1 \
+    || die "nvidia-smi가 없습니다. NVIDIA 드라이버가 설치돼 있지 않습니다. $README 의 '1. NVIDIA 드라이버' 참고."
+  local out drv
+  out="$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>&1 || true)"
+  drv="$(printf '%s\n' "$out" | head -n1 | tr -d '[:space:]')"
+  if ! [[ "$drv" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+    die "nvidia-smi가 드라이버 버전을 알려 주지 않았습니다: $out"
+  fi
+  version_ge "$drv" "$MIN_DRIVER" \
+    || die "NVIDIA 드라이버 $drv 는 너무 낮습니다. $MIN_DRIVER 이상이 필요합니다 (Isaac Sim 6.2, CUDA 13). $README 의 '1. NVIDIA 드라이버' 참고."
+}
+
+# sim 빌드 전에 디스크 여유를 봅니다(경고만 하고 막지는 않습니다). 2026-10-22 측정: 베이스를 이미 받았어도 빌드가
+# 최대 약 60 GB를 더 쓰고(베이스를 빌드용으로 한 번 더 풂), 처음부터라면 약 130 GB가 필요합니다.
+check_disk_for_sim() {
+  local need=130 root avail
+  if have_image "$ISAACLAB_BASE_IMAGE"; then
+    need=65
+  fi
+  root="$(docker info --format '{{.DockerRootDir}}' 2> /dev/null || echo /var/lib/docker)"
+  avail="$(df -Pk "$root" 2> /dev/null | awk 'NR==2 { print int($4 / 1048576) }' || true)"
+  if [ -z "$avail" ]; then
+    avail="$(df -Pk /var/lib 2> /dev/null | awk 'NR==2 { print int($4 / 1048576) }' || true)"
+  fi
+  if [ -n "$avail" ] && [ "$avail" -lt "$need" ]; then
+    warn "여유 디스크가 약 ${avail} GB입니다. sim 빌드 중에는 ${need} GB 정도가 필요합니다($README 5단계). 계속 진행하지만 빌드가 중간에 실패하면 docker builder prune -f 로 cache를 지우세요."
+  fi
+}
+
+require_image() {
+  local svc="$1" img
+  img="$(image_of "$svc")"
+  if have_image "$img"; then
+    return 0
+  fi
+  case "$svc" in
+    sim) die "이미지 $img 가 없습니다. 먼저 ./docker/hn build sim 을 실행하세요 (Isaac Lab 베이스를 받느라 처음에는 오래 걸립니다)." ;;
+    ros) die "이미지 $img 가 없습니다. ./docker/hn pull ros 로 받으세요. 아직 GHCR에 올라오지 않았다면 ./docker/hn build ros 로 직접 빌드합니다." ;;
+  esac
+}
+
+# bind mount 원본이 없으면 Docker가 root 소유로 만들어 버려서 컨테이너(내 UID)가 쓸 수 없게 됩니다.
+# 그래서 내 계정으로 먼저 만들어 둡니다.
+prepare_host_dirs() {
+  local svc="$1" d
+  mkdir -p "$HN_DATA_DIR"
+  if [ "$svc" = sim ]; then
+    mkdir -p "$HN_DATA_DIR/isaaclab/logs"
+  fi
+  # colcon 출력(named volume)이 mount될 자리. 없으면 root 소유 빈 폴더가 저장소 안에 생깁니다(git은 무시함).
+  mkdir -p "$REPO_ROOT/build" "$REPO_ROOT/install" "$REPO_ROOT/log"
+  if [ ! -d /tmp/.X11-unix ]; then
+    mkdir -m 1777 /tmp/.X11-unix 2> /dev/null || true
+  fi
+  for d in "$HN_DATA_DIR" "$REPO_ROOT/build" "$REPO_ROOT/install" "$REPO_ROOT/log"; do
+    if [ ! -w "$d" ]; then
+      warn "$d 에 쓸 수 없습니다 (root 소유?). 컨테이너에서 파일을 만들 수 없을 수 있습니다: sudo chown -R $(id -un):$(id -gn) '$d'"
+    fi
+  done
+}
+
+# 컨테이너(내 UID)가 호스트 X 서버에 접속할 수 있게 허용합니다.
+allow_x11() {
+  if [ -z "${DISPLAY:-}" ]; then
+    warn "DISPLAY가 비어 있어 GUI 창(Isaac Sim, rviz2)은 뜨지 않습니다. headless 실행은 됩니다. 호스트 데스크톱 세션의 터미널에서 실행하세요."
+    return 0
+  fi
+  if ! command -v xhost > /dev/null 2>&1; then
+    warn "xhost가 없어 GUI 접근을 허용하지 못했습니다 (sudo apt install x11-xserver-utils). GUI 창이 안 뜰 수 있습니다."
+    return 0
+  fi
+  xhost "+SI:localuser:$(id -un)" > /dev/null 2>&1 \
+    || warn "xhost 실행에 실패했습니다. GUI 창이 안 뜨면 호스트 데스크톱 세션에서 실행했는지 확인하세요."
+}
+
+# ---------------------------------------------------------------------------------------
+# 명령
+# ---------------------------------------------------------------------------------------
+
+cmd_build() {
+  check_service "${1:-}" build
+  local svc="$1" img start
+  need_docker
+  if [ "$svc" = sim ]; then
+    check_disk_for_sim
+  fi
+  img="$(image_of "$svc")"
+  info "$svc 이미지를 빌드합니다 → $img"
+  if [ "$svc" = sim ] && ! have_image "$ISAACLAB_BASE_IMAGE"; then
+    info "NVIDIA Isaac Lab 베이스 이미지(압축 약 17 GB)를 먼저 내려받습니다. 로그인은 필요 없습니다."
+  fi
+  start=$SECONDS
+  compose build "$svc" || die "$svc 이미지 빌드에 실패했습니다. 위 로그의 마지막 오류를 확인하세요."
+  start=$((SECONDS - start))
+  info "빌드 완료: $img ($(human_size "$(docker image inspect --format '{{.Size}}' "$img")")), $((start / 60))분 $((start % 60))초"
+}
+
+cmd_pull() {
+  case "${1:-}" in
+    ros)
+      need_docker
+      info "$HN_ROS_IMAGE 를 받습니다."
+      docker pull "$HN_ROS_IMAGE" \
+        || die "이미지를 받지 못했습니다. 아직 CI가 GHCR에 올리지 않았거나 네트워크 문제일 수 있습니다. 올라오기 전에는 ./docker/hn build ros 로 직접 빌드하세요."
+      ;;
+    sim)
+      die "sim 이미지는 배포하지 않습니다(NVIDIA 이미지 재배포 문제). 각자 ./docker/hn build sim 으로 빌드하세요." ;;
+    *)
+      die "사용법: ./docker/hn pull ros" ;;
+  esac
+}
+
+# compose up -d. 진행 표시가 같은 줄을 두 번씩 찍어 시끄러우므로 실패했을 때만 출력을 보여 줍니다.
+start_service() {
+  local out
+  if ! out="$(compose up -d "$@" 2>&1)"; then
+    printf '%s\n' "$out" >&2
+    die "컨테이너를 시작하지 못했습니다. 위 오류를 확인하세요."
+  fi
+}
+
+# 컨테이너가 꺼져 있으면 켭니다. 켜져 있으면 건드리지 않고(열려 있는 다른 셸을 보호), 이미지가 새로 빌드됐을 때만 다시 만듭니다.
+ensure_running() {
+  local svc="$1" cname="hn-$1" want have running src env_domain
+  want="$(docker image inspect --format '{{.Id}}' "$(image_of "$svc")")"
+  running="$(docker inspect --format '{{.State.Running}}' "$cname" 2> /dev/null || true)"
+  if [ "$running" = true ]; then
+    src="$(docker inspect --format '{{range .Mounts}}{{if eq .Destination "/workspace/hypernova"}}{{.Source}}{{end}}{{end}}' "$cname")"
+    if [ -n "$src" ] && [ "$src" != "$REPO_ROOT" ]; then
+      die "$cname 는 다른 위치의 저장소($src)를 쓰고 있습니다. 이 저장소($REPO_ROOT)에서 쓰려면 먼저 ./docker/hn reset 을 실행하세요."
+    fi
+    have="$(docker inspect --format '{{.Image}}' "$cname")"
+    if [ "$have" != "$want" ]; then
+      info "$svc 이미지가 새로 빌드돼서 컨테이너를 다시 만듭니다 (열려 있던 셸은 종료됩니다)."
+      start_service --force-recreate "$svc"
+      return 0
+    fi
+    env_domain="$(docker inspect --format '{{range .Config.Env}}{{println .}}{{end}}' "$cname" | sed -n 's/^ROS_DOMAIN_ID=//p')"
+    if [ -n "$env_domain" ] && [ "$env_domain" != "$ROS_DOMAIN_ID" ]; then
+      warn "실행 중인 컨테이너의 ROS_DOMAIN_ID($env_domain)가 docker/.env.local 값($ROS_DOMAIN_ID)과 다릅니다. ./docker/hn reset 후 다시 실행해야 반영됩니다."
+    fi
+  else
+    start_service "$svc"
+    info "$svc 컨테이너를 시작했습니다 (hn-$svc)."
+  fi
+}
+
+cmd_shell() {
+  local svc="$1"
+  shift
+  need_docker
+  if [ "$svc" = sim ]; then
+    need_nvidia
+  fi
+  require_image "$svc"
+  prepare_host_dirs "$svc"
+  allow_x11
+  ensure_running "$svc"
+
+  local tty_args=() env_args=()
+  if [ ! -t 0 ] || [ ! -t 1 ]; then
+    tty_args=(-T)
+  fi
+  if [ -n "${DISPLAY:-}" ]; then
+    env_args=(-e "DISPLAY=$DISPLAY")   # 컨테이너를 만든 뒤 DISPLAY가 바뀌었어도(SSH 등) 이 셸에서는 현재 값을 씁니다
+  fi
+  if [ "$#" -eq 0 ]; then
+    set -- bash
+    info "$svc 컨테이너에 접속합니다 (ROS_DOMAIN_ID=$ROS_DOMAIN_ID, 저장소 → /workspace/hypernova, 데이터 → /data)."
+  fi
+  exec docker compose "${COMPOSE_ARGS[@]}" \
+    exec ${tty_args[@]+"${tty_args[@]}"} ${env_args[@]+"${env_args[@]}"} "$svc" /opt/hn/entrypoint.sh "$@"
+}
+
+cmd_stop() {
+  local svcs=("$@")
+  if [ "${#svcs[@]}" -eq 0 ]; then
+    svcs=(sim ros)
+  fi
+  local s
+  for s in "${svcs[@]}"; do
+    check_service "$s" stop
+  done
+  need_docker
+  compose stop "${svcs[@]}"
+}
+
+cmd_reset() {
+  local svcs=("$@")
+  if [ "${#svcs[@]}" -eq 0 ]; then
+    svcs=(sim ros)
+  fi
+  local s
+  for s in "${svcs[@]}"; do
+    check_service "$s" reset
+  done
+  need_docker
+  compose rm -sf "${svcs[@]}"
+  info "컨테이너를 지웠습니다. colcon 빌드 결과와 Isaac 캐시(volume), 저장소, 데이터는 그대로입니다. 다음 ./docker/hn sim|ros 때 새로 만들어집니다."
+}
+
+cmd_status() {
+  need_docker
+  local svc img note state drv vols
+  printf '저장소        %s\n' "$REPO_ROOT"
+  printf '개인 설정     %s\n' "$ENV_LOCAL"
+  printf '              HOST_UID=%s  HOST_GID=%s  ROS_DOMAIN_ID=%s\n' "${HOST_UID:-?}" "${HOST_GID:-?}" "${ROS_DOMAIN_ID:-?}"
+  printf '데이터 폴더   %s  (컨테이너 안 /data)\n' "$HN_DATA_DIR"
+  if command -v nvidia-smi > /dev/null 2>&1; then
+    drv="$(nvidia-smi --query-gpu=driver_version,name --format=csv,noheader 2> /dev/null | head -n1 || true)"
+    printf 'GPU           %s  (드라이버 최소 %s)\n' "${drv:-확인 불가}" "$MIN_DRIVER"
+  else
+    printf 'GPU           nvidia-smi 없음 (ros만 쓸 수 있음)\n'
+  fi
+  for svc in sim ros; do
+    img="$(image_of "$svc")"
+    if have_image "$img"; then
+      note="있음 ($(human_size "$(docker image inspect --format '{{.Size}}' "$img")"))"
+    elif [ "$svc" = sim ]; then
+      note="없음 → ./docker/hn build sim"
+    else
+      note="없음 → ./docker/hn pull ros"
+    fi
+    if ! state="$(docker inspect --format '{{.State.Status}}' "hn-$svc" 2> /dev/null)"; then
+      state="없음"
+    fi
+    printf '\n[%s] 이미지     %s — %s\n' "$svc" "$img" "$note"
+    printf '      컨테이너   hn-%s — %s\n' "$svc" "$state"
+  done
+  vols="$(docker volume ls -q --filter "label=com.docker.compose.project=$PROJECT" | wc -l)"
+  printf '\nvolume        %s개 (colcon 빌드 결과, Isaac 캐시)\n' "$vols"
+}
+
+main() {
+  local cmd="${1:-help}"
+  if [ "$#" -gt 0 ]; then
+    shift
+  fi
+  case "$cmd" in
+    help | -h | --help)
+      usage
+      return 0 ;;
+    build | pull | sim | ros | train | play | stop | reset | status) ;;
+    *)
+      usage >&2
+      die "알 수 없는 명령입니다: $cmd" ;;
+  esac
+
+  ensure_env_local
+  load_env
+
+  case "$cmd" in
+    build)  cmd_build "$@" ;;
+    pull)   cmd_pull "$@" ;;
+    sim)    cmd_shell sim "$@" ;;
+    ros)    cmd_shell ros "$@" ;;
+    train | play) cmd_shell sim hn-rl "$cmd" "$@" ;;
+    stop)   cmd_stop "$@" ;;
+    reset)  cmd_reset "$@" ;;
+    status) cmd_status ;;
+  esac
+}
+
+main "$@"

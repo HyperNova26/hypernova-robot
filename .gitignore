@@ -19,6 +19,10 @@ $RECYCLE.BIN/
 .env
 .env.*
 !.env.example
+# docker/.env는 버전 고정이라 커밋하고, 개인 설정(.env.local)만 제외한다
+!docker/.env
+!docker/.env.local.example
+docker/.env.local
 *.pem
 *.key
 *.p12
@@ -56,7 +60,7 @@ cmake-build-*/
 # Runtime logs and crash artifacts
 *.log
 *.core
-core.*
+core.[0-9]*
 
 # Robot recordings and generated sensor data
 *.bag
@@ -73,6 +77,7 @@ recordings/
 *.pt
 *.pth
 *.onnx
+*.onnx.data
 *.engine
 checkpoints/
 runs/
@@ -81,6 +86,15 @@ wandb/
 
 # Local datasets and ad-hoc downloads
 /data/
+
+# Generated map scenes (Asia/Seoul MMDD output directories)
+/sim_scenes/[0-9][0-9][0-9][0-9]_demo_whole/
+/sim_scenes/[0-9][0-9][0-9][0-9]_demo_disassembled/
+
+# S-004 local review input and generated scene files; keep only code and documentation in Git.
+/sim_scenes/S004_ground_final/input/
+/sim_scenes/S004_ground_final/review/*.npz
+/sim_scenes/S004_ground_final/result/
 
 # CAD / EDA temporary and generated files
 ~$*.SLDPRT
@@ -99,3 +113,8 @@ __Previews/
 dist/
 artifacts/
 exports/local/
+temp/
+
+# Personal AI assistant configuration (shared CLAUDE.md / AGENTS.md stay tracked)
+CLAUDE.local.md
+.claude/settings.local.json

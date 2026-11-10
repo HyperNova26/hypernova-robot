@@ -36,7 +36,10 @@ HyperNova는 스스로 움직이는 로봇을 직접 설계해서 만드는 팀 
 ## 문서
 
 - [문서 색인](./docs/README.md)
+- [시뮬레이터 장면 변환 안내](./sim_scenes/README.md) — 전체 점군 변환과 미완성 segmentation의 현재 범위
 - [ADR-0001: 단일 저장소로 시작](./docs/decisions/0001-monorepo-first.md)
+
+2026-10-30 기준, 맵 도구는 `tools/map/demo_sim_converter.{sh,py}`와 `demo_sim_disassembler.{sh,py}`로 구성됩니다. `.sh`는 실행 환경을 선택하고 같은 이름의 `.py` 구현을 실행합니다. 전체 점군의 USD·MuJoCo voxel 장면 변환은 제공하며, 분해 도구는 빈 출력 폴더만 만듭니다. **ground 분리와 cars·other 객체 segmentation은 미완성이며, S-004에서 구현·개선하고 실제 PAIR360 데이터로 검증해야 합니다.**
 
 ## 라이선스
 

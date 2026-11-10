@@ -1,0 +1,160 @@
+# HyperNova 개발 컨테이너 (서비스: sim, ros)
+#
+# 직접 `docker compose`를 치지 말고 ./docker/hn 으로 실행합니다. hn이 docker/.env.local 생성, 호스트 폴더 준비,
+# xhost, 이미지 확인까지 해 주고, 변수 우선순위(셸 환경변수보다 .env 파일)도 맞춰 줍니다.
+# 설명: docker/README.md      결정 근거: docs/decisions/0002-dev-environment.md §6
+# 컨테이너 안 경로: 저장소 /workspace/hypernova, 데이터 /data, Isaac Lab /workspace/isaaclab
+
+name: hypernova
+
+# --- 두 서비스가 같이 쓰는 설정 ---------------------------------------------------------
+x-build-args: &build-args
+  ROS_BASE_IMAGE: ${ROS_BASE_IMAGE:?docker/.env가 필요합니다. ./docker/hn 으로 실행하세요}
+  ISAACLAB_BASE_IMAGE: ${ISAACLAB_BASE_IMAGE:?docker/.env가 필요합니다. ./docker/hn 으로 실행하세요}
+  ROS_DISTRO: ${ROS_DISTRO:?docker/.env가 필요합니다. ./docker/hn 으로 실행하세요}
+  ROS_SNAPSHOT_DATE: ${ROS_SNAPSHOT_DATE:?docker/.env가 필요합니다. ./docker/hn 으로 실행하세요}
+  UV_VERSION: ${UV_VERSION:?docker/.env가 필요합니다. ./docker/hn 으로 실행하세요}
+  UV_SHA256_AMD64: ${UV_SHA256_AMD64:?docker/.env가 필요합니다. ./docker/hn 으로 실행하세요}
+  UV_SHA256_ARM64: ${UV_SHA256_ARM64:?docker/.env가 필요합니다. ./docker/hn 으로 실행하세요}
+
+x-hn-common: &hn-common
+  init: true                # PID 1이 sleep이라, docker exec로 연 셸이 남긴 고아 프로세스를 거두게 함
+  network_mode: host        # ADR-0002 §6: 호스트 네트워크를 그대로 씀
+  ipc: host                 #   호스트 /dev/shm을 그대로 써서 PyTorch·Isaac Sim의 공유 메모리가 모자라지 않게 함.
+                            #   ROS 통신은 fastdds.xml이 UDP만 쓰게 해서 이 설정에 기대지 않음(그래서 IPC·UID가 달라도 통함)
+  user: "${HOST_UID:?docker/.env.local이 없습니다. ./docker/hn 으로 실행하세요}:${HOST_GID:?docker/.env.local이 없습니다. ./docker/hn 으로 실행하세요}"
+  command: ["sleep", "infinity"]   # 셸은 hn이 docker compose exec로 엽니다
+  restart: "no"
+  stop_grace_period: 10s
+
+x-hn-environment: &hn-environment
+  HOME: /home/hn                   # 베이스 이미지의 /root는 UID 1000 전용이라 모든 UID가 쓸 수 있는 /home/hn을 씁니다
+  USER: hn                         # passwd에 없는 UID에서도 getpass.getuser() 같은 호출이 동작하게
+  LOGNAME: hn
+  ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:?docker/.env.local이 없습니다. ./docker/hn 으로 실행하세요}
+  # RMW_IMPLEMENTATION, FASTRTPS_DEFAULT_PROFILES_FILE은 이미지(Dockerfile ENV)에 있습니다
+  DISPLAY: ${DISPLAY:-}
+  QT_X11_NO_MITSHM: "1"
+  HN_EDITABLE_PACKAGES: ${HN_EDITABLE_PACKAGES:-}   # entrypoint.sh 참고. 지금은 비어 있음
+
+# 마운트 조각. 서비스마다 필요한 것만 골라 씁니다.
+x-mount-repo: &mount-repo           # 코드: 호스트에서 저장하면 컨테이너에 바로 반영
+  type: bind
+  source: ..
+  target: /workspace/hypernova
+x-mount-data: &mount-data           # 데이터: rosbag, 학습 결과, 지형
+  type: bind
+  source: ${HN_DATA_DIR:-${HOME}/hypernova-data}
+  target: /data
+x-mount-colcon-build: &mount-colcon-build   # colcon 출력은 호스트 저장소 밖(named volume)에 둠
+  type: volume
+  source: colcon-build
+  target: /workspace/hypernova/build
+x-mount-colcon-install: &mount-colcon-install
+  type: volume
+  source: colcon-install
+  target: /workspace/hypernova/install
+x-mount-colcon-log: &mount-colcon-log
+  type: volume
+  source: colcon-log
+  target: /workspace/hypernova/log
+x-mount-x11: &mount-x11             # GUI(rviz2, Isaac Sim 창). hn이 xhost로 접근을 허용함
+  type: bind
+  source: /tmp/.X11-unix
+  target: /tmp/.X11-unix
+x-mount-localtime: &mount-localtime
+  type: bind
+  source: /etc/localtime
+  target: /etc/localtime
+  read_only: true
+
+services:
+  # 인지팀·SW팀: GPU 없이 ROS 작업 (이미지는 CI가 GHCR에 올림. 올라오기 전에는 ./docker/hn build ros)
+  ros:
+    <<: *hn-common
+    image: ${HN_ROS_IMAGE:?docker/.env가 필요합니다. ./docker/hn 으로 실행하세요}
+    container_name: hn-ros
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: ros
+      args: *build-args
+    working_dir: /workspace/hypernova
+    environment:
+      <<: *hn-environment
+      HN_EDITABLE_PYTHON: /opt/hn-venv/bin/python
+    volumes:
+      - *mount-repo
+      - *mount-data
+      - *mount-colcon-build
+      - *mount-colcon-install
+      - *mount-colcon-log
+      - *mount-x11
+      - *mount-localtime
+
+  # 보행팀: Isaac Sim + Isaac Lab (이미지는 배포하지 않고 각자 ./docker/hn build sim)
+  sim:
+    <<: *hn-common
+    image: ${HN_SIM_IMAGE:?docker/.env가 필요합니다. ./docker/hn 으로 실행하세요}
+    container_name: hn-sim
+    pull_policy: never        # hn:sim-*은 로컬 전용 이름이라 Docker Hub에서 찾으려 하면 오히려 헷갈리는 오류가 남
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: sim
+      args: *build-args
+    working_dir: /workspace/isaaclab
+    environment:
+      <<: *hn-environment
+      ACCEPT_EULA: "Y"
+      HN_EDITABLE_PYTHON: /opt/isaaclab-venv/bin/python
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - *mount-repo
+      - *mount-data
+      - *mount-colcon-build
+      - *mount-colcon-install
+      - *mount-colcon-log
+      - *mount-x11
+      - *mount-localtime
+      # 학습 로그·checkpoint·ONNX는 호스트 /data 아래에 남깁니다(컨테이너를 지워도, 호스트에서도 보이게)
+      - type: bind
+        source: ${HN_DATA_DIR:-${HOME}/hypernova-data}/isaaclab/logs
+        target: /workspace/isaaclab/logs
+      # Isaac Sim 캐시·로그. 경로는 Isaac Lab v3.0.0 docker/docker-compose.yaml과 같고(HOME만 /home/hn),
+      # shader 컴파일 결과가 컨테이너를 다시 만들어도 남게 합니다.
+      - {type: volume, source: isaac-cache-kit, target: /isaac-sim/kit/cache}
+      - {type: volume, source: isaac-data-kit, target: /isaac-sim/kit/data}
+      - {type: volume, source: isaac-carb-logs, target: /isaac-sim/kit/logs/Kit/Isaac-Sim}
+      - {type: volume, source: isaac-cache-ov, target: /home/hn/.cache/ov}
+      - {type: volume, source: isaac-cache-pip, target: /home/hn/.cache/pip}
+      - {type: volume, source: isaac-cache-gl, target: /home/hn/.cache/nvidia/GLCache}
+      - {type: volume, source: isaac-cache-compute, target: /home/hn/.nv/ComputeCache}
+      - {type: volume, source: isaac-cache-warp, target: /home/hn/.cache/warp}
+      - {type: volume, source: isaac-logs, target: /home/hn/.nvidia-omniverse/logs}
+      - {type: volume, source: isaac-data, target: /home/hn/.local/share/ov/data}
+      - {type: volume, source: isaac-docs, target: /home/hn/Documents}
+
+volumes:
+  # colcon (sim, ros 공용: 같은 ROS 레이어라 한쪽에서 빌드한 결과를 다른 쪽에서 씁니다)
+  colcon-build:
+  colcon-install:
+  colcon-log:
+  # Isaac Sim 캐시 (sim)
+  isaac-cache-kit:
+  isaac-data-kit:
+  isaac-carb-logs:
+  isaac-cache-ov:
+  isaac-cache-pip:
+  isaac-cache-gl:
+  isaac-cache-compute:
+  isaac-cache-warp:
+  isaac-logs:
+  isaac-data:
+  isaac-docs:

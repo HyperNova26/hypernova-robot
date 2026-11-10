@@ -1,0 +1,15 @@
+# apt로 설치할 수 없는 소스 의존성 (docker/scripts/install_lio.sh가 vcs import로 받아 /opt/hn_ws에 빌드합니다).
+# 브랜치가 아니라 commit SHA로 고정합니다. 올릴 때는 SHA와 아래 주석의 날짜를 함께 바꾸고 docker/.env의 이미지 태그를 올립니다.
+repositories:
+  # FAST-LIO2 (ROS 2 포팅). ROS2 브랜치의 2025-01-15 commit.
+  # include/ikd-Tree 서브모듈은 이 commit이 가리키는 SHA(e2e3f4e)로 같이 고정됩니다(--recursive).
+  FAST_LIO:
+    type: git
+    url: https://github.com/hku-mars/FAST_LIO.git
+    version: a4743b095409588842a5b30ddfa27e29d2f99164
+  # FAST-LIO는 이 패키지의 메시지(CustomMsg)만 컴파일에 필요로 합니다. 태그 1.2.6(2026-04-14)의 commit.
+  # 드라이버 본체는 만들지 않습니다(install_lio.sh 설명 참고).
+  livox_ros_driver2:
+    type: git
+    url: https://github.com/Livox-SDK/livox_ros_driver2.git
+    version: 13eb05e4e6dd7a765b934d0c5fd6236676a57b49
