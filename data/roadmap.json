@@ -180,7 +180,7 @@
       "area": "common",
       "milestone": "S1",
       "title": "URDF 수령 체크리스트",
-      "status": "예정",
+      "status": "완료",
       "due": "2026-11-08",
       "url": "https://app.notion.com/p/40645bd8717881d2b089f20f4f68f4cf"
     },
@@ -226,15 +226,6 @@
       "owners": [
         "김완준"
       ]
-    },
-    {
-      "id": "S-003",
-      "area": "perc",
-      "milestone": "S1",
-      "title": "데이터 흐름 설계",
-      "status": "예정",
-      "due": "2026-11-08",
-      "url": "https://app.notion.com/p/3fe45bd87178815c85fcc5ecb6116ae0"
     },
     {
       "id": "S-004",
@@ -291,9 +282,7 @@
       "due": "2026-11-15",
       "url": "https://app.notion.com/p/3fe45bd8717881848066dcc35d531a6d",
       "owners": [
-        "김완준",
-        "장승민",
-        "허재원"
+        "김완준"
       ]
     },
     {
