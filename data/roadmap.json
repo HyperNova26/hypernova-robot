@@ -197,7 +197,7 @@
     {
       "id": "G-002",
       "area": "walk",
-      "milestone": "S1",
+      "milestone": "S2",
       "title": "Policy IO 통일",
       "status": "진행",
       "due": "2026-11-15",
@@ -243,7 +243,7 @@
     {
       "id": "G-004",
       "area": "walk",
-      "milestone": "S2",
+      "milestone": "S3",
       "title": "V1 보상 튜닝 기록",
       "status": "예정",
       "due": "2026-11-22",
@@ -312,7 +312,7 @@
     {
       "id": "G-008",
       "area": "walk",
-      "milestone": "S3",
+      "milestone": "S2",
       "title": "URDF v1 적용 + 학습 수정",
       "status": "예정",
       "due": "2026-11-15",
