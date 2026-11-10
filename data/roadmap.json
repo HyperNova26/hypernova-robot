@@ -347,6 +347,18 @@
       ]
     },
     {
+      "id": "S-014",
+      "area": "perc",
+      "milestone": "S2",
+      "title": "GPS GT 위치추정 검증",
+      "status": "예정",
+      "due": "2026-11-15",
+      "url": "https://app.notion.com/p/41445bd8717881f0a336caf45f6f2c4d",
+      "owners": [
+        "김완준"
+      ]
+    },
+    {
       "id": "S-008",
       "area": "perc",
       "milestone": "S3",
