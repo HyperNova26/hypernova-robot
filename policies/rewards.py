@@ -2,7 +2,8 @@
 # Copyright 2026 HYPERNOVA contributors
 """hypernova_go2 보행 과제 공용 보상.
 
-envs/ 아래 버전별 과제(Flat, Rough)가 함께 씁니다.
+urdf_vN/ 버전별 과제(Flat, Rough)가 함께 씁니다. 발 body 이름은 버전마다 다를 수 있으므로
+각 버전의 env.py에서 use_foot_bodies()로 채웁니다.
 """
 
 from isaaclab.managers import RewardTermCfg as RewTerm
@@ -13,12 +14,9 @@ import isaaclab_tasks.contrib.velocity.config.spot.mdp as spot_mdp
 import isaaclab_tasks.core.velocity.mdp as mdp
 from isaaclab_tasks.core.velocity.config.go2.rough_env_cfg import UnitreeGo2Rewards
 
-# 발 body 이름 규칙(*_foot)은 로봇 설정에서 가져옵니다.
-from .robots.hn_v0_go2 import FOOT_BODY_REGEX
-
 
 @configclass
-class HnGo2V0Rewards(UnitreeGo2Rewards):
+class HnGo2Rewards(UnitreeGo2Rewards):
     """Go2 보상에 발 끌기·편발 벌점과 트롯 걸음·발 들기 보상을 더합니다.
 
     2026-11-04 rough 학습(2500 iter)에서 평지 보행 시 RL 발을 끄는 비대칭 걸음이 나와서
@@ -30,8 +28,8 @@ class HnGo2V0Rewards(UnitreeGo2Rewards):
         func=mdp.feet_slide,
         weight=-0.3,
         params={
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=FOOT_BODY_REGEX),
-            "asset_cfg": SceneEntityCfg("robot", body_names=FOOT_BODY_REGEX),
+            "sensor_cfg": SceneEntityCfg("contact_forces"),
+            "asset_cfg": SceneEntityCfg("robot"),
         },
     )
     # 네 발의 마지막 공중·접지 시간 [s](0.5 s에서 자름)의 분산에 벌점을 줍니다. 한 발만 들거나 끄는 걸음을 잡습니다.
@@ -41,7 +39,7 @@ class HnGo2V0Rewards(UnitreeGo2Rewards):
         weight=-2.0,
         params={
             "command_name": "base_velocity",
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=FOOT_BODY_REGEX),
+            "sensor_cfg": SceneEntityCfg("contact_forces"),
             "max_time": 0.5,
         },
     )
@@ -72,6 +70,18 @@ class HnGo2V0Rewards(UnitreeGo2Rewards):
             "std": 0.01,
             "tanh_mult": 2.0,
             "target_height": 0.08,
-            "asset_cfg": SceneEntityCfg("robot", body_names=FOOT_BODY_REGEX),
+            "asset_cfg": SceneEntityCfg("robot"),
         },
     )
+
+
+def use_foot_bodies(rewards: HnGo2Rewards, foot_body_regex: str) -> None:
+    """발 body를 쓰는 보상 항목에 이 로봇 버전의 발 body 이름을 채웁니다.
+
+    body_names를 비워 두면 모든 body가 잡히므로, 과제 설정에서 반드시 부릅니다.
+    """
+    rewards.feet_air_time.params["sensor_cfg"].body_names = foot_body_regex
+    rewards.feet_slide.params["sensor_cfg"].body_names = foot_body_regex
+    rewards.feet_slide.params["asset_cfg"].body_names = foot_body_regex
+    rewards.feet_air_time_variance.params["sensor_cfg"].body_names = foot_body_regex
+    rewards.foot_clearance.params["asset_cfg"].body_names = foot_body_regex

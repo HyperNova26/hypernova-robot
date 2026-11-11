@@ -20,8 +20,8 @@ from isaaclab_tasks.core.velocity.config.go2.agents.rsl_rl_ppo_cfg import (
 from isaaclab_tasks.core.velocity.config.go2.flat_env_cfg import UnitreeGo2FlatEnvCfg
 from isaaclab_tasks.core.velocity.config.go2.rough_env_cfg import UnitreeGo2RoughEnvCfg
 
-from ..rewards import HnGo2V0Rewards
-from ..robots.hn_v0_go2 import FOOT_BODY_REGEX, HN_GO2_V0_CFG
+from ..rewards import HnGo2Rewards, use_foot_bodies
+from .robot import FOOT_BODY_REGEX, HN_GO2_V0_CFG
 
 
 def _use_hn_robot(cfg) -> None:
@@ -29,14 +29,14 @@ def _use_hn_robot(cfg) -> None:
     if getattr(cfg.scene, "height_scanner", None) is not None:
         cfg.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/Geometry/base"
     cfg.scene.robot = replace(HN_GO2_V0_CFG, prim_path="{ENV_REGEX_NS}/Robot")
-    cfg.rewards.feet_air_time.params["sensor_cfg"].body_names = FOOT_BODY_REGEX
+    use_foot_bodies(cfg.rewards, FOOT_BODY_REGEX)
     # merge_fixed_joints=False라서 머리·payload·lidar가 base와 별도 body입니다. 닿으면 base처럼 종료합니다.
     cfg.terminations.base_contact.params["sensor_cfg"].body_names = "base|Head_.*|equipment_payload|front_lidar"
 
 
 @configclass
 class HnGo2V0RoughEnvCfg(UnitreeGo2RoughEnvCfg):
-    rewards: HnGo2V0Rewards = HnGo2V0Rewards()
+    rewards: HnGo2Rewards = HnGo2Rewards()
 
     def __post_init__(self):
         super().__post_init__()
@@ -59,7 +59,7 @@ class HnGo2V0RoughEnvCfg(UnitreeGo2RoughEnvCfg):
 
 @configclass
 class HnGo2V0FlatEnvCfg(UnitreeGo2FlatEnvCfg):
-    rewards: HnGo2V0Rewards = HnGo2V0Rewards()
+    rewards: HnGo2Rewards = HnGo2Rewards()
 
     def __post_init__(self):
         super().__post_init__()

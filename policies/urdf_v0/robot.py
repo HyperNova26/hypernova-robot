@@ -20,8 +20,8 @@ from isaaclab.assets.articulation import ArticulationCfg
 
 # 저장소 루트 기준으로 찾으므로 호스트와 컨테이너(/workspace/hypernova) 모두 같은 경로를 씁니다.
 # 다른 URDF를 쓰려면 환경변수로 바꿉니다.
-# robots/ → hn_locomotion/ → policies/ → 저장소 루트
-_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+# urdf_v0/ → policies/ → 저장소 루트
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 URDF_PATH = os.environ.get("HN_GO2_URDF", os.path.join(_REPO_ROOT, "description/hn_v0_go2/hypernova_go2.urdf"))
 # 변환된 USD를 캐시해 두는 폴더. 생성 파일이라 저장소 밖(/data = 호스트 ~/hypernova-data)에 둡니다.
 # URDF가 바뀌지 않으면 다음 실행부터 다시 변환하지 않습니다.
