@@ -301,7 +301,7 @@
       "id": "S-007",
       "area": "perc",
       "milestone": "S2",
-      "title": "데모 구역 현장 녹화",
+      "title": "데모 구역 현장 녹화 + 사전지도 정합",
       "status": "진행",
       "due": "2026-11-15",
       "url": "https://app.notion.com/p/40645bd87178815c9a28d85d01ea9620",
@@ -314,7 +314,7 @@
       "area": "walk",
       "milestone": "S2",
       "title": "URDF v1 적용 + 학습 수정",
-      "status": "예정",
+      "status": "진행",
       "due": "2026-11-15",
       "url": "https://app.notion.com/p/3fe45bd8717881cf9991c5861c676c0e",
       "owners": [
