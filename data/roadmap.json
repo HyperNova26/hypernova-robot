@@ -278,7 +278,7 @@
       "area": "perc",
       "milestone": "S2",
       "title": "대시보드 데이터 구조",
-      "status": "예정",
+      "status": "완료",
       "due": "2026-11-15",
       "url": "https://app.notion.com/p/3fe45bd8717881848066dcc35d531a6d",
       "owners": [
@@ -338,7 +338,7 @@
       "area": "perc",
       "milestone": "S2",
       "title": "GPS GT 위치추정 검증",
-      "status": "예정",
+      "status": "완료",
       "due": "2026-11-15",
       "url": "https://app.notion.com/p/41445bd8717881f0a336caf45f6f2c4d",
       "owners": [
