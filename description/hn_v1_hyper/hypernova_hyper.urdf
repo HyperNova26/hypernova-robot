@@ -6,9 +6,9 @@
 <!--   as spawned by https://github.com/unitreerobotics/unitree_rl_lab @ 4960b84. -->
 <!-- Effort and velocity: Unitree GO-M8010-6 at the output (23.7 N*m, 30 rad/s, gear 6.33) on every joint;
      the calf joint is belt driven 1:1 by a GO-M8010-6 mounted on the thigh. -->
-<!-- Right legs mirror the left legs of the CAD about the base x-z plane. -->
+<!-- Right legs mirror the left legs of the CAD about the trunk x-z plane. -->
 <!-- CAD documents with unsaved changes at export (values are their in-memory state): thigh.iam, 숄더M8-L45.ipt -->
-<!-- HYPERNOVA: copied from https://github.com/jaemin0319/HYPER @ e5f9ed59ce04bc668f6830da51bafec7e75aef74 urdf/hyper.urdf; changed only the robot name (hyper_v1 -> hn_v1_hyper) and mesh paths (../meshes/ -> meshes/). -->
+<!-- HYPERNOVA: copied from https://github.com/jaemin0319/HYPER @ e5f9ed59ce04bc668f6830da51bafec7e75aef74 urdf/hyper.urdf; changed only the robot name (hyper_v1 -> hn_v1_hyper), mesh paths (../meshes/ -> meshes/) and the root link name (base -> trunk, team standard link names). -->
 <robot name="hn_v1_hyper">
   <!-- Read only by MuJoCo: keep mesh paths relative to this file, collide with the per-part meshes,
        keep the foot links (as Go2's dont_collapse). -->
@@ -18,7 +18,7 @@
   <material name="body"><color rgba="0.75 0.75 0.78 1"/></material>
   <material name="leg"><color rgba="0.25 0.25 0.28 1"/></material>
   <material name="foot"><color rgba="0.1 0.1 0.1 1"/></material>
-  <link name="base">
+  <link name="trunk">
     <inertial>
       <origin xyz="0 0 -0.000639621043705" rpy="0 0 0"/>
       <mass value="2.3042699539"/>
@@ -96,7 +96,7 @@
   </link>
   <joint name="FL_hip_joint" type="revolute">
     <origin xyz="0.2283 0.0474993098501 0" rpy="0 0 0"/>
-    <parent link="base"/>
+    <parent link="trunk"/>
     <child link="FL_hip"/>
     <axis xyz="1 0 0"/>
     <limit lower="-1.0472" upper="1.0472" effort="23.7" velocity="30"/>
@@ -217,7 +217,7 @@
   </link>
   <joint name="FR_hip_joint" type="revolute">
     <origin xyz="0.2283 -0.0474993098501 0" rpy="0 0 0"/>
-    <parent link="base"/>
+    <parent link="trunk"/>
     <child link="FR_hip"/>
     <axis xyz="1 0 0"/>
     <limit lower="-1.0472" upper="1.0472" effort="23.7" velocity="30"/>
@@ -338,7 +338,7 @@
   </link>
   <joint name="RL_hip_joint" type="revolute">
     <origin xyz="-0.2283 0.0474993098502 0" rpy="0 0 0"/>
-    <parent link="base"/>
+    <parent link="trunk"/>
     <child link="RL_hip"/>
     <axis xyz="1 0 0"/>
     <limit lower="-1.0472" upper="1.0472" effort="23.7" velocity="30"/>
@@ -459,7 +459,7 @@
   </link>
   <joint name="RR_hip_joint" type="revolute">
     <origin xyz="-0.2283 -0.0474993098502 0" rpy="0 0 0"/>
-    <parent link="base"/>
+    <parent link="trunk"/>
     <child link="RR_hip"/>
     <axis xyz="1 0 0"/>
     <limit lower="-1.0472" upper="1.0472" effort="23.7" velocity="30"/>

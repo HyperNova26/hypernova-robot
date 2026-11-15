@@ -32,6 +32,10 @@ USD_DIR = os.environ.get("HN_GO2_USD_DIR", "/data/usd/hn_v0_go2")
 # merge_fixed_joints=False라서 *_foot(구 충돌체, calf에서 (0, 0, -0.213) m)이 별도 body입니다.
 FOOT_BODY_REGEX = ".*_foot"
 
+# 몸통(루트) 링크 이름. 팀 표준 강체명입니다(description/hn_v0_go2/hypernova_go2.urdf).
+# 표준 Go2 설정이 몸체 "base"를 하드코딩한 곳(이벤트, 종료, height scanner)은 이 이름으로 덮어씁니다.
+TRUNK_BODY = "trunk"
+
 HN_GO2_V0_CFG = ArticulationCfg(
     spawn=sim_utils.UrdfFileCfg(
         asset_path=URDF_PATH,

@@ -21,17 +21,22 @@ from isaaclab_tasks.core.velocity.config.go2.flat_env_cfg import UnitreeGo2FlatE
 from isaaclab_tasks.core.velocity.config.go2.rough_env_cfg import UnitreeGo2RoughEnvCfg
 
 from ..rewards import HnGo2Rewards, use_foot_bodies
-from .robot import FOOT_BODY_REGEX, HN_GO2_V0_CFG
+from .robot import FOOT_BODY_REGEX, HN_GO2_V0_CFG, TRUNK_BODY
 
 
 def _use_hn_robot(cfg) -> None:
-    # 변환된 USD에서 몸통은 Robot/Geometry/base에 있음 (Go2 공식 USD는 Robot/base)
+    # 변환된 USD에서 몸통(trunk)은 Robot/Geometry/trunk에 있음 (Go2 공식 USD는 Robot/base)
     if getattr(cfg.scene, "height_scanner", None) is not None:
-        cfg.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/Geometry/base"
+        cfg.scene.height_scanner.prim_path = f"{{ENV_REGEX_NS}}/Robot/Geometry/{TRUNK_BODY}"
     cfg.scene.robot = replace(HN_GO2_V0_CFG, prim_path="{ENV_REGEX_NS}/Robot")
     use_foot_bodies(cfg.rewards, FOOT_BODY_REGEX)
-    # merge_fixed_joints=False라서 머리·payload·lidar가 base와 별도 body입니다. 닿으면 base처럼 종료합니다.
-    cfg.terminations.base_contact.params["sensor_cfg"].body_names = "base|Head_.*|equipment_payload|front_lidar"
+    # 표준 Go2 설정이 몸체 이름 "base"를 하드코딩한 이벤트(질량·무게중심·외력)는 우리 몸통 이름으로 덮어씁니다.
+    for name in ("add_base_mass", "base_com", "base_external_force_torque"):
+        term = getattr(cfg.events, name, None)
+        if term is not None:
+            term.params["asset_cfg"].body_names = TRUNK_BODY
+    # merge_fixed_joints=False라서 머리·payload·lidar가 trunk와 별도 body입니다. 닿으면 trunk처럼 종료합니다.
+    cfg.terminations.base_contact.params["sensor_cfg"].body_names = f"{TRUNK_BODY}|Head_.*|equipment_payload|front_lidar"
 
 
 @configclass

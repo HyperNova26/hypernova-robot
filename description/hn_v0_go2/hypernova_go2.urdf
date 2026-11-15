@@ -22,10 +22,13 @@ GO-M8010-6: hip/thigh output maxima 23.7 Nm, 30 rad/s at 24 V. Knee external rat
 ideal output maxima 35.55 Nm, 20 rad/s. Internal 6.33 ratio already included, not applied twice.
 Latest HW decision used over older all-joint 23.7/30 task note. Efficiency, continuous torque,
 torque-speed envelope, motor inertia, friction/damping and actual masses unverified; not invented.
-Top equipment_payload: fixed to base, x/y aligned with BASE COM projection, z=0.14 m assumed.
+Link names follow the team standard (2026-11-06 table): root link `trunk` (vendor name was `base`), legs
+{FL,FR,RL,RR}_{hip,thigh,calf,foot}, joints {FL,FR,RL,RR}_{hip,thigh,calf}_joint. Vendor mesh file names
+(meshes/base.stl etc.) are unchanged.
+Top equipment_payload: fixed to trunk, x/y aligned with TRUNK COM projection, z=0.14 m assumed.
 It is not the pose-dependent whole-robot COM. Assumed uniform .24 x .14 x .08 m box, 2.5 kg.
 Its principal moments computed as m*(b*b+c*c)/12, inertial frame = centered box frame.
-front_lidar: fixed base-relative (.35,0,.04) m, identity rotation; assumed .06 x .10 x .06 m housing.
+front_lidar: fixed trunk-relative (.35,0,.04) m, identity rotation; assumed .06 x .10 x .06 m housing.
 Its mass is INCLUDED in the dorsal 2.5 kg lump, NOT counted a second time; this approximates
 actual equipment COM/inertia by a dorsal box. Total 18.587 kg. Actual mounting dimensions unknown.
 LiDAR optical frame +X boresight: azimuth [-60,60] deg, elevation [-17.5,17.5] deg.
@@ -34,7 +37,7 @@ Preserve front_lidar fixed frame on import (disable fixed-joint merge); no origi
 Retained vendor inertials can disagree with simplified collision-box inertia estimates.
 Repeated material children cleaned; DAE scene transforms baked to STL without decimation; embedded colors replaced by URDF material.
 -->
-  <link name="base">
+  <link name="trunk">
     <inertial>
       <origin xyz="0.021112 0 -0.005366" rpy="0 0 0" />
       <mass value="6.921" />
@@ -71,7 +74,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
   </link>
   <joint name="Head_upper_joint" type="fixed">
     <origin xyz="0.285 0 0.01" rpy="0 0 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="Head_upper" />
   </joint>
   <link name="Head_lower">
@@ -116,7 +119,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
   </link>
   <joint name="FL_hip_joint" type="revolute">
     <origin xyz="0.1934 0.0465 0" rpy="0 0 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="FL_hip" />
     <axis xyz="1 0 0" />
     <limit lower="-1.0472" upper="1.0472" effort="23.7" velocity="30" />
@@ -130,7 +133,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
   </link>
   <joint name="FL_hip_rotor_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0.11215 0.04675 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="FL_hip_rotor" />
   </joint>
   <link name="FL_thigh">
@@ -292,7 +295,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
   </link>
   <joint name="FR_hip_joint" type="revolute">
     <origin xyz="0.1934 -0.0465 0" rpy="0 0 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="FR_hip" />
     <axis xyz="1 0 0" />
     <limit lower="-1.0472" upper="1.0472" effort="23.7" velocity="30" />
@@ -306,7 +309,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
   </link>
   <joint name="FR_hip_rotor_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0.11215 -0.04675 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="FR_hip_rotor" />
   </joint>
   <link name="FR_thigh">
@@ -468,7 +471,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
   </link>
   <joint name="RL_hip_joint" type="revolute">
     <origin xyz="-0.1934 0.0465 0" rpy="0 0 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="RL_hip" />
     <axis xyz="1 0 0" />
     <limit lower="-1.0472" upper="1.0472" effort="23.7" velocity="30" />
@@ -482,7 +485,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
   </link>
   <joint name="RL_hip_rotor_joint" type="fixed">
     <origin rpy="0 0 0" xyz="-0.11215 0.04675 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="RL_hip_rotor" />
   </joint>
   <link name="RL_thigh">
@@ -644,7 +647,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
   </link>
   <joint name="RR_hip_joint" type="revolute">
     <origin xyz="-0.1934 -0.0465 0" rpy="0 0 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="RR_hip" />
     <axis xyz="1 0 0" />
     <limit lower="-1.0472" upper="1.0472" effort="23.7" velocity="30" />
@@ -658,7 +661,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
   </link>
   <joint name="RR_hip_rotor_joint" type="fixed">
     <origin rpy="0 0 0" xyz="-0.11215 -0.04675 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="RR_hip_rotor" />
   </joint>
   <link name="RR_thigh">
@@ -800,19 +803,19 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
     </link>
   <joint name="imu_joint" type="fixed">
     <origin xyz="-0.02557 0 0.04232" rpy="0 0 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="imu" />
   </joint>
   <link name="radar">
     </link>
   <joint name="radar_joint" type="fixed">
     <origin xyz="0.28945 0 -0.046825" rpy="0 2.8782 0" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="radar" />
   </joint>
   <joint name="front_camera_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0.32715 -0.00003 0.04297" />
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="front_camera" />
   </joint>
   <link name="front_camera">
@@ -838,7 +841,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
     </collision>
   </link>
   <joint name="equipment_payload_joint" type="fixed">
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="equipment_payload" />
     <origin xyz="0.021112 0 0.14" rpy="0 0 0" />
   </joint>
@@ -858,7 +861,7 @@ Repeated material children cleaned; DAE scene transforms baked to STL without de
     </collision>
   </link>
   <joint name="front_lidar_joint" type="fixed">
-    <parent link="base" />
+    <parent link="trunk" />
     <child link="front_lidar" />
     <origin xyz="0.35 0 0.04" rpy="0 0 0" />
   </joint>

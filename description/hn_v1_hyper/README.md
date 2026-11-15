@@ -4,7 +4,7 @@
 
 기준일: 2026-11-11. SI 단위(m, kg, s, rad)를 사용합니다.
 HYPERNOVA v1 기체 CAD(Inventor 조립품 `trunk-hip-thigh-calf-foot.iam`)에서 질량 특성과 관절 위치를 추출한 모델입니다.
-좌표 규약, 링크·관절 이름, 관절 위치 한계는 Unitree Go2를 따르고, 토크·속도는 실제 모터 Unitree GO-M8010-6 값입니다.
+좌표 규약, 링크·관절 이름(몸통 링크만 팀 표준 `trunk`), 관절 위치 한계는 Unitree Go2를 따르고, 토크·속도는 실제 모터 Unitree GO-M8010-6 값입니다.
 
 ## 출처
 
@@ -32,7 +32,7 @@ python3 tools/description/fetch_hyper_v1_meshes.py
 | 총 질량 | 12.329 kg |
 | 허벅지 / 종아리(무릎 축 → 발 중심) / 발 반지름 | 0.2000 / 0.2165 / 0.0250 m |
 | 모터 | GO-M8010-6, 모든 관절 23.7 N·m, 30 rad/s. calf는 thigh에 달린 모터가 벨트 1:1로 구동 |
-| 몸통 링크 이름 | `base` (표준 이름 규칙의 `trunk`와 다름. 메시 파일 이름만 `trunk.stl`) |
+| 몸통 링크 이름 | `trunk` (팀 표준 이름. 원본 HYPER URDF는 `base`라서 이 저장소에서 바꿨고, 메시 파일은 `trunk.stl`) |
 
 ## 충돌 설정
 
@@ -53,10 +53,10 @@ python3 tools/description/fetch_hyper_v1_meshes.py
 2026-11-11, `hn:sim`(Isaac Lab 3.0.0, PhysX) 컨테이너에서 확인했습니다.
 
 - 변환 USD: rigid body 17개, 관절 16개(회전 12, 고정 4), 총 질량 12.329 kg
-- 충돌체 62개: 메시 58개 모두 `convexHull`, 발 구 4개. 링크별 개수는 base 10, hip 3, thigh 7, calf 2, foot 1로 원본 URDF와 같음
+- 충돌체 62개: 메시 58개 모두 `convexHull`, 발 구 4개. 링크별 개수는 trunk 10, hip 3, thigh 7, calf 2, foot 1로 원본 URDF와 같음
 - `physxArticulation:enabledSelfCollisions = True`
 - 관절 순서(Isaac Lab): `FL/FR/RL/RR_hip`, `_thigh`, `_calf`. 원본 `deploy/policies/flat/deploy.json`과 같음
-- 선 자세: v0 Flat 과제에 로봇만 바꿔 0 action으로 4초, env 4개. base 높이 0.289–0.302 m(원본 MuJoCo 0.2969 m), 넘어짐 0회, 기본 자세와 관절 오차 최대 0.32 rad
+- 선 자세: v0 Flat 과제에 로봇만 바꿔 0 action으로 4초, env 4개. trunk 높이 0.289–0.302 m(원본 MuJoCo 0.2969 m), 넘어짐 0회, 기본 자세와 관절 오차 최대 0.32 rad
 
 ## 제한
 
