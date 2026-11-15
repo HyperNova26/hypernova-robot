@@ -1,0 +1,155 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# 정책 입출력 계약(Policy IO). Isaac Lab 학습·평가 설정과 배포 러너가 이 파일 하나만 읽습니다.
+# 관측 순서, 행동 해석, 제어 주기, PD, 조인트 순서를 여기에서만 정하고 다른 곳에 복사하지 않습니다.
+#
+# 2026-11-08 기준. 이 값을 바꾸면 이미 학습된 정책은 다시 학습해야 쓸 수 있습니다.
+# 단위: 길이 m, 각도 rad, 시간 s, 토크 N·m. 좌표: base 프레임은 +X 전방, +Y 좌, +Z 상(URDF 머리말 기준).
+#
+# 근거 수준
+#   확인함  = Isaac Lab 3.0.0(hn:sim)의 소스와 실행 덤프에서 직접 읽은 값
+#   가정    = 학습 설정 파일(params/env.yaml)을 받지 못해 표준 Go2 rough 설정으로 맞춘 값.
+#             model_3849.pt가 이 설정으로 proxy 로봇에서 걷는 것까지만 확인했습니다(2026-11-08, /data의 루트 trunk 사본 로봇 기준). 저장소 URDF(루트 trunk)에서는 2026-11-15에 MuJoCo, Isaac Lab, Isaac Sim 창 없는 실행으로 경로 A 도착까지 확인했습니다(tools/demo/run_route.sh).
+
+schema_version: 1
+
+policy:
+  name: hn_go2v0_rough
+  # 체크포인트는 policies/urdf_v0/pretrained/에 있습니다. 내보낸 actor 가중치(.npz)는 저장소에 두지 않습니다(route_walk/export_actor.py로 만듭니다).
+  checkpoint:
+    file: hn_go2v0_rough_model_3849.pt
+    sha256: e50fa99677e1621429ffd0bbbdb4706c589ad99f3ccb49ec420c4c0fc6be27f4
+    iteration: 3849
+    format: rsl_rl actor_state_dict   # mlp.0/2/4/6 + distribution.std_param
+    origin: 보행팀원이 학습해 전달(2026-11-08 수령). 학습 설정 파일은 받지 못했습니다
+  network:
+    type: mlp
+    input_dim: 235          # 확인함: 체크포인트 mlp.0.weight (512, 235)
+    hidden_dims: [512, 256, 128]
+    activation: elu
+    output_dim: 12
+    obs_normalization: false   # 체크포인트에 normalizer 항목이 없음
+    deterministic_action: mean  # 배포는 분포의 평균만 씁니다(distribution.std_param은 학습용)
+
+robot:
+  # 조인트 이름·기구는 description/에서만 정의합니다. 여기는 정책 텐서의 순서만 정합니다.
+  urdf: description/hn_v0_go2/hypernova_go2.urdf
+  urdf_revision: origin/feat/urdf-v1-go2 @ 0a03496의 description/hn_v0_go2에서 루트 링크 base를 trunk로 바꾼 로컬 수정(미커밋)
+  hardware_revision: proxy   # Unitree Go2 기반 임시 모델. 실기 제원 확정 전
+  # 강체(링크) 이름은 팀 표준(2026-11-06 표)이고 저장소 URDF(description/hn_v0_go2)가 따릅니다: 루트 trunk, 다리 {FL,FR,RL,RR}_{hip,thigh,calf,foot}.
+  # 조인트 이름은 joints.order와 같은 규칙 {FL,FR,RL,RR}_{hip,thigh,calf}_joint. 접촉·종료 몸체는 env 설정(urdf_v0/env.py)이 정하고, 여기 값은 검사에 씁니다.
+  links:
+    root: trunk
+    feet: [FL_foot, FR_foot, RL_foot, RR_foot]
+
+rate:
+  sim_dt_s: 0.005           # 확인함
+  decimation: 4             # 확인함
+  policy_dt_s: 0.02         # = sim_dt_s * decimation, 50 Hz. 배포 러너는 이 주기로 act()를 부릅니다
+
+simulation:
+  # 이 정책이 걷는 것을 확인한 물리 엔진. hn:sim에서 task의 기본 엔진은 Newton이라 CLI에서 꼭 바꿔야 합니다:
+  #   ... physics=isaacsim_physx
+  # 확인함(2026-11-08, 16 env x 10 s, 명령 0.5 m/s): PhysX는 표준 Go2·proxy 모두 걷고, Newton은 둘 다 16/16 쓰러짐.
+  # 그래서 model_3849.pt는 PhysX로 학습된 정책으로 봅니다(학습 설정 파일은 받지 못해 추정).
+  physics_backend: physx
+  use_newton_actuators: true   # 확인함: 표준 rough 설정 값. PhysX 실행에서도 이 값이 true였습니다
+
+joints:
+  # 정책의 관측·행동 텐서 순서(확인함: Isaac Lab articulation 순서, 다리별이 아니라 종류별).
+  # 모터 드라이버나 URDF의 순서와 다르므로 배포 쪽에서 이름으로 맞춰야 합니다.
+  order:
+    - FL_hip_joint
+    - FR_hip_joint
+    - RL_hip_joint
+    - RR_hip_joint
+    - FL_thigh_joint
+    - FR_thigh_joint
+    - RL_thigh_joint
+    - RR_thigh_joint
+    - FL_calf_joint
+    - FR_calf_joint
+    - RL_calf_joint
+    - RR_calf_joint
+  default_pos_rad:          # 확인함: 서 있는 기본 자세. 행동의 기준점이고 joint_pos 관측의 0점
+    FL_hip_joint: 0.1
+    FR_hip_joint: -0.1
+    RL_hip_joint: 0.1
+    RR_hip_joint: -0.1
+    FL_thigh_joint: 0.8
+    FR_thigh_joint: 0.8
+    RL_thigh_joint: 1.0
+    RR_thigh_joint: 1.0
+    FL_calf_joint: -1.5
+    FR_calf_joint: -1.5
+    RL_calf_joint: -1.5
+    RR_calf_joint: -1.5
+
+action:
+  type: joint_position_target
+  dim: 12
+  # q_target[i] = default_pos[i] + scale * action[i]   (확인함: scale 0.25, use_default_offset)
+  scale: 0.25
+  clip: null                # 확인함: 행동 clip 없음. 한계는 아래 pd의 토크 제한이 맡습니다
+
+pd:
+  # 확인함: Isaac Lab DCMotor. 목표 위치 q_target을 PD로 토크로 바꾸고 포화·속도 제한을 둡니다.
+  # tau = kp * (q_target - q) - kd * qd, 그 뒤 |tau| <= effort_limit_nm에 속도-토크 곡선 제한.
+  # 가정: kp 25.0, kd 0.5는 표준 Go2 값을 그대로 둔 것이고 실제 모터 사양이 아닙니다(실기 적용 전 확인 필요).
+  kp: 25.0                  # N·m/rad
+  kd: 0.5                   # N·m·s/rad
+  friction: 0.0
+  groups:                   # 정규식은 조인트 이름 전체에 맞춥니다
+    - match: ".*_hip_joint"
+      effort_limit_nm: 23.7
+      velocity_limit_rad_s: 30.0
+    - match: ".*_thigh_joint"
+      effort_limit_nm: 23.7
+      velocity_limit_rad_s: 30.0
+    - match: ".*_calf_joint"
+      effort_limit_nm: 35.55
+      velocity_limit_rad_s: 20.0
+
+observations:
+  # 이 순서대로 이어 붙인 벡터가 actor 입력입니다(확인함). 값의 정의는 Isaac Lab mdp와 같습니다.
+  # source는 배포 러너 입력 dict의 키입니다. 단위·프레임은 항목마다 적었습니다.
+  concatenate: true
+  dim: 235
+  terms:
+    - {name: base_lin_vel,      dim: 3,  source: base_lin_vel_b,      unit: m/s,   frame: base}
+    - {name: base_ang_vel,      dim: 3,  source: base_ang_vel_b,      unit: rad/s, frame: base}
+    - {name: projected_gravity, dim: 3,  source: projected_gravity_b, unit: "1 (단위벡터, 정지 시 [0,0,-1])", frame: base}
+    - {name: velocity_commands, dim: 3,  source: command,             unit: "[vx m/s, vy m/s, wz rad/s]", frame: base}
+    - {name: joint_pos,         dim: 12, source: joint_pos,           unit: rad,   rel_to: default_pos}   # q - default_pos
+    - {name: joint_vel,         dim: 12, source: joint_vel,           unit: rad/s, rel_to: zero}          # qd - 0
+    - {name: actions,           dim: 12, source: last_action,         unit: "1 (정규화된 행동)"}           # 직전 act()의 출력
+    - {name: height_scan,       dim: 187, source: height_hits_z,      unit: m,     clip: [-1.0, 1.0]}
+
+height_scan:
+  # 값 = base_z - hit_z - offset_m, 그 뒤 clip(확인함: isaaclab.envs.mdp.height_scan).
+  # ray는 base 위치에서 yaw만 따라가는 격자(roll·pitch 무시)로 아래로 쏘고, 처음 맞은 지면의 z를 hit_z로 씁니다.
+  value: base_z_minus_hit_z_minus_offset
+  offset_m: 0.5
+  clip: [-1.0, 1.0]
+  grid:
+    size_m: [1.6, 1.0]      # [x(전방) 길이, y(좌) 폭], 격자 중심이 base
+    resolution_m: 0.1
+    shape: [17, 11]         # [nx, ny]
+    ordering: x_fastest     # index = iy * nx + ix, x는 -0.8..+0.8, y는 -0.5..+0.5 (확인함: torch.meshgrid indexing="xy")
+  alignment: yaw
+  start_height_above_base_m: 20.0   # ray 시작 높이. 지면 조회 구현이 이 높이 이하의 가장 높은 면을 보도록 맞출 때 참고
+
+training:
+  # 배포에서는 읽지 않는 항목(학습·평가 환경 재현용). 가정 항목은 표준 Go2 rough 설정입니다.
+  reference_task: Isaac-Velocity-Rough-UnitreeGo2   # Isaac Lab 3.0.0, hn:sim e3f7d9f
+  command_ranges:           # 확인함: 표준 설정. 정책이 본 적 있는 범위
+    lin_vel_x: [-1.0, 1.0]
+    lin_vel_y: [-1.0, 1.0]
+    ang_vel_z: [-1.0, 1.0]
+  obs_noise_uniform:        # 확인함: 표준 설정. model_3849.pt 학습에 같은 잡음이 쓰였는지는 확인하지 못함
+    base_lin_vel: [-0.1, 0.1]
+    base_ang_vel: [-0.2, 0.2]
+    projected_gravity: [-0.05, 0.05]
+    joint_pos: [-0.01, 0.01]
+    joint_vel: [-1.5, 1.5]
+    height_scan: [-0.1, 0.1]
