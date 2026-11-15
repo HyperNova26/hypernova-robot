@@ -1,0 +1,7 @@
+GitHub · KiCad 공동작업 연결 테스트
+
+작성일: 2026-11-15 (Asia/Seoul)
+대상 브랜치: feat/poc-pcb-v1
+이 파일은 로컬 변경사항의 커밋과 GitHub 푸시를 시험하기 위한 문서입니다.
+
+SPDX-License-Identifier: CC-BY-4.0
