@@ -8,9 +8,21 @@
 		(comment 1 "SPDX-License-Identifier: CERN-OHL-S-2.0")
 	)
 	(lib_symbols)
+	(text "ㅎㅇ test 입니당"
+		(exclude_from_sim no)
+		(at 104.14 60.198 0)
+		(effects
+			(font
+				(face "맑은 고딕")
+				(size 3.81 3.81)
+			)
+		)
+		(uuid "49829389-c6d8-4807-86b6-14696e08578c")
+	)
 	(sheet_instances
 		(path "/"
 			(page "1")
 		)
 	)
+	(embedded_fonts no)
 )
