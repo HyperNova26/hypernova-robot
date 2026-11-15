@@ -14,3 +14,4 @@
 
 - [ADR-0001: 단일 저장소로 시작](./0001-monorepo-first.md) — Accepted
 - [ADR-0002: 공통 개발 환경](./0002-dev-environment.md) — Proposed
+- [ADR-0004: 로봇 상태 토픽과 상태 코드](./0004-locomotion-status-topic.md) — Proposed

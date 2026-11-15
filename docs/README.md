@@ -14,6 +14,7 @@
 - [빠른 시작 — 보행](./development/quickstart-locomotion.md) — `hn:sim`에서 학습, ONNX export, onnxruntime 실행
 - [빠른 시작 — 인지·SW](./development/quickstart-perception.md) — `hn:ros`에서 LIO, 시각화, 컨테이너 사이 통신
 - [공용 Python 환경](./development/python-env.md)
+- [로봇 상태 토픽 인터페이스](./interfaces/locomotion-status.md) — `/locomotion/status`(정지·보행·낙상), 상태 코드, 시험 방법, 알려진 한계
 - [시뮬레이터 장면 변환 안내](../sim_scenes/README.md) — `.sh` 실행기·`.py` 구현, 기본 0.5 m 전체 점군 voxel 변환과 빈 분해 출력 폴더 준비
 - [기존 PAIR360 주차장 장면 보관 안내](../sim_scenes/pair360_parking/README.md)
 - [저장소 및 데이터 정책](./development/repository-policy.md)
