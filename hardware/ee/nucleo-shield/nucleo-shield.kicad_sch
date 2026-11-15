@@ -1,0 +1,16 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "343b5538-a463-44a0-852e-6db247b5665d")
+	(paper "A4")
+	(title_block
+		(comment 1 "SPDX-License-Identifier: CERN-OHL-S-2.0")
+	)
+	(lib_symbols)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)

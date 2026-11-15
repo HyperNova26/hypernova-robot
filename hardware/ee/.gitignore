@@ -1,0 +1,4 @@
+# KiCad local files
+fp-info-cache
+_autosave-*
+*.kicad_pcb-bak
