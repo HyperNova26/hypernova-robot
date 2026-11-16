@@ -1,0 +1,154 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# 정책 입출력 계약(Policy IO), v1 HYPER Rough GT 정책. 형식은 policies/urdf_v0/policy_io.yaml(schema 1)과 같고,
+# 같은 로더(policies/route_walk/policy_io.py)로 읽습니다. 관측 순서, 행동 해석, 제어 주기, PD, 조인트 순서를 여기에서만 정합니다.
+#
+# 2026-11-16 기준. 이 값을 바꾸면 이미 학습된 정책은 다시 학습해야 쓸 수 있습니다.
+# 단위: 길이 m, 각도 rad, 시간 s, 토크 N·m. 좌표: base(trunk) 프레임은 +X 전방, +Y 좌, +Z 상.
+#
+# 근거: 모든 값은 이 체크포인트를 학습할 때 Isaac Lab이 저장한 설정(params/env.yaml, agent.yaml)과
+#   체크포인트 텐서 모양에서 직접 읽었습니다("확인함").
+# 출처: hn:sim(Isaac Lab 3.0.0, PhysX), task HN-Velocity-Rough-HYPERv1, 4096 env, 1500 + 1500 iteration 이어 학습.
+#   학습 코드(policies/urdf_v1/env.py 등)는 이 커밋 시점에 아직 저장소에 없습니다(기준 커밋 f24d0e3).
+# 성능(학습 기록, 3000 iteration): 선속도 오차 0.144 m/s, 회전 오차 0.185 rad/s, 넘어짐 0, 지형 난이도 5.65/9.
+# 알려진 제한: 회전 명령 0으로 앞으로만 걸으면 약 +0.012 rad/s 왼쪽으로 돕니다(8 s에 약 5°, 평지 16 env 평균).
+#   경로 추종처럼 방향을 계속 바로잡는 명령을 주면 문제가 작습니다.
+
+schema_version: 1
+
+policy:
+  name: hn_hyperv1_rough
+  # 체크포인트는 policies/urdf_v1/pretrained/에 있습니다. 내보낸 actor 가중치(.npz)는 저장소에 두지 않습니다(route_walk/export_actor.py로 만듭니다).
+  checkpoint:
+    file: hn_hyperv1_rough_model_2998.pt
+    sha256: e0162bd54fc5377e85a3ab70946ee561372a44be1407f1ccad1b1b8d130a131b
+    iteration: 2998
+    format: rsl_rl actor_state_dict   # mlp.0/2/4/6 + distribution.std_param
+    origin: 2026-11-16 hn_hyperv1_rough/2026-11-16_01-18-47_sym_resume/model_2998.pt (위 출처)
+  network:
+    type: mlp
+    input_dim: 232          # 확인함: 체크포인트 mlp.0.weight (512, 232)
+    hidden_dims: [512, 256, 128]
+    activation: elu
+    output_dim: 12
+    obs_normalization: false   # 확인함: agent.yaml actor.obs_normalization
+    deterministic_action: mean  # 배포는 분포의 평균만 씁니다(distribution.std_param은 학습용)
+
+robot:
+  # 조인트 이름·기구는 description/에서만 정의합니다. 여기는 정책 텐서의 순서만 정합니다.
+  urdf: description/hn_v1_hyper/hypernova_hyper.urdf
+  urdf_revision: feat/urdf-v1-go2 @ f24d0e3 (54c8d73에서 루트 링크 base → trunk)
+  hardware_revision: v1   # HYPERNOVA v1 기체 CAD에서 만든 모델(description/hn_v1_hyper/README.md). 실기 확인 전
+  links:
+    root: trunk
+    feet: [FL_foot, FR_foot, RL_foot, RR_foot]
+
+rate:
+  sim_dt_s: 0.005           # 확인함
+  decimation: 4             # 확인함
+  policy_dt_s: 0.02         # = sim_dt_s * decimation, 50 Hz
+
+simulation:
+  physics_backend: physx       # 확인함: 학습 CLI의 physics=isaacsim_physx(hn-rl이 붙임)
+  use_newton_actuators: true   # 확인함: env.yaml
+
+joints:
+  # 정책의 관측·행동 텐서 순서(확인함: action·관측 모두 preserve_order=True로 이 순서를 고정, 종류별).
+  order:
+    - FL_hip_joint
+    - FR_hip_joint
+    - RL_hip_joint
+    - RR_hip_joint
+    - FL_thigh_joint
+    - FR_thigh_joint
+    - RL_thigh_joint
+    - RR_thigh_joint
+    - FL_calf_joint
+    - FR_calf_joint
+    - RL_calf_joint
+    - RR_calf_joint
+  default_pos_rad:          # 확인함: 서 있는 기본 자세. 행동의 기준점이고 joint_pos 관측의 0점
+    FL_hip_joint: 0.1
+    FR_hip_joint: -0.1
+    RL_hip_joint: 0.1
+    RR_hip_joint: -0.1
+    FL_thigh_joint: 0.8
+    FR_thigh_joint: 0.8
+    RL_thigh_joint: 1.0
+    RR_thigh_joint: 1.0
+    FL_calf_joint: -1.5
+    FR_calf_joint: -1.5
+    RL_calf_joint: -1.5
+    RR_calf_joint: -1.5
+
+action:
+  type: joint_position_target
+  dim: 12
+  # q_target[i] = default_pos[i] + scale * action[i]   (확인함: scale 0.25, use_default_offset)
+  scale: 0.25
+  clip: null                # 확인함: 행동 clip 없음
+
+pd:
+  # 확인함: Isaac Lab DCMotor(actuators.base_legs). tau = kp * (q_target - q) - kd * qd, 그 뒤 토크·속도 제한.
+  # 제한은 실제 모터 Unitree GO-M8010-6 출력축 값(모든 관절, calf는 thigh의 모터가 벨트 1:1 구동).
+  # kp 25.0, kd 0.5는 표준 Go2 값을 그대로 둔 것이고 실제 모터 게인이 아닙니다(실기 적용 전 확인 필요).
+  kp: 25.0                  # N·m/rad
+  kd: 0.5                   # N·m·s/rad
+  friction: 0.0
+  groups:
+    - match: ".*_hip_joint"
+      effort_limit_nm: 23.7
+      velocity_limit_rad_s: 30.0
+    - match: ".*_thigh_joint"
+      effort_limit_nm: 23.7
+      velocity_limit_rad_s: 30.0
+    - match: ".*_calf_joint"
+      effort_limit_nm: 23.7
+      velocity_limit_rad_s: 30.0
+
+observations:
+  # 이 순서대로 이어 붙인 벡터가 actor 입력입니다(확인함). 값의 정의는 Isaac Lab mdp와 같습니다.
+  # v0와 달리 base_lin_vel(몸통 선속도)은 실기에서 직접 잴 수 없어 actor에 없습니다(학습 때 critic에만 있음).
+  concatenate: true
+  dim: 232
+  terms:
+    - {name: base_ang_vel,      dim: 3,  source: base_ang_vel_b,      unit: rad/s, frame: base}
+    - {name: projected_gravity, dim: 3,  source: projected_gravity_b, unit: "1 (단위벡터, 정지 시 [0,0,-1])", frame: base}
+    - {name: velocity_commands, dim: 3,  source: command,             unit: "[vx m/s, vy m/s, wz rad/s]", frame: base}
+    - {name: joint_pos,         dim: 12, source: joint_pos,           unit: rad,   rel_to: default_pos}   # q - default_pos
+    - {name: joint_vel,         dim: 12, source: joint_vel,           unit: rad/s, rel_to: zero}          # qd - 0
+    - {name: actions,           dim: 12, source: last_action,         unit: "1 (정규화된 행동)"}           # 직전 act()의 출력
+    - {name: height_scan,       dim: 187, source: height_hits_z,      unit: m,     clip: [-1.0, 1.0]}
+
+height_scan:
+  # 값 = base_z - hit_z - offset_m, 그 뒤 clip(확인함: isaaclab.envs.mdp.height_scan, offset 기본 0.5).
+  # 이 정책은 GT height scan(몸통 위 20 m에서 수직으로 쏜 ray)으로 학습했습니다. 실제 센서로 얻는 값이 아닙니다.
+  value: base_z_minus_hit_z_minus_offset
+  offset_m: 0.5
+  clip: [-1.0, 1.0]
+  grid:
+    size_m: [1.6, 1.0]      # [x(전방) 길이, y(좌) 폭], 격자 중심이 base
+    resolution_m: 0.1
+    shape: [17, 11]         # [nx, ny]
+    ordering: x_fastest     # index = iy * nx + ix, x는 -0.8..+0.8, y는 -0.5..+0.5
+  alignment: yaw
+  start_height_above_base_m: 20.0
+
+training:
+  # 배포에서는 읽지 않는 항목(학습·평가 환경 재현용). 모두 확인함(env.yaml).
+  reference_task: HN-Velocity-Rough-HYPERv1   # Isaac Lab 3.0.0 Go2 rough 상속, policies/urdf_v1/env.py
+  command_ranges:
+    lin_vel_x: [-1.0, 1.0]
+    lin_vel_y: [-1.0, 1.0]
+    ang_vel_z: [-1.0, 1.0]
+  command_mix:              # 참고: heading 제어 env 50%, 정지 명령 env 15%
+    rel_heading_envs: 0.5
+    rel_standing_envs: 0.15
+  obs_noise_uniform:
+    base_ang_vel: [-0.2, 0.2]
+    projected_gravity: [-0.05, 0.05]
+    joint_pos: [-0.01, 0.01]
+    joint_vel: [-1.5, 1.5]
+    height_scan: [-0.1, 0.1]
+  critic_obs_dim: 235       # 참고: actor 입력 + base_lin_vel 3 (비대칭 actor-critic)
+  symmetry: left_right_data_augmentation   # 참고: PPO 좌우 대칭 증강(mirror loss 끔)
