@@ -32,6 +32,10 @@ USD_DIR = os.environ.get("HN_HYPER_V1_USD_DIR", "/data/usd/hn_v1_hyper")
 # 발 접촉·속도를 쓰는 보상은 이 이름으로 발 body를 찾습니다. *_foot은 calf에서 (0, 0, -0.2165) m의 구입니다.
 FOOT_BODY_REGEX = ".*_foot"
 
+# 몸통(루트) 링크 이름. 팀 표준 강체명입니다(description/hn_v1_hyper/hypernova_hyper.urdf, 54c8d73에서 base → trunk).
+# 표준 Go2 설정이 몸체 "base"를 하드코딩한 곳(이벤트, 종료, height scanner)은 이 이름으로 덮어씁니다.
+TRUNK_BODY = "trunk"
+
 # Unitree GO-M8010-6 출력축 값 (https://www.unitree.com/go1/motor)
 GO_M8010_6_MAX_TORQUE = 23.7  # N·m
 GO_M8010_6_MAX_SPEED = 30.0  # rad/s

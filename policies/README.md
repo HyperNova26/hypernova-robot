@@ -1,6 +1,6 @@
 # Policies
 
-2026-11-11 기준입니다. Isaac Lab 3.0.0(`hn:sim`)에서 로봇의 학습·평가·export를 수행합니다.
+2026-11-16 기준입니다. Isaac Lab 3.0.0(`hn:sim`)에서 로봇의 학습·평가·export를 수행합니다.
 
 ## 정책 실행: 순서대로
 
@@ -39,7 +39,7 @@ Docker 이미지와 로봇 mesh가 준비된 상태에서 실행합니다. 처�
 
 `teleop.py`가 과제를 등록하고 로봇 한 대를 PhysX로 실행합니다. 별도의 `PYTHONPATH` 설정이나 venv 활성화는 필요하지 않습니다. 첫 실행은 USD 변환과 shader 준비 때문에 오래 걸릴 수 있습니다.
 
-준비된 다른 URDF 버전은 **2단계의 `TASK_ID`와 `CHECKPOINT`만** 해당 버전의 값으로 바꿉니다. 과제 ID는 각 `urdf_v*/__init__.py`의 `TASKS`에서 확인하고 로봇·관측·행동 설정이 맞는 checkpoint를 사용합니다. 현재 `urdf_v1`은 `TASKS`가 비어 있어 실행할 수 없습니다.
+준비된 다른 URDF 버전은 **2단계의 `TASK_ID`와 `CHECKPOINT`만** 해당 버전의 값으로 바꿉니다. 과제 ID는 각 `urdf_v*/__init__.py`의 `TASKS`에서 확인하고 로봇·관측·행동 설정이 맞는 checkpoint를 사용합니다. `urdf_v1`에는 `HN-Velocity-Flat-HYPERv1`, `HN-Velocity-Rough-HYPERv1`(Isaac Lab 기본 height scan), `HN-Velocity-Rough-HYPERv1-Lidar`(앞 약 0.6 m부터 보이는 LiDAR 기억 height scan, 작업 중)가 있습니다. 저장소에 포함된 v1 checkpoint는 Rough용 `policies/urdf_v1/pretrained/hn_hyperv1_rough_model_2998.pt`뿐이며, 입출력 규격은 `policies/urdf_v1/policy_io.yaml`에 있습니다.
 
 Rough checkpoint는 평지에서도 Rough 과제 ID를 유지합니다. 지형만 바꾸려면 `--terrain flat --level 0`을 `--terrain stairs --level 3` 등으로 바꿉니다. 지원 선택은 `all`, `flat`, `slope`, `stairs`, `boxes`, `rough`이며 난이도는 0–9입니다. 해당 지형이 버전의 `env.py`에 있어야 합니다.
 
@@ -86,7 +86,9 @@ hn-rl play \
 | `teleop.py` | 버전 공용 키보드 실행기 |
 | `register.py` | `VERSIONS`의 package와 각 `TASKS`를 읽어 과제 등록 |
 | `rewards.py` | 공용 보상과 발 body 설정 |
+| `symmetry.py` | PPO 좌우 대칭 데이터 증강 함수 |
+| `heightmap.py` | LiDAR 광선으로 본 점을 기억해 만드는 height scan 관측 항목 |
 | `urdf_v0/` | `robot.py`, `env.py`, `TASKS`, `pretrained/` |
-| `urdf_v1/` | 작업 중이며 등록된 과제 없음 |
+| `urdf_v1/` | `robot.py`, `env.py`, `TASKS`, `pretrained/`, `policy_io.yaml` |
 
 새 버전은 `robot.py`, `env.py`, `TASKS`를 구현하고 `register.py`의 `VERSIONS`에 추가합니다. 외부 dataset·checkpoint는 출처·버전·checksum과 재현 방법을 기록하며, 새 데이터·weight·실행 log는 Git에 추가하지 않습니다. 외부 저장소를 통째로 사용할 때는 commit을 고정한 submodule을 사용합니다.
