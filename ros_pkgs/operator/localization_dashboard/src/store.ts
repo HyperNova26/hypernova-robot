@@ -15,6 +15,7 @@ import {
   type Sample,
 } from "./model";
 import { FrameTransforms } from "./transforms";
+import { type BagRecorder, type LatchedMessage } from "./recorder";
 export class Telemetry {
   config: Config = { ...defaults };
   lio: Pose[] = [];
@@ -53,6 +54,7 @@ export class Telemetry {
     if (!preserveStatic) {
       this.livePrior = undefined;
       this.liveSession = false;
+      this.latched.clear();
     }
     this.rows = [];
     this.events = [];
@@ -168,6 +170,10 @@ export class Telemetry {
       this.notify();
     }
   }
+  // Active ROS 2 bag recording (live Bridge sessions only); see recorder.ts.
+  recorder?: BagRecorder;
+  // Last message of each latched topic in this session, for seeding new bags.
+  latched = new Map<string, LatchedMessage>();
   localPrior?: Cloud;
   livePrior?: Cloud;
   liveSession = false;

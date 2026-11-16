@@ -127,7 +127,7 @@ export const defaults: Config = {
   status: "/localization/status",
   statusField: "status",
   prior: "/localization/reference_map",
-  twistValid: false,
+  twistValid: true,
   tolerance: 0.05,
   timeout: 1500,
   mapVerified: false,
@@ -156,6 +156,17 @@ export function pose(m: any): Pose {
     p: p.position,
     q: { x: q.x / n, y: q.y / n, z: q.z / n, w: q.w / n },
     v: m.twist?.twist?.linear,
+  };
+}
+// Rotate a child-frame vector into the parent frame with a unit quaternion (xyzw).
+export function rotate(q: Q, v: V3): V3 {
+  const tx = 2 * (q.y * v.z - q.z * v.y),
+    ty = 2 * (q.z * v.x - q.x * v.z),
+    tz = 2 * (q.x * v.y - q.y * v.x);
+  return {
+    x: v.x + q.w * tx + (q.y * tz - q.z * ty),
+    y: v.y + q.w * ty + (q.z * tx - q.x * tz),
+    z: v.z + q.w * tz + (q.x * ty - q.y * tx),
   };
 }
 export function rpy(q: Q): V3 {
@@ -194,11 +205,16 @@ export function sample(
   received: number,
 ): Sample {
   const dt = previous ? p.t - previous.t : 0;
-  const validTwist = Boolean(
-    c.twistValid && p.v && [p.v.x, p.v.y].every(Number.isFinite),
-  );
-  const speed = validTwist
-    ? Math.hypot(p.v!.x, p.v!.y)
+  // Odometry twist is expressed in child_frame_id (REP-105); rotate it into the map
+  // frame before taking the horizontal part. An exactly-zero vector is treated as
+  // unfilled (upstream FAST-LIO2 leaves twist at 0), so the speed falls back to poses.
+  const twist =
+    p.v && [p.v.x, p.v.y, p.v.z ?? 0].every(Number.isFinite) ? p.v : undefined;
+  const unfilled = twist !== undefined && !twist.x && !twist.y && !twist.z;
+  const validTwist = Boolean(c.twistValid && twist && !unfilled);
+  const mapVelocity = validTwist ? rotate(p.q, twist!) : undefined;
+  const speed = mapVelocity
+    ? Math.hypot(mapVelocity.x, mapVelocity.y)
     : previous &&
         previous.frame === p.frame &&
         previous.child === p.child &&
@@ -225,7 +241,11 @@ export function sample(
     p: p.p,
     rpy: rpy(p.q),
     speed,
-    speedSource: validTwist ? "odometry.twist" : "pose 차분",
+    speedSource: validTwist
+      ? "LIO twist 선속도"
+      : c.twistValid && unfilled
+        ? "pose 차분 (twist 미기재)"
+        : "pose 차분",
     gt: reason ? undefined : gt?.p,
     gtTime: reason ? undefined : gt?.t,
     error:

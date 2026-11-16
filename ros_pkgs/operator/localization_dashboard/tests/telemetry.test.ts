@@ -47,6 +47,42 @@ describe("coordinate, time and velocity contract", () => {
       sample(p(), undefined, undefined, { ...defaults, gt: "" }, 1).error,
     ).toBeUndefined();
   });
+  it("uses the LIO twist in the child frame, rotated into the map", () => {
+    // Yaw 90 deg: body +x is map +y. 1.5 m/s forward plus 2 m/s up must give 1.5 m/s horizontal.
+    const yaw = Math.PI / 2;
+    const moving: Pose = {
+      ...p(1, 0),
+      q: { x: 0, y: 0, z: Math.sin(yaw / 2), w: Math.cos(yaw / 2) },
+      v: { x: 1.5, y: 0, z: 2 },
+    };
+    const s = sample(moving, p(0.5, 0), undefined, defaults, 1);
+    expect(s.speed).toBeCloseTo(1.5);
+    expect(s.speedSource).toBe("LIO twist 선속도");
+    // Pitched body: forward velocity is partly vertical in the map.
+    const pitch = Math.PI / 6;
+    const climbing: Pose = {
+      ...p(1, 0),
+      q: { x: 0, y: -Math.sin(pitch / 2), z: 0, w: Math.cos(pitch / 2) },
+      v: { x: 1, y: 0, z: 0 },
+    };
+    expect(
+      sample(climbing, undefined, undefined, defaults, 1).speed,
+    ).toBeCloseTo(Math.cos(pitch));
+  });
+  it("falls back to pose differences when twist is left at zero", () => {
+    const s = sample(p(1, 2), p(0.5, 1), undefined, defaults, 1);
+    expect(s.speed).toBe(2);
+    expect(s.speedSource).toBe("pose 차분 (twist 미기재)");
+    expect(
+      sample(
+        p(1, 2),
+        p(0.5, 1),
+        undefined,
+        { ...defaults, twistValid: false },
+        1,
+      ).speedSource,
+    ).toBe("pose 차분");
+  });
   it("does not interpret unfilled twist as zero speed", () => {
     expect(sample(p(1, 2), p(0.5, 1), undefined, defaults, 1).speed).toBe(2);
     expect(
@@ -61,7 +97,7 @@ describe("coordinate, time and velocity contract", () => {
         { ...defaults, twistValid: true },
         1,
       ).speed,
-    ).toBe(0);
+    ).toBe(2); // all-zero twist = unfilled, so pose difference is used
   });
   it("converts quaternion to yaw degrees", () => {
     expect(rpy({ x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 }).z).toBeCloseTo(
