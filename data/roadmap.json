@@ -288,10 +288,10 @@
     {
       "id": "S-006",
       "area": "perc",
-      "milestone": "S2",
+      "milestone": "S3",
       "title": "대시보드 프론트",
       "status": "예정",
-      "due": "2026-11-15",
+      "due": "2026-11-22",
       "url": "https://app.notion.com/p/3fe45bd8717881e1a0fdcc23ef9f8d2e",
       "owners": [
         "장승민"
