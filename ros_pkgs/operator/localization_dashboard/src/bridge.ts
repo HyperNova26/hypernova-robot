@@ -4,6 +4,7 @@ import { FoxgloveClient } from "@foxglove/ws-protocol";
 import { parse } from "@foxglove/rosmsg";
 import { MessageReader } from "@foxglove/rosmsg2-serialization";
 import { type Telemetry } from "./store";
+import { type RecordChannel } from "./recorder";
 export function connect(store: Telemetry) {
   const endpoint = new URL(store.config.url);
   if (!["ws:", "wss:"].includes(endpoint.protocol))
@@ -16,7 +17,7 @@ export function connect(store: Telemetry) {
   const client = new FoxgloveClient({ ws: socket });
   const subscriptions = new Map<
     number,
-    { role: string; reader: MessageReader }
+    { role: string; reader: MessageReader; channel: RecordChannel }
   >();
   const channelSubs = new Map<number, number>();
   const topics: Record<string, string> = {
@@ -88,7 +89,18 @@ export function connect(store: Telemetry) {
           );
         const reader = new MessageReader(parse(channel.schema, { ros2: true }));
         const id = client.subscribe(channel.id);
-        subscriptions.set(id, { role, reader });
+        subscriptions.set(id, {
+          role,
+          reader,
+          channel: {
+            topic: channel.topic,
+            schemaName: channel.schemaName,
+            schema: channel.schema,
+            schemaEncoding: channel.schemaEncoding ?? "ros2msg",
+            encoding: channel.encoding,
+            latched: role === "prior" || role === "tf_static",
+          },
+        });
         channelSubs.set(channel.id, id);
         store.event("구독: " + channel.topic);
       } catch (e) {
@@ -111,6 +123,21 @@ export function connect(store: Telemetry) {
     if (!active) return;
     const sub = subscriptions.get(message.subscriptionId);
     if (!sub) return;
+    // Raw CDR bytes go to the bag before decoding, so a decode error never drops a record.
+    const raw = new Uint8Array(
+      message.data.buffer,
+      message.data.byteOffset,
+      message.data.byteLength,
+    );
+    store.recorder?.write(sub.channel, raw, message.timestamp);
+    // Latched topics arrive once at subscribe time; keep the last one so a bag started
+    // later still contains them (BagRecorder.seed).
+    if (sub.channel.latched)
+      store.latched.set(sub.channel.topic, {
+        channel: sub.channel,
+        data: raw.slice(),
+        logTimeNs: message.timestamp,
+      });
     try {
       store.ingest(sub.role, sub.reader.readMessage(message.data));
     } catch (e) {

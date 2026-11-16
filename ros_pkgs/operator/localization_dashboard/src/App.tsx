@@ -15,10 +15,13 @@ import {
   X,
   Upload,
   Unplug,
+  Circle,
+  Square,
 } from "lucide-react";
 import { PCDLoader } from "three/addons/loaders/PCDLoader.js";
 import { telemetry as s, demo } from "./store";
 import { connect } from "./bridge";
+import { BagRecorder } from "./recorder";
 import {
   csv,
   mapLabel,
@@ -149,6 +152,28 @@ function State() {
     </section>
   );
 }
+// Close the active bag and hand it to the browser as a download. Safe to call when idle.
+async function finishRecording() {
+  const recorder = s.recorder;
+  if (!recorder) return;
+  s.recorder = undefined;
+  s.notify();
+  try {
+    const blob = await recorder.finish();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `hyper-${new Date(recorder.started).toISOString().replace(/[:.]/g, "-")}.mcap`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    s.event(
+      `bag 저장: ${recorder.messages.toLocaleString()}개 메시지, ${(blob.size / 1e6).toFixed(1)} MB`,
+    );
+  } catch (e) {
+    s.error = "bag 저장 실패: " + String(e);
+  }
+  s.notify();
+}
 function Logger() {
   const [paused, setPaused] = useState(false);
   const frozen = useRef<Sample[]>([]);
@@ -184,6 +209,32 @@ function Logger() {
           >
             {paused ? <Play size={13} /> : <Pause size={13} />}{" "}
             {paused ? "재개" : "일시정지"}
+          </button>
+          <button
+            className={s.recorder ? "recording" : ""}
+            disabled={!s.recorder && !s.liveSession}
+            title={
+              s.liveSession
+                ? "받은 ROS 메시지를 원본(CDR) 그대로 ROS 2 bag(MCAP)으로 기록합니다. 대시보드가 구독한 토픽만 들어갑니다."
+                : "ROS 수신 중에만 기록할 수 있습니다"
+            }
+            onClick={() => {
+              if (s.recorder) void finishRecording();
+              else {
+                s.recorder = new BagRecorder(undefined, () => {
+                  s.event("bag 1 GB 도달: 자동 저장");
+                  void finishRecording();
+                });
+                s.recorder.seed(s.latched.values());
+                s.event("bag 기록 시작");
+                s.notify();
+              }
+            }}
+          >
+            {s.recorder ? <Square size={13} /> : <Circle size={13} />}{" "}
+            {s.recorder
+              ? `기록 종료 · ${(s.recorder.bytes / 1e6).toFixed(1)} MB`
+              : "bag 기록"}
           </button>
           <button onClick={exportCsv}>
             <Download size={13} /> CSV 저장
@@ -329,7 +380,8 @@ function Settings({
             checked={c.twistValid}
             onChange={(e) => set({ ...c, twistValid: e.target.checked })}
           />{" "}
-          Odometry twist가 실제 속도임을 확인함 (기본: 위치 차분)
+          주행 속력에 LIO twist 선속도 사용 (FAST-LIO2는 twist 패치 필요, 0이면
+          위치 차분으로 대체)
         </label>
         <label className="check-row">
           <input
@@ -408,6 +460,7 @@ export default function App() {
     element.addEventListener("pointercancel", finish);
   };
   const begin = (kind: "demo" | "live") => {
+    void finishRecording(); // reconnecting ends the current bag rather than mixing sessions
     stop.current?.();
     s.reset();
     try {
@@ -622,8 +675,9 @@ export default function App() {
           ) : (
             <button
               aria-label="수신 중지"
-              title="데이터 수신을 멈추고 화면 기록을 비웁니다"
+              title="데이터 수신을 멈추고 화면 기록을 비웁니다 (bag 기록 중이면 저장)"
               onClick={() => {
+                void finishRecording();
                 stop.current?.();
                 stop.current = undefined;
                 s.connection = "미연결";

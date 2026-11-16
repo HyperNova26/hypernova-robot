@@ -1418,3 +1418,12 @@ footer > span {
   border-left: 1px solid var(--line);
   border-right: 1px solid var(--line);
 }
+.toolbar button.recording {
+  color: #ffb4a8;
+  border-color: #8a3b30;
+  background: #2a1714;
+}
+.toolbar button.recording svg {
+  fill: #ff6b57;
+  stroke: #ff6b57;
+}

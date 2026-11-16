@@ -10,10 +10,11 @@
 
 | 항목 | 결과 |
 | --- | --- |
-| 단위·인터페이스 시험 | `npm test` 33개 통과, `tsc`·`vite build` 통과 (Windows, Node.js 24.19.0, npm 11.17.0) |
+| 단위·인터페이스 시험 | `npm test` 37개 통과, `tsc`·`vite build` 통과 (Windows, Node.js 24.19.0, npm 11.17.0) |
 | 합성 CDR 수신 | `tests/foxglove-fixture.mjs` 시험 서버로 확인 |
 | MuJoCo SIM 실시간 연결 | `hn:ros` 이미지(로컬 빌드, `docker/.env`의 `2026.10.1`)에서 `adapters/mujoco_route_sim.py` + `foxglove_bridge`를 띄워 웹 연결까지 확인 |
-| 확인하지 못한 것 | 팀 LIO 어댑터 출력, 실제 `LocalizationStatus` 메시지, 실기·실센서, 팀 보행 runner와의 연결 |
+| bag 기록 | 위 SIM에서 기록한 MCAP을 `ros2 bag info`로 읽고 `ros2 bag play`로 재생 확인 |
+| 확인하지 못한 것 | 팀 LIO 어댑터 출력, 실제 LIO twist 값, 실제 `LocalizationStatus` 메시지, 실기·실센서, 팀 보행 runner와의 연결 |
 
 MuJoCo SIM은 보행 시뮬레이션이 아닙니다. LiDAR만 단 mocap 몸체를 지형 위 경로로 옮기는 kinematic 재생이며, `/localization/odometry`에는 LIO 추정이 아니라 SIM 자세가 들어갑니다.
 
@@ -54,8 +55,22 @@ npm run build
 - GT는 ±50 ms 안의 가장 가까운 표본과 비교합니다(보간 없음). parent·child frame이 다르면 GT 오차는 N/A입니다.
 - 현재 스캔은 최신 Odometry 측정 시각 ±120 ms 안에서 고릅니다. LiDAR가 10 Hz보다 느리면 스캔이 표시되지 않을 수 있습니다.
 - 동적 TF는 ±50 ms 안에서만 쓰고, 정적 TF는 시각과 무관하게 씁니다.
-- 속력은 기본적으로 연속 위치 차분입니다. FAST-LIO2(ROS2 branch)는 Odometry twist를 채우지 않고, RKO-LIO는 채우지만 기준 frame을 확인하지 않았습니다. twist가 맞다고 확인한 뒤에만 설정에서 켭니다.
+- 주행 속력은 기본적으로 LIO가 추정한 선속도(Odometry `twist.linear`)입니다. REP-105에 따라 twist는 child frame 기준이므로 같은 메시지의 자세로 지도 좌표로 돌린 뒤 수평 성분의 크기를 씁니다. 세 성분이 모두 정확히 0이면 채우지 않은 값으로 보고 연속 위치 차분(`0 < Δt ≤ 1 s`)으로 대체합니다. 화면·CSV에 속력 출처(`LIO twist 선속도`, `pose 차분 (twist 미기재)`, `pose 차분`)를 남깁니다.
+- 현재 FAST-LIO2(`docker/ros/hypernova.repos`의 ROS2 branch `a4743b0`)는 twist를 0으로 두므로 위치 차분이 쓰입니다. FAST-LIO2 내부 속도를 쓰려면 `publish_odometry`에서 `state_point.vel`을 child frame으로 돌려 채우는 패치가 따로 필요합니다(이 PR에 포함하지 않음). RKO-LIO는 twist를 채우지만 기준 frame을 확인하지 않았습니다. 어댑터가 child를 `mlx_lidar`로 바꿀 때는 속도도 장착 회전과 레버암만큼 바꿔야 합니다.
 - `/clock`이 뒤로 가면 새 세션으로 보고 동적 기록을 지웁니다.
+
+## bag 기록
+
+ROS 수신 중 Logger의 'bag 기록'을 누르면, 받은 메시지를 디코딩 전 원본 CDR 그대로 ROS 2 bag(MCAP, profile `ros2`, 스키마 `ros2msg`)으로 기록합니다. '기록 종료', 수신 중지·재연결, 또는 메시지 합계 1 GB에서 `hyper-<시작 시각>.mcap`으로 내려받습니다.
+
+- 기준 지도와 `/tf_static`처럼 한 번만 오는 토픽은 마지막 메시지를 bag 맨 앞에 넣고, transient-local QoS를 channel metadata에 기록합니다. 재생 때 늦게 붙은 구독자도 받습니다.
+- 대시보드가 구독한 토픽만, Bridge가 전달한 만큼만 들어갑니다. 브라우저 메모리에 쌓으므로 긴 기록은 로봇에서 `ros2 bag record -s mcap`을 씁니다.
+- 2026-11-16 MuJoCo SIM 확인: 10초 기록 958개 메시지를 `ros2 bag info`로 읽었고, `ros2 bag play --loop`에서 각 토픽이 재생됐습니다(LiDAR 약 6 Hz, Odometry 약 30 Hz). 4초 늦게 붙은 구독자도 지도를 받았습니다. Jazzy `ros2 bag info`의 토픽 목록에는 지도 토픽이 빠지지만 메시지 수에는 포함되고 재생도 됩니다.
+
+```bash
+ros2 bag info hyper-<시각>.mcap
+ros2 bag play hyper-<시각>.mcap --clock
+```
 
 ## 지도 레이어
 
