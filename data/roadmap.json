@@ -265,6 +265,18 @@
       ]
     },
     {
+      "id": "G-013",
+      "area": "walk",
+      "milestone": "S3",
+      "title": "상태 이상 스크립트 수정",
+      "status": "예정",
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/41b45bd8717881f183c9fd1abda53455",
+      "owners": [
+        "정찬원"
+      ]
+    },
+    {
       "id": "G-005",
       "area": "walk",
       "milestone": "S2",
