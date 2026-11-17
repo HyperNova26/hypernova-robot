@@ -277,6 +277,18 @@
       ]
     },
     {
+      "id": "G-014",
+      "area": "walk",
+      "milestone": "S3",
+      "title": "sim별 완료 시간 격차 조사",
+      "status": "예정",
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/41b45bd8717881ec9335d9f502e4f499",
+      "owners": [
+        "정찬원"
+      ]
+    },
+    {
       "id": "G-005",
       "area": "walk",
       "milestone": "S2",
