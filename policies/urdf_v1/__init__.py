@@ -3,7 +3,7 @@
 """HYPER v1(description/hn_v1_hyper) 보행 과제.
 
 robot.py는 ArticulationCfg, env.py는 과제(env, PPO runner) 설정입니다.
-Rough는 Isaac Lab 기본 height scan(GT)을 쓰는 기준 학습용이고, Rough-Lidar는 앞 약 0.6 m부터 보이는
+Rough는 Isaac Lab 기본 height scan(GT)을 쓰는 기준 학습용이고, Rough-Lidar는 LiDAR 앞 0.6 m부터 보이는
 LiDAR 기억 + 발끝 평면 height scan을 actor 입력으로 씁니다(policies/common/heightmap.py).
 """
 

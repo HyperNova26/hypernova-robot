@@ -18,8 +18,6 @@ Isaac Lab 기본 height scan은 몸통 위 20 m에서 grid 칸마다 수직으�
 
 from __future__ import annotations
 
-import math
-
 import torch
 
 from isaaclab.managers import ManagerTermBase
@@ -194,10 +192,4 @@ class lidar_memory_height_scan(ManagerTermBase):
 
         ref_z = env.scene.sensors[self.ref_name].data.pos_w.torch[:, 2].unsqueeze(1)
         return ref_z - ground - self.offset
-
-
-def lidar_quat_xyzw(pitch_down_deg: float) -> tuple[float, float, float, float]:
-    """몸통 frame에서 아래로 pitch_down_deg만큼 숙인 센서 자세 (x, y, z, w). +y축 회전이 +x를 아래로 내립니다."""
-    h = math.radians(pitch_down_deg) / 2.0
-    return (0.0, math.sin(h), 0.0, math.cos(h))
 

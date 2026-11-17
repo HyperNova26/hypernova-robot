@@ -22,10 +22,10 @@ Isaac Lab 3.0.0 내장 Go2 velocity 과제를 상속합니다. v0와 다른 점:
 Rough는 기준 학습용으로 Isaac Lab 기본 height scan(몸통 위 20 m에서 수직으로 쏘는 1.6 × 1.0 m grid, 0.1 m 간격,
 187칸)을 actor와 critic에 넣습니다(actor 232차원). 지형·보상 조정은 v0 Rough와 같습니다.
 
-Rough-Lidar(HnHyperV1RoughLidarEnvCfg)는 actor height scan만 실제 센서(ML-X 120 가정, 앞 윗면 25° 아래로)를
-흉내 낸 값으로 바꿉니다. 같은 크기 grid를 앞으로 0.3 m 옮기고, LiDAR로 본 점을 3 s 기억하며, 못 본 칸은
-발끝 평면으로 채웁니다(policies/common/heightmap.py). critic은 같은 grid의 GT height scan입니다.
-2026-11-16 학습(대칭 증강, 3000 iteration)에서 GT Rough와 비슷했습니다: 지형 난이도 5.55 vs 5.65,
+Rough-Lidar(HnHyperV1RoughLidarEnvCfg)는 actor height scan만 실제 센서(ML-X 120 가정, 앞 윗면 16.2° 아래로,
+바닥이 센서 앞 0.6 m부터 보임)를 흉내 낸 값으로 바꿉니다. 같은 크기 grid를 앞으로 0.45 m 옮기고, LiDAR로 본 점을
+3 s 기억하며, 못 본 칸은 발끝 평면으로 채웁니다(policies/common/heightmap.py). critic은 같은 grid의 GT height scan입니다.
+아래 결과는 이전 설정(아래로 25°, grid 0.3 m, 바닥이 몸통 중심 앞 0.6 m부터 보임)의 것입니다. 2026-11-16 학습(대칭 증강, 3000 iteration)에서 GT Rough와 비슷했습니다: 지형 난이도 5.55 vs 5.65,
 선속도 오차 0.161 vs 0.144 m/s, 넘어짐 둘 다 0. height 입력을 발끝 평면만으로 바꾸면(ablation, 2026-11-16, 지형 7종 ×
 난이도 2/5/8, 명령 ±0.6 m/s, 16 env, 8 s) 앞으로 걸을 때 올라가는 계단 난이도 8에서 이동 거리가 4.5 → 1.2 m, 상자
 4.4 → 2.6 m로 줄고 뒤로 걸을 때는 거의 같았습니다. 앞을 보는 LiDAR 입력을 실제로 씁니다. 넘어짐은 모든 조건에서 0입니다.
@@ -53,10 +53,10 @@ from isaaclab_tasks.core.velocity.config.go2.flat_env_cfg import UnitreeGo2FlatE
 from isaaclab_tasks.core.velocity.config.go2.rough_env_cfg import UnitreeGo2RoughEnvCfg
 from isaaclab_tasks.core.velocity.velocity_env_cfg import ObservationsCfg as Go2ObservationsCfg
 
-from ..common.heightmap import lidar_memory_height_scan, lidar_quat_xyzw
+from ..common.heightmap import lidar_memory_height_scan
 from ..common.rewards import HnGo2Rewards, use_foot_bodies
 from ..common.symmetry import compute_left_right_symmetric_states
-from .robot import FOOT_BODY_REGEX, HN_HYPER_V1_CFG, TRUNK_BODY
+from .robot import FOOT_BODY_REGEX, HN_HYPER_V1_CFG, LIDAR_BODY, TRUNK_BODY
 
 # action과 관절 관측의 순서(HYPER와 같음). 실기 배포 코드도 이 순서를 씁니다.
 JOINT_ORDER = [f"{leg}_{part}_joint" for part in ("hip", "thigh", "calf") for leg in ("FL", "FR", "RL", "RR")]
@@ -183,13 +183,14 @@ class HnHyperV1RoughEnvCfg(UnitreeGo2RoughEnvCfg):
 
 
 # ---- LiDAR 기억 height map 과제 (2026-11-15) ----
-# SOSLAB ML-X 120 가정 장착: 몸통 앞 윗면, base 기준 (0.16, 0, 0.10) m, 아래로 25°. 선 자세에서 바닥 위 약 0.40 m이고,
-# 바닥이 base 기준 약 0.6–3.2 m에서 보입니다. 시야 가로 120° × 세로 35°(실제 0.209° × 0.625°)를 2° × 2.5°로 줄였습니다.
-LIDAR_POS = (0.16, 0.0, 0.10)
-LIDAR_PITCH_DOWN_DEG = 25.0
+# SOSLAB ML-X 120. 장착 위치·각도(가정값: trunk 기준 (0.16, 0, 0.10) m, 아래로 16.2°)는 URDF의 front_lidar_joint에 있고,
+# 센서는 그 link에 offset 없이 붙습니다. 선 자세에서 바닥 위 약 0.40 m이고, 바닥이 센서 앞 0.6 m(trunk 기준 약 0.76 m)부터
+# 보입니다. 맨 위 광선은 수평보다 약 1.3° 위라서 먼 바닥은 광선 최대 거리(6 m)까지 보입니다.
+# 시야 가로 120° × 세로 35°(실제 0.209° × 0.625°)를 2° × 2.5°로 줄였습니다.
 LIDAR_PERIOD_S = 0.05  # ML-X 20 fps
-# 정책 grid: x −0.5–1.1 m, y ±0.5 m, 0.1 m (187칸). GT grid(1.6 × 1.0 m)를 앞으로 0.3 m 옮긴 것과 같습니다.
-BLIND_GRID_OFFSET_X = 0.3
+# 정책 grid: x −0.35–1.25 m, y ±0.5 m, 0.1 m (187칸). GT grid(1.6 × 1.0 m)를 앞으로 0.45 m 옮긴 것과 같습니다.
+# 보이기 시작하는 x ≈ 0.76 m 앞으로 보이는 칸이 약 5–6열 남습니다.
+BLIND_GRID_OFFSET_X = 0.45
 
 
 @configclass
@@ -201,8 +202,8 @@ class HnHyperV1RoughLidarEnvCfg(HnHyperV1RoughEnvCfg):
         # GT scanner를 정책 grid와 같은 칸으로 옮깁니다(critic 입력, base_height_l2, 비교용).
         self.scene.height_scanner.offset.pos = (BLIND_GRID_OFFSET_X, 0.0, 20.0)
         self.scene.mlx_lidar = RayCasterCfg(
-            prim_path=f"{{ENV_REGEX_NS}}/Robot/Geometry/{TRUNK_BODY}",
-            offset=RayCasterCfg.OffsetCfg(pos=LIDAR_POS, rot=lidar_quat_xyzw(LIDAR_PITCH_DOWN_DEG)),
+            # 변환된 USD는 link를 부모 아래에 둡니다(Robot/Geometry/trunk/front_lidar).
+            prim_path=f"{{ENV_REGEX_NS}}/Robot/Geometry/{TRUNK_BODY}/{LIDAR_BODY}",
             ray_alignment="base",
             pattern_cfg=patterns.LidarPatternCfg(
                 channels=15, vertical_fov_range=(-17.5, 17.5), horizontal_fov_range=(-60.0, 60.0), horizontal_res=2.0

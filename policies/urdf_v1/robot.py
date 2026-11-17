@@ -8,7 +8,8 @@
   - 부품별 충돌 STL 하나가 볼록 껍질(Convex Hull) 하나가 됩니다. 발은 반지름 0.025 m 구입니다.
   - 자기충돌을 켭니다. 관절 범위 안에서 허벅지가 몸체에 닿기 때문입니다(앞 허벅지 약 1.40 rad, hip 외전 약 0.85 rad).
   - HYPER는 merge_fixed_joints=True + 발 관절 dont_collapse로 발 링크를 남깁니다. Isaac Lab 3.0 변환기는 고정 관절을
-    모두 합치므로 merge_fixed_joints=False로 같은 결과(body 17개)를 냅니다. 고정 관절은 발 4개뿐입니다.
+    모두 합치므로 merge_fixed_joints=False로 같은 결과를 냅니다. 원본 고정 관절은 발 4개뿐이고, 여기서 추가한
+    front_lidar(LiDAR frame, 자리표시 질량 0.01 kg)도 별도 body로 남아 body는 18개입니다.
   - 질량·관성은 URDF 값을 그대로 씁니다(link_density 0 = 재계산 안 함).
 - 모터는 Unitree GO-M8010-6(출력축 23.7 N·m, 30 rad/s)입니다. calf는 thigh에 달린 모터가 벨트 1:1로 구동합니다.
 - PD gain(stiffness 25, damping 0.5), 초기 자세, soft limit 0.9는 HYPER(= Isaac Lab UNITREE_GO2_CFG) 값입니다.
@@ -35,6 +36,9 @@ FOOT_BODY_REGEX = ".*_foot"
 # 몸통(루트) 링크 이름. 팀 표준 강체명입니다(description/hn_v1_hyper/hypernova_hyper.urdf, 54c8d73에서 base → trunk).
 # 표준 Go2 설정이 몸체 "base"를 하드코딩한 곳(이벤트, 종료, height scanner)은 이 이름으로 덮어씁니다.
 TRUNK_BODY = "trunk"
+
+# LiDAR(SOSLAB ML-X 120) 센서 frame 링크. 장착 위치·각도(가정값)는 URDF의 front_lidar_joint에만 둡니다.
+LIDAR_BODY = "front_lidar"
 
 # Unitree GO-M8010-6 출력축 값 (https://www.unitree.com/go1/motor)
 GO_M8010_6_MAX_TORQUE = 23.7  # N·m
