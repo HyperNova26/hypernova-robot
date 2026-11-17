@@ -17,14 +17,14 @@ Isaac Lab 3.0.0 내장 Go2 velocity 과제를 상속합니다. v0와 다른 점:
    - 허벅지 접촉 벌점(undesired_contacts, weight −1, 1 N). 자기충돌이 켜져 있어 몸체·바닥에 닿는 허벅지를 막습니다.
    - base_contact 종료는 몸통-바닥 접촉만 셉니다. 몸통 전체 접촉력에는 허벅지-몸통 자기충돌도 섞이기 때문입니다.
 6. base_height_l2 목표 높이는 v1 선 자세 높이로 둡니다(Go2 0.4 m 대신).
-7. PPO는 좌우 대칭 데이터 증강을 씁니다(policies/symmetry.py). 정책이 이유 없이 한쪽으로 도는 습관을 막습니다.
+7. PPO는 좌우 대칭 데이터 증강을 씁니다(policies/common/symmetry.py). 정책이 이유 없이 한쪽으로 도는 습관을 막습니다.
 
 Rough는 기준 학습용으로 Isaac Lab 기본 height scan(몸통 위 20 m에서 수직으로 쏘는 1.6 × 1.0 m grid, 0.1 m 간격,
 187칸)을 actor와 critic에 넣습니다(actor 232차원). 지형·보상 조정은 v0 Rough와 같습니다.
 
 Rough-Lidar(HnHyperV1RoughLidarEnvCfg)는 actor height scan만 실제 센서(ML-X 120 가정, 앞 윗면 25° 아래로)를
 흉내 낸 값으로 바꿉니다. 같은 크기 grid를 앞으로 0.3 m 옮기고, LiDAR로 본 점을 3 s 기억하며, 못 본 칸은
-발끝 평면으로 채웁니다(policies/heightmap.py). critic은 같은 grid의 GT height scan입니다.
+발끝 평면으로 채웁니다(policies/common/heightmap.py). critic은 같은 grid의 GT height scan입니다.
 2026-11-16 학습(대칭 증강, 3000 iteration)에서 GT Rough와 비슷했습니다: 지형 난이도 5.55 vs 5.65,
 선속도 오차 0.161 vs 0.144 m/s, 넘어짐 둘 다 0. height 입력을 발끝 평면만으로 바꾸면(ablation, 2026-11-16, 지형 7종 ×
 난이도 2/5/8, 명령 ±0.6 m/s, 16 env, 8 s) 앞으로 걸을 때 올라가는 계단 난이도 8에서 이동 거리가 4.5 → 1.2 m, 상자
@@ -53,9 +53,9 @@ from isaaclab_tasks.core.velocity.config.go2.flat_env_cfg import UnitreeGo2FlatE
 from isaaclab_tasks.core.velocity.config.go2.rough_env_cfg import UnitreeGo2RoughEnvCfg
 from isaaclab_tasks.core.velocity.velocity_env_cfg import ObservationsCfg as Go2ObservationsCfg
 
-from ..heightmap import lidar_memory_height_scan, lidar_quat_xyzw
-from ..rewards import HnGo2Rewards, use_foot_bodies
-from ..symmetry import compute_left_right_symmetric_states
+from ..common.heightmap import lidar_memory_height_scan, lidar_quat_xyzw
+from ..common.rewards import HnGo2Rewards, use_foot_bodies
+from ..common.symmetry import compute_left_right_symmetric_states
 from .robot import FOOT_BODY_REGEX, HN_HYPER_V1_CFG, TRUNK_BODY
 
 # action과 관절 관측의 순서(HYPER와 같음). 실기 배포 코드도 이 순서를 씁니다.
@@ -182,7 +182,7 @@ class HnHyperV1RoughEnvCfg(UnitreeGo2RoughEnvCfg):
         )
 
 
-# ---- LiDAR 기억 height map 과제 (작업 중, 2026-11-15) ----
+# ---- LiDAR 기억 height map 과제 (2026-11-15) ----
 # SOSLAB ML-X 120 가정 장착: 몸통 앞 윗면, base 기준 (0.16, 0, 0.10) m, 아래로 25°. 선 자세에서 바닥 위 약 0.40 m이고,
 # 바닥이 base 기준 약 0.6–3.2 m에서 보입니다. 시야 가로 120° × 세로 35°(실제 0.209° × 0.625°)를 2° × 2.5°로 줄였습니다.
 LIDAR_POS = (0.16, 0.0, 0.10)
@@ -226,8 +226,6 @@ class HnHyperV1RoughLidarEnvCfg(HnHyperV1RoughEnvCfg):
                 "foot_body_regex": FOOT_BODY_REGEX,
                 "foot_radius": 0.025,
                 "foot_window_s": 0.5,
-                "source": "lidar",  # "gt_cut"이면 GT grid의 x ≥ 0.6 m 칸만 보인 것으로 씀(원인 분리용)
-                "visible_x_min": 0.6,
             },
             noise=Unoise(n_min=-0.1, n_max=0.1),
             clip=(-1.0, 1.0),

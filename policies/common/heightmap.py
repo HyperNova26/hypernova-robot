@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 HYPERNOVA contributors
-"""LiDAR로 본 점을 기억해서 만드는 height map 관측 (2026-11-15, 작업 중).
+"""LiDAR로 본 점을 기억해서 만드는 height map 관측 (2026-11-15).
 
 Isaac Lab 기본 height scan은 몸통 위 20 m에서 grid 칸마다 수직으로 광선을 쏘는 "완벽한 지도"(GT)입니다.
 여기서는 실제 로봇처럼 몸통에 단 LiDAR 광선이 맞은 점만으로 같은 모양의 grid를 채웁니다.
@@ -14,7 +14,6 @@ Isaac Lab 기본 height scan은 몸통 위 20 m에서 grid 칸마다 수직으�
 - 발끝 평면: 발마다 최근 foot_window_s 초 동안 가장 낮았던 발 중심 높이에서 발 반지름을 빼고, 네 점에 맞는
   평면 z = a + b·x + c·y를 구합니다. 걷는 중 공중에 뜬 발 때문에 평면이 들리는 것을 줄이기 위해서입니다.
   실기에서는 관절 각도(정기구학)와 IMU로 같은 값을 계산할 수 있습니다.
-- source="gt_cut"이면 LiDAR 대신 GT grid에서 x ≥ visible_x_min인 칸만 "보인 점"으로 씁니다(원인 분리용 스위치).
 """
 
 from __future__ import annotations
@@ -35,12 +34,11 @@ class lidar_memory_height_scan(ManagerTermBase):
     """ObsTerm func로 쓰는 클래스. params:
 
     - lidar_cfg: LiDAR RayCaster (SceneEntityCfg)
-    - ref_sensor_cfg: GT height scanner. 값의 기준 높이와 source="gt_cut"의 GT 값에 씁니다.
+    - ref_sensor_cfg: GT height scanner. 값의 기준 높이(pos_w z)에만 씁니다.
     - grid_size, grid_offset_x, resolution: 정책 grid [m]. GT scanner가 같은 grid를 쓰면 칸이 1:1로 맞습니다.
     - memory_s: 기억 시간 [s], scan_period_s: LiDAR 주기 [s]
     - foot_body_regex, foot_radius, foot_window_s: 발끝 평면
     - offset: mdp.height_scan과 같은 값 빼기 [m]
-    - source: "lidar" 또는 "gt_cut", visible_x_min: gt_cut에서 보이는 칸의 최소 x [m]
     """
 
     def __init__(self, cfg, env):
@@ -49,8 +47,6 @@ class lidar_memory_height_scan(ManagerTermBase):
         self.lidar_name = p["lidar_cfg"].name
         self.ref_name = p["ref_sensor_cfg"].name
         self.offset = p.get("offset", 0.5)
-        self.source = p.get("source", "lidar")
-        self.visible_x_min = p.get("visible_x_min", 0.6)
         self.res = p.get("resolution", 0.1)
         sx, sy = p.get("grid_size", (1.6, 1.0))
         self.gx0 = p.get("grid_offset_x", 0.0)
@@ -95,11 +91,6 @@ class lidar_memory_height_scan(ManagerTermBase):
     def _scan_points(self, env, base_xy, yaw):
         """이번 scan의 칸별 (world x, y, z), 유효 여부. 칸마다 가장 높은 점."""
         n = env.num_envs
-        if self.source == "gt_cut":
-            ref = env.scene.sensors[self.ref_name]
-            hits = ref.data.ray_hits_w.torch  # GT grid, 칸 순서가 같음
-            visible = (self.cell_xy[:, 0] >= self.visible_x_min).expand(n, -1) & torch.isfinite(hits[..., 2])
-            return hits, visible
         hits = env.scene.sensors[self.lidar_name].data.ray_hits_w.torch  # (n, R, 3), 안 맞으면 inf
         ok = torch.isfinite(hits).all(-1)
         local = self._to_local(hits[..., :2], base_xy, yaw)
@@ -156,8 +147,6 @@ class lidar_memory_height_scan(ManagerTermBase):
         foot_radius=0.025,
         foot_window_s=0.5,
         offset=0.5,
-        source="lidar",
-        visible_x_min=0.6,
     ):
         # 파라미터는 __init__에서 읽었습니다. Isaac Lab이 이름을 검사하므로 여기 그대로 둡니다.
         n = env.num_envs
