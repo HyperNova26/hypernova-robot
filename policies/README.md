@@ -85,10 +85,10 @@ hn-rl play \
 | --- | --- |
 | `teleop.py` | 버전 공용 키보드 실행기 |
 | `register.py` | `VERSIONS`의 package와 각 `TASKS`를 읽어 과제 등록 |
-| `common/rewards.py` | 공용 보상과 발 body 설정 |
+| `common/rewards.py` | v1부터 쓰는 보상표(`HnRewards`)와 적용 함수(`apply_hn_rewards`). 최종 보상 값은 이 파일에 모두 있음 |
 | `common/symmetry.py` | PPO 좌우 대칭 데이터 증강 함수 |
 | `common/heightmap.py` | LiDAR 광선으로 본 점을 기억해 만드는 height scan 관측 항목 |
-| `urdf_v0/` | `robot.py`, `env.py`, `TASKS`, `pretrained/` |
+| `urdf_v0/` | `robot.py`, `env.py`, `rewards.py`, `TASKS`, `pretrained/`. **동결**: v0 체크포인트와 데모(`route_walk/`)가 쓰므로 고치지 않음 |
 | `urdf_v1/` | `robot.py`, `env.py`, `TASKS`, `pretrained/`, `policy_io.yaml` |
 
-새 버전은 `robot.py`, `env.py`, `TASKS`를 구현하고 `register.py`의 `VERSIONS`에 추가합니다. 외부 dataset·checkpoint는 출처·버전·checksum과 재현 방법을 기록하며, 새 데이터·weight·실행 log는 Git에 추가하지 않습니다. 외부 저장소를 통째로 사용할 때는 commit을 고정한 submodule을 사용합니다.
+새 버전은 `robot.py`, `env.py`, `TASKS`를 구현하고 보상은 `env.py`의 `__post_init__` 맨 끝에서 `common.rewards.apply_hn_rewards()`로 정하며, `register.py`의 `VERSIONS`에 추가합니다. 외부 dataset·checkpoint는 출처·버전·checksum과 재현 방법을 기록하며, 새 데이터·weight·실행 log는 Git에 추가하지 않습니다. 외부 저장소를 통째로 사용할 때는 commit을 고정한 submodule을 사용합니다.

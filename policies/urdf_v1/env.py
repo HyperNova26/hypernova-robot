@@ -13,14 +13,14 @@ Isaac Lab 3.0.0 내장 Go2 velocity 과제를 상속합니다. v0와 다른 점:
 3. critic 입력은 Go2 기본 입력 전체입니다(학습 때만 씀, 비대칭 actor-critic).
 4. 관절 순서는 HYPER와 같은 종류 단위(FL, FR, RL, RR의 hip → thigh → calf)이고, preserve_order=True로
    action·관측 모두 이 순서를 고정합니다. PhysX 내부 순서에 맡기지 않습니다.
-5. 보상은 v0(HnGo2Rewards와 v0 조정값)에 HYPER의 두 가지를 더합니다.
-   - 허벅지 접촉 벌점(undesired_contacts, weight −1, 1 N). 자기충돌이 켜져 있어 몸체·바닥에 닿는 허벅지를 막습니다.
-   - base_contact 종료는 몸통-바닥 접촉만 셉니다. 몸통 전체 접촉력에는 허벅지-몸통 자기충돌도 섞이기 때문입니다.
-6. base_height_l2 목표 높이는 v1 선 자세 높이로 둡니다(Go2 0.4 m 대신).
+5. 보상은 policies/common/rewards.py의 보상표(HnRewards)입니다. __post_init__ 맨 끝에서 apply_hn_rewards()로
+   통째로 바꾸므로 Go2 설정이 바꾼 보상 값은 남지 않습니다. v1 값: 허벅지 접촉 벌점 켬(자기충돌이 켜져 있어 몸체·바닥에
+   닿는 허벅지를 막음), 몸통 높이 목표는 v1 선 자세 높이(Go2 0.4 m 대신).
+6. base_contact 종료는 몸통-바닥 접촉만 셉니다. 몸통 전체 접촉력에는 허벅지-몸통 자기충돌도 섞이기 때문입니다.
 7. PPO는 좌우 대칭 데이터 증강을 씁니다(policies/common/symmetry.py). 정책이 이유 없이 한쪽으로 도는 습관을 막습니다.
 
 Rough는 기준 학습용으로 Isaac Lab 기본 height scan(몸통 위 20 m에서 수직으로 쏘는 1.6 × 1.0 m grid, 0.1 m 간격,
-187칸)을 actor와 critic에 넣습니다(actor 232차원). 지형·보상 조정은 v0 Rough와 같습니다.
+187칸)을 actor와 critic에 넣습니다(actor 232차원). 지형 조정은 v0 Rough와 같습니다.
 
 Rough-Lidar(HnHyperV1RoughLidarEnvCfg)는 actor height scan만 실제 센서(ML-X 120 가정, 앞 윗면 16.2° 아래로,
 바닥이 센서 앞 0.6 m부터 보임)를 흉내 낸 값으로 바꿉니다. 같은 크기 grid를 앞으로 0.45 m 옮기고, LiDAR로 본 점을
@@ -36,7 +36,6 @@ import torch
 
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
 from isaaclab.managers import ObservationTermCfg as ObsTerm
-from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.sensors import ContactSensorCfg, RayCasterCfg, patterns
@@ -54,7 +53,7 @@ from isaaclab_tasks.core.velocity.config.go2.rough_env_cfg import UnitreeGo2Roug
 from isaaclab_tasks.core.velocity.velocity_env_cfg import ObservationsCfg as Go2ObservationsCfg
 
 from ..common.heightmap import lidar_memory_height_scan
-from ..common.rewards import HnGo2Rewards, use_foot_bodies
+from ..common.rewards import apply_hn_rewards
 from ..common.symmetry import compute_left_right_symmetric_states
 from .robot import FOOT_BODY_REGEX, HN_HYPER_V1_CFG, LIDAR_BODY, TRUNK_BODY
 
@@ -123,12 +122,10 @@ def _use_hn_robot(cfg) -> None:
         cfg.scene.height_scanner.prim_path = f"{{ENV_REGEX_NS}}/Robot/Geometry/{TRUNK_BODY}"
     cfg.actions.joint_pos.joint_names = JOINT_ORDER
     cfg.actions.joint_pos.preserve_order = True
-    use_foot_bodies(cfg.rewards, FOOT_BODY_REGEX)
 
     # 몸통 이름을 쓰는 항목을 TRUNK_BODY로 맞춥니다.
     for event in (cfg.events.add_base_mass, cfg.events.base_com, cfg.events.base_external_force_torque):
         event.params["asset_cfg"].body_names = TRUNK_BODY
-    cfg.rewards.base_height_l2.params["target_height"] = STANDING_HEIGHT
 
     # 몸통-바닥 접촉만 보는 센서와 종료 조건
     cfg.scene.base_ground_contact = ContactSensorCfg(
@@ -141,17 +138,17 @@ def _use_hn_robot(cfg) -> None:
         func=illegal_ground_contact,
         params={"sensor_cfg": SceneEntityCfg("base_ground_contact"), "threshold": 1.0},
     )
-    # 허벅지가 몸체·바닥에 닿으면 벌점 (Go2는 끔)
-    cfg.rewards.undesired_contacts = RewTerm(
-        func=mdp.undesired_contacts,
-        weight=-1.0,
-        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_thigh"), "threshold": 1.0},
+
+
+def _use_hn_rewards(cfg, terrain: str) -> None:
+    """보상을 공용 보상표로 바꿉니다. 각 과제 __post_init__의 맨 끝에서 부릅니다(Go2 설정이 바꾼 값을 덮어쓰기 위해)."""
+    apply_hn_rewards(
+        cfg, terrain=terrain, foot_body_regex=FOOT_BODY_REGEX, standing_height=STANDING_HEIGHT, thigh_contact=True
     )
 
 
 @configclass
 class HnHyperV1RoughEnvCfg(UnitreeGo2RoughEnvCfg):
-    rewards: HnGo2Rewards = HnGo2Rewards()
     observations: HnHyperV1ObservationsCfg = HnHyperV1ObservationsCfg()
 
     def __post_init__(self):
@@ -167,19 +164,13 @@ class HnHyperV1RoughEnvCfg(UnitreeGo2RoughEnvCfg):
         # 아래는 v0 Rough(urdf_v0/env.py)와 같은 조정입니다.
         # 순수 평지 칸(proportion 0.2, 정규화 후 약 17%). 난이도가 올라가도 평지 보행을 유지시킵니다.
         self.scene.terrain.terrain_generator.sub_terrains["flat"] = terrain_gen.MeshPlaneTerrainCfg(proportion=0.2)
-        self.rewards.feet_air_time.weight = 0.25
-        self.rewards.feet_air_time.params["threshold"] = 0.25
-        # 정지 연습: 정지 명령 비율 2% → 15%, 정지 명령일 때 기본 자세에서 벗어나면 벌점
+        # 정지 연습: 정지 명령 비율 2% → 15% (정지 자세 벌점 stand_still은 보상표에 있음)
         self.commands.base_velocity.rel_standing_envs = 0.15
         # 방향 유지(heading) 제어를 받는 env 비율 100% → 50%. 나머지는 teleop·실기처럼 회전 속도 명령을 직접 받습니다.
         # 이것만으로는 전진 시 한쪽으로 도는 습관(−0.03 rad/s)이 고쳐지지 않았습니다(2026-11-15 heading50 측정).
         # 그 문제는 PPO 좌우 대칭 증강(_use_symmetry)으로 다룹니다.
         self.commands.base_velocity.rel_heading_envs = 0.5
-        self.rewards.stand_still = RewTerm(
-            func=mdp.stand_still_joint_deviation_l1,
-            weight=-1.0,
-            params={"command_name": "base_velocity", "asset_cfg": SceneEntityCfg("robot")},
-        )
+        _use_hn_rewards(self, "rough")
 
 
 # ---- LiDAR 기억 height map 과제 (2026-11-15) ----
@@ -235,7 +226,6 @@ class HnHyperV1RoughLidarEnvCfg(HnHyperV1RoughEnvCfg):
 
 @configclass
 class HnHyperV1FlatEnvCfg(UnitreeGo2FlatEnvCfg):
-    rewards: HnGo2Rewards = HnGo2Rewards()
     observations: HnHyperV1ObservationsCfg = HnHyperV1ObservationsCfg()
 
     def __post_init__(self):
@@ -243,6 +233,7 @@ class HnHyperV1FlatEnvCfg(UnitreeGo2FlatEnvCfg):
         _use_hn_robot(self)
         # Flat에는 height scanner가 없습니다.
         self.observations.critic.height_scan = None
+        _use_hn_rewards(self, "flat")
 
 
 # rsl_rl 관측 그룹: actor는 policy 그룹, critic은 critic 그룹을 받습니다.
