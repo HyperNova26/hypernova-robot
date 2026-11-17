@@ -253,6 +253,18 @@
       ]
     },
     {
+      "id": "G-012",
+      "area": "walk",
+      "milestone": "S3",
+      "title": "학습에 LiDAR 적용",
+      "status": "예정",
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/41b45bd8717881a597dbd2c1b027a811",
+      "owners": [
+        "조재대"
+      ]
+    },
+    {
       "id": "G-005",
       "area": "walk",
       "milestone": "S2",
