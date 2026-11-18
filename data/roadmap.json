@@ -338,7 +338,7 @@
       "area": "perc",
       "milestone": "S2",
       "title": "데모 구역 현장 녹화 + 사전지도 정합",
-      "status": "진행",
+      "status": "완료",
       "due": "2026-11-15",
       "url": "https://app.notion.com/p/40645bd87178815c9a28d85d01ea9620"
     },
@@ -382,7 +382,7 @@
       "id": "S-008",
       "area": "perc",
       "milestone": "S3",
-      "title": "FAST-LIO2 안정화",
+      "title": "Super-LIO 교체 검토",
       "status": "예정",
       "due": "2026-11-22",
       "url": "https://app.notion.com/p/40645bd8717881c8a5a0fd012333f245"
@@ -391,19 +391,37 @@
       "id": "G-009",
       "area": "walk",
       "milestone": "S4",
-      "title": "데모 경로 합격 테스트",
+      "title": "sim–Nav2 연결",
       "status": "예정",
       "due": "2026-11-29",
-      "url": "https://app.notion.com/p/40645bd871788198b3a2ceaa0042927a"
+      "url": "https://app.notion.com/p/41c45bd87178819dbd69d6af952b42ab",
+      "owners": [
+        "정찬원"
+      ]
+    },
+    {
+      "id": "G-010",
+      "area": "walk",
+      "milestone": "S4",
+      "title": "PoC 정책 선정",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/41c45bd87178817abeb9c2744de6c95f",
+      "owners": [
+        "조재대"
+      ]
     },
     {
       "id": "S-009",
       "area": "perc",
       "milestone": "S4",
-      "title": "센서부 합격 기준 확정",
+      "title": "Nav2 글로벌 경로",
       "status": "예정",
-      "due": "2026-11-29",
-      "url": "https://app.notion.com/p/40645bd871788180a604eafdf19ae1fb"
+      "due": "2026-11-25",
+      "url": "https://app.notion.com/p/41c45bd8717881088de5c665a800ead7",
+      "owners": [
+        "김완준"
+      ]
     },
     {
       "id": "S-010",
@@ -423,6 +441,27 @@
       "priority": "낮음",
       "due": "2026-11-29",
       "url": "https://app.notion.com/p/40645bd871788182b821cbaba38e8a85"
+    },
+    {
+      "id": "S-012",
+      "area": "perc",
+      "milestone": "S4",
+      "title": "글로벌 경로 표시",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/41c45bd87178817997e2fd9bb5e23a03"
+    },
+    {
+      "id": "S-013",
+      "area": "perc",
+      "milestone": "S4",
+      "title": "로컬 장애물 회피",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/41c45bd8717881b39281d663b622f596",
+      "owners": [
+        "김완준"
+      ]
     },
     {
       "id": "G-015",
@@ -479,7 +518,7 @@
       "url": "https://app.notion.com/p/40645bd871788156a7b7de9450133497"
     },
     {
-      "id": "G-010",
+      "id": "G-017",
       "area": "walk",
       "milestone": "S5",
       "title": "MuJoCo 평지 체크",
@@ -489,7 +528,7 @@
       "url": "https://app.notion.com/p/3fe45bd8717881f18e5ad4f400f587d7"
     },
     {
-      "id": "S-012",
+      "id": "S-016",
       "area": "perc",
       "milestone": "S5",
       "title": "보기용 지도 레이어",
