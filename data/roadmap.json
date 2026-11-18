@@ -426,10 +426,10 @@
     {
       "id": "S-010",
       "area": "perc",
-      "milestone": "S4",
+      "milestone": "S3",
       "title": "대시보드 실데이터 연결",
       "status": "예정",
-      "due": "2026-11-29",
+      "due": "2026-11-22",
       "url": "https://app.notion.com/p/40645bd871788157b2ccf23eb4561311"
     },
     {
