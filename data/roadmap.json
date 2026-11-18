@@ -425,6 +425,42 @@
       "url": "https://app.notion.com/p/40645bd871788182b821cbaba38e8a85"
     },
     {
+      "id": "G-015",
+      "area": "walk",
+      "milestone": "S4",
+      "title": "학기말발표회 영상 촬영 #1",
+      "status": "예정",
+      "due": "2026-11-27",
+      "url": "https://app.notion.com/p/41c45bd8717881ed9faed97642e3c6a7",
+      "owners": [
+        "조재대"
+      ]
+    },
+    {
+      "id": "S-015",
+      "area": "perc",
+      "milestone": "S4",
+      "title": "학기말발표회 영상 촬영 #2",
+      "status": "예정",
+      "due": "2026-11-27",
+      "url": "https://app.notion.com/p/41c45bd8717881bfb610fcedbceb7d3f",
+      "owners": [
+        "장승민"
+      ]
+    },
+    {
+      "id": "G-016",
+      "area": "walk",
+      "milestone": "S4",
+      "title": "학기말발표회 영상 촬영 #3",
+      "status": "예정",
+      "due": "2026-11-27",
+      "url": "https://app.notion.com/p/41c45bd871788115aba6c27d7bc46936",
+      "owners": [
+        "정찬원"
+      ]
+    },
+    {
       "id": "M-006",
       "area": "common",
       "milestone": "S5",
