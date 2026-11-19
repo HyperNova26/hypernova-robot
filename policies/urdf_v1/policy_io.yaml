@@ -108,7 +108,9 @@ pd:
 
 observations:
   # 이 순서대로 이어 붙인 벡터가 actor 입력입니다(확인함). 값의 정의는 Isaac Lab mdp와 같습니다.
-  # v0와 달리 base_lin_vel(몸통 선속도)은 실기에서 직접 잴 수 없어 actor에 없습니다(학습 때 critic에만 있음).
+  # 이 체크포인트는 base_lin_vel(몸통 선속도)이 actor에 없는 입력으로 학습했습니다(학습 때 critic에만 있음).
+  # 2026-11-19부터 env.py actor 맨 앞에 base_lin_vel 3(IMU 기반, trunk 질량중심(원점 아래 0.64 mm)·trunk frame)을 넣었습니다(Rough 235차원).
+  # 이 파일은 아래 체크포인트 그대로의 계약이므로 232차원을 유지합니다. 새 env로 다시 학습하면 그 체크포인트에 맞춰 갱신합니다.
   concatenate: true
   dim: 232
   terms:

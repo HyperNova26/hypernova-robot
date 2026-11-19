@@ -5,11 +5,13 @@
 Isaac Lab 3.0.0 내장 Go2 velocity 과제를 상속합니다. v0와 다른 점:
 
 1. 로봇은 HN_HYPER_V1_CFG입니다(자기충돌 켬).
-2. actor(정책) 입력은 실기에서 얻을 수 있는 값만 둡니다. 45차원이고 아래 순서로 이어 붙입니다.
-       base_ang_vel 3 (IMU 각속도) | projected_gravity 3 (IMU 중력 방향) | velocity_commands 3 |
-       joint_pos − default 12 | joint_vel 12 | last action 12
-   base_lin_vel(몸통 선속도)은 실기에서 직접 잴 수 없어서 actor에서 빼고 critic에만 넣습니다.
-   잡음 설정은 Go2 값을 그대로 씁니다.
+2. actor(정책) 입력은 실기에서 얻을 수 있는 값만 둡니다. 48차원이고 아래 순서로 이어 붙입니다(Go2 기본 순서).
+       base_lin_vel 3 (IMU 기반 몸통 선속도) | base_ang_vel 3 (IMU 각속도) | projected_gravity 3 (IMU 중력 방향) |
+       velocity_commands 3 | joint_pos − default 12 | joint_vel 12 | last action 12
+   base_lin_vel은 실기에서 IMU로 잰다고 확인되어(2026-11-19) actor에 넣었습니다. 값은 trunk link 질량중심의
+   속도를 trunk frame으로 나타낸 것입니다(Isaac Lab root_com_lin_vel_b). 질량중심은 원점 아래 0.64 mm라서
+   원점 속도와의 차이는 회전 2 rad/s에서 약 1 mm/s입니다. 2026-11-19 이전 학습(체크포인트 model_2998 등)은 이 항목이 없는 45차원 입력입니다.
+   잡음 설정은 Go2 값을 그대로 씁니다(선속도 ±0.1 m/s, 실측 잡음·지연은 아직 반영하지 않음).
 3. critic 입력은 Go2 기본 입력 전체입니다(학습 때만 씀, 비대칭 actor-critic).
 4. 관절 순서는 HYPER와 같은 종류 단위(FL, FR, RL, RR의 hip → thigh → calf)이고, preserve_order=True로
    action·관측 모두 이 순서를 고정합니다. PhysX 내부 순서에 맡기지 않습니다.
@@ -20,12 +22,13 @@ Isaac Lab 3.0.0 내장 Go2 velocity 과제를 상속합니다. v0와 다른 점:
 7. PPO는 좌우 대칭 데이터 증강을 씁니다(policies/common/symmetry.py). 정책이 이유 없이 한쪽으로 도는 습관을 막습니다.
 
 Rough는 기준 학습용으로 Isaac Lab 기본 height scan(몸통 위 20 m에서 수직으로 쏘는 1.6 × 1.0 m grid, 0.1 m 간격,
-187칸)을 actor와 critic에 넣습니다(actor 232차원). 지형 조정은 v0 Rough와 같습니다.
+187칸)을 actor와 critic에 넣습니다(actor 235차원). 지형 조정은 v0 Rough와 같습니다.
 
 Rough-Lidar(HnHyperV1RoughLidarEnvCfg)는 actor height scan만 실제 센서(ML-X 120 가정, 앞 윗면 15° 아래로,
 바닥이 센서 앞 약 0.63 m부터 보임)를 흉내 낸 값으로 바꿉니다. 같은 크기 grid를 앞으로 0.45 m 옮기고, LiDAR로 본 점을
 3 s 기억하며, 못 본 칸은 발끝 평면으로 채웁니다(policies/common/heightmap.py). critic은 같은 grid의 GT height scan입니다.
-아래 학습·ablation 숫자는 LiDAR 16.2° 기준이며 15°(2026-11-19)로는 아직 다시 학습하지 않았습니다.
+아래 학습·ablation 숫자는 LiDAR 16.2°, actor 선속도 없음 기준이며 15°·선속도 입력(2026-11-19)으로는 아직 다시
+학습하지 않았습니다.
 2026-11-17 학습(대칭 증강, 3000 iteration, 마지막 50 iteration 평균)에서 GT Rough와 비슷했습니다:
 지형 난이도 5.64 vs 5.63, 선속도 오차 0.166 vs 0.151 m/s, 회전 오차 0.202 vs 0.188 rad/s.
 height 입력을 발끝 평면만으로 바꾸면(ablation, 2026-11-17, 지형 7종 × 난이도 2/5/8, 명령 ±0.6 m/s, 16 env, 8 s)
@@ -95,6 +98,8 @@ class HnHyperV1ObservationsCfg:
 
     @configclass
     class PolicyCfg(ObsGroup):
+        # trunk 질량중심 선속도(원점 아래 0.64 mm), trunk frame (실기: IMU 기반). 잡음은 Go2 기본값.
+        base_lin_vel = ObsTerm(func=mdp.base_lin_vel, noise=Unoise(n_min=-0.1, n_max=0.1))
         base_ang_vel = ObsTerm(func=mdp.base_ang_vel, noise=Unoise(n_min=-0.2, n_max=0.2))
         projected_gravity = ObsTerm(func=mdp.projected_gravity, noise=Unoise(n_min=-0.05, n_max=0.05))
         velocity_commands = ObsTerm(func=mdp.generated_commands, params={"command_name": "base_velocity"})
