@@ -12,3 +12,9 @@ target마다 가능하면 이만큼은 남깁니다.
 - watchdog, safe state, fault code
 
 빌드된 binary와 개인 IDE 설정은 커밋하지 않습니다. release에 binary가 필요하면 source commit, toolchain, checksum, 지원 보드 revision을 같이 배포합니다.
+
+## Target
+
+| 디렉터리 | 보드 | 상태 (2026-11-19) |
+| --- | --- | --- |
+| [nucleo-g474-motor-test](nucleo-g474-motor-test/README.md) | NUCLEO-G474RE + RS-485 트랜시버 + GO-M8010-6 최대 3대 | 1차 PoC 벤치 펌웨어. 빌드와 host test만 확인, 실물 미시험 |
