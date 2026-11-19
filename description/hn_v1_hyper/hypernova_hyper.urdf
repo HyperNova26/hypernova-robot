@@ -555,10 +555,10 @@
     <parent link="RR_calf"/>
     <child link="RR_foot"/>
   </joint>
-  <!-- HYPERNOVA: SOSLAB ML-X 120 LiDAR frame (2026-11-17). Mounting is ASSUMED, not measured: front top of the trunk,
-       (0.16, 0, 0.10) m from the trunk origin, pitched 16.2 deg down (+y rotation). Optical frame +X = boresight,
-       field of view 120 deg x 35 deg. The pitch makes the ground visible from 0.6 m ahead of the sensor when standing:
-       sensor height 0.40 m (trunk 0.30 m + 0.10 m), atan(0.40 / 0.6) = 33.7 deg = 16.2 deg + half vertical FOV 17.5 deg. Placeholder mass 0.01 kg so dynamics stay as before; the real 0.86 kg is not
+  <!-- HYPERNOVA: SOSLAB ML-X 120 LiDAR frame (2026-11-17, pitch 15 deg 2026-11-19). Mounting is ASSUMED, not measured: front top of the trunk,
+       (0.16, 0, 0.10) m from the trunk origin, pitched 15 deg down (+y rotation). Optical frame +X = boresight,
+       field of view 120 deg x 35 deg. With this pitch the ground is visible from about 0.63 m ahead of the sensor when standing:
+       sensor height 0.40 m (trunk 0.30 m + 0.10 m), 0.40 / tan(15 deg + half vertical FOV 17.5 deg) = 0.63 m. Placeholder mass 0.01 kg so dynamics stay as before; the real 0.86 kg is not
        included yet. Visual housing box 0.06 x 0.10 x 0.06 m (assumed), no collision. -->
   <link name="front_lidar">
     <inertial>
@@ -573,7 +573,7 @@
     </visual>
   </link>
   <joint name="front_lidar_joint" type="fixed" dont_collapse="true">
-    <origin xyz="0.16 0 0.10" rpy="0 0.2827433 0"/>
+    <origin xyz="0.16 0 0.10" rpy="0 0.2617994 0"/>
     <parent link="trunk"/>
     <child link="front_lidar"/>
   </joint>

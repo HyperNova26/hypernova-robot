@@ -39,7 +39,7 @@ Docker 이미지와 로봇 mesh가 준비된 상태에서 실행합니다. 처�
 
 `teleop.py`가 과제를 등록하고 로봇 한 대를 PhysX로 실행합니다. 별도의 `PYTHONPATH` 설정이나 venv 활성화는 필요하지 않습니다. 첫 실행은 USD 변환과 shader 준비 때문에 오래 걸릴 수 있습니다.
 
-준비된 다른 URDF 버전은 **2단계의 `TASK_ID`와 `CHECKPOINT`만** 해당 버전의 값으로 바꿉니다. 과제 ID는 각 `urdf_v*/__init__.py`의 `TASKS`에서 확인하고 로봇·관측·행동 설정이 맞는 checkpoint를 사용합니다. `urdf_v1`에는 `HN-Velocity-Flat-HYPERv1`, `HN-Velocity-Rough-HYPERv1`(Isaac Lab 기본 height scan), `HN-Velocity-Rough-HYPERv1-Lidar`(LiDAR 앞 0.6 m부터 보이는 LiDAR 기억 height scan)가 있습니다. 저장소에 포함된 v1 checkpoint는 Rough용 `policies/urdf_v1/pretrained/hn_hyperv1_rough_model_2998.pt`뿐이며, 입출력 규격은 `policies/urdf_v1/policy_io.yaml`에 있습니다.
+준비된 다른 URDF 버전은 **2단계의 `TASK_ID`와 `CHECKPOINT`만** 해당 버전의 값으로 바꿉니다. 과제 ID는 각 `urdf_v*/__init__.py`의 `TASKS`에서 확인하고 로봇·관측·행동 설정이 맞는 checkpoint를 사용합니다. `urdf_v1`에는 `HN-Velocity-Flat-HYPERv1`, `HN-Velocity-Rough-HYPERv1`(Isaac Lab 기본 height scan), `HN-Velocity-Rough-HYPERv1-Lidar`(LiDAR 앞 약 0.63 m부터 보이는 LiDAR 기억 height scan)가 있습니다. 저장소에 포함된 v1 checkpoint는 Rough용 `policies/urdf_v1/pretrained/hn_hyperv1_rough_model_2998.pt`뿐이며, 입출력 규격은 `policies/urdf_v1/policy_io.yaml`에 있습니다.
 
 Rough checkpoint는 평지에서도 Rough 과제 ID를 유지합니다. 지형만 바꾸려면 `--terrain flat --level 0`을 `--terrain stairs --level 3` 등으로 바꿉니다. 지원 선택은 `all`, `flat`, `slope`, `stairs`, `boxes`, `rough`이며 난이도는 0–9입니다. 해당 지형이 버전의 `env.py`에 있어야 합니다.
 

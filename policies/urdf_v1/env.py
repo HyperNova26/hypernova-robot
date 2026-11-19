@@ -22,9 +22,10 @@ Isaac Lab 3.0.0 내장 Go2 velocity 과제를 상속합니다. v0와 다른 점:
 Rough는 기준 학습용으로 Isaac Lab 기본 height scan(몸통 위 20 m에서 수직으로 쏘는 1.6 × 1.0 m grid, 0.1 m 간격,
 187칸)을 actor와 critic에 넣습니다(actor 232차원). 지형 조정은 v0 Rough와 같습니다.
 
-Rough-Lidar(HnHyperV1RoughLidarEnvCfg)는 actor height scan만 실제 센서(ML-X 120 가정, 앞 윗면 16.2° 아래로,
-바닥이 센서 앞 0.6 m부터 보임)를 흉내 낸 값으로 바꿉니다. 같은 크기 grid를 앞으로 0.45 m 옮기고, LiDAR로 본 점을
+Rough-Lidar(HnHyperV1RoughLidarEnvCfg)는 actor height scan만 실제 센서(ML-X 120 가정, 앞 윗면 15° 아래로,
+바닥이 센서 앞 약 0.63 m부터 보임)를 흉내 낸 값으로 바꿉니다. 같은 크기 grid를 앞으로 0.45 m 옮기고, LiDAR로 본 점을
 3 s 기억하며, 못 본 칸은 발끝 평면으로 채웁니다(policies/common/heightmap.py). critic은 같은 grid의 GT height scan입니다.
+아래 학습·ablation 숫자는 LiDAR 16.2° 기준이며 15°(2026-11-19)로는 아직 다시 학습하지 않았습니다.
 2026-11-17 학습(대칭 증강, 3000 iteration, 마지막 50 iteration 평균)에서 GT Rough와 비슷했습니다:
 지형 난이도 5.64 vs 5.63, 선속도 오차 0.166 vs 0.151 m/s, 회전 오차 0.202 vs 0.188 rad/s.
 height 입력을 발끝 평면만으로 바꾸면(ablation, 2026-11-17, 지형 7종 × 난이도 2/5/8, 명령 ±0.6 m/s, 16 env, 8 s)
@@ -176,13 +177,13 @@ class HnHyperV1RoughEnvCfg(UnitreeGo2RoughEnvCfg):
 
 
 # ---- LiDAR 기억 height map 과제 (2026-11-15) ----
-# SOSLAB ML-X 120. 장착 위치·각도(가정값: trunk 기준 (0.16, 0, 0.10) m, 아래로 16.2°)는 URDF의 front_lidar_joint에 있고,
-# 센서는 그 link에 offset 없이 붙습니다. 선 자세에서 바닥 위 약 0.40 m이고, 바닥이 센서 앞 0.6 m(trunk 기준 약 0.76 m)부터
-# 보입니다. 맨 위 광선은 수평보다 약 1.3° 위라서 먼 바닥은 광선 최대 거리(6 m)까지 보입니다.
+# SOSLAB ML-X 120. 장착 위치·각도(가정값: trunk 기준 (0.16, 0, 0.10) m, 아래로 15°)는 URDF의 front_lidar_joint에 있고,
+# 센서는 그 link에 offset 없이 붙습니다. 선 자세에서 바닥 위 약 0.40 m이고, 바닥이 센서 앞 약 0.63 m(trunk 기준 약 0.79 m)부터
+# 보입니다. 맨 위 광선은 수평보다 약 2.5° 위라서 먼 바닥은 광선 최대 거리(6 m)까지 보입니다.
 # 시야 가로 120° × 세로 35°(실제 0.209° × 0.625°)를 2° × 2.5°로 줄였습니다.
 LIDAR_PERIOD_S = 0.05  # ML-X 20 fps
 # 정책 grid: x −0.35–1.25 m, y ±0.5 m, 0.1 m (187칸). GT grid(1.6 × 1.0 m)를 앞으로 0.45 m 옮긴 것과 같습니다.
-# 보이기 시작하는 x ≈ 0.76 m 앞으로 보이는 칸이 약 5–6열 남습니다.
+# 보이기 시작하는 x ≈ 0.79 m 앞으로 보이는 칸이 약 5–6열 남습니다.
 BLIND_GRID_OFFSET_X = 0.45
 
 
