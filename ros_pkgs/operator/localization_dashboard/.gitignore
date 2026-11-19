@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.tsbuildinfo
+output/
+.playwright-cli/
+.npm-cache/
+# Generated map previews (npm run map:sync). Point clouds and meshes are not committed.
+public/*.pcd
+public/*.pcd.json
+public/*.bin
+public/reference-map.json
+public/terrain-mesh.json
