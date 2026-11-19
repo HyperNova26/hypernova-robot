@@ -1,5 +1,9 @@
 # 시뮬레이터 장면 변환 안내
 
+## PAIR360 mesh_v3 (보행 시험용 지형)
+
+2026-11-18에 지형 팀이 전달한 MuJoCo용 장면을 세 시뮬레이터가 같이 쓰도록 바꾼 안내는 [PAIR360 mesh_v3 안내](pair360_map_v3/README.md)에 있습니다. 좌표는 `pair360_map` 그대로이고([ADR-0005](../docs/decisions/0005-pair360-map-frame.md)), 변환 도구는 [`tools/map/hfield_scene_import.py`](../tools/map/hfield_scene_import.py)입니다.
+
 ## S-004 ground 최종 전달본
 
 현재 로컬 전달본과 재현 절차는 [S-004 안내](S004_ground_final/README.md)에 있습니다. Git에는 코드·판단 설정·문서만 올리며, 원본 점군과 생성된 장면 파일은 로컬에 보관합니다.

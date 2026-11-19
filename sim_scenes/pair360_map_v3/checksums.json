@@ -1,0 +1,112 @@
+{
+  "note": "PAIR360 mesh_v3 입력과 tools/map/hfield_scene_import.py 출력의 sha256. 파일 자체는 Git에 올리지 않습니다(데이터 폴더 pair360_map_v3/).",
+  "as_of": "2026-11-19",
+  "source_zip": {
+    "name": "PAIR360-Go2-MuJoCo_mesh_v3.zip",
+    "bytes": 17899913,
+    "sha256": "8dd62a6d4dee756dbbc2db0beacd315ed1444e978f62d3c2bb5d69fe3c087027"
+  },
+  "source_files": {
+    "README.md": {
+      "bytes": 1889,
+      "sha256": "c1928a9442661f4fc3f1ce39acb378a78ed484754d7684f7fe2005c380960204"
+    },
+    "load_go2.py": {
+      "bytes": 6368,
+      "sha256": "3d2562045176eb68d81b633f31cd995dddacbe294c6ebbb26d7365f0978588f8"
+    },
+    "route_stand_check.py": {
+      "bytes": 4654,
+      "sha256": "c4b51dd00214d5be8db5bfbb094a611093a4d18d7ccb8c9c297cab8919dbd251"
+    },
+    "scene/hfields/pair360_ground_000.bin": {
+      "bytes": 10413512,
+      "sha256": "0e876950bb0c7b15cc48139ab34fbfe8cbd5a602e196726b5a67a3b2afe3678b"
+    },
+    "scene/hfields/pair360_nogo_000.bin": {
+      "bytes": 10413512,
+      "sha256": "1a81b34625164eb4f674e8f00df3bdf9a265945f4482922afdc327d01f7cafde"
+    },
+    "scene/manifest.json": {
+      "bytes": 3075,
+      "sha256": "ba5dd429cc1e65791e3d22c63357bdb619a7c20a0870f617755145e57d64bb6f"
+    },
+    "scene/scene.xml": {
+      "bytes": 53758,
+      "sha256": "690dff772336b95ca35f6dac77863105801e25a44de317886f0deaeba1784053"
+    },
+    "scene/trees.json": {
+      "bytes": 38495,
+      "sha256": "262b7c3367dedb16aad373b385f6d924c010aeb8fe8ffcbdaa9dcc93e1c4eed5"
+    },
+    "scene/verification.json": {
+      "bytes": 1214,
+      "sha256": "de00a7cd5ad35f316c82faebf6e0e76248ece4eb8215235f69ffe55cc5fb5a7a"
+    },
+    "view_go2.py": {
+      "bytes": 1663,
+      "sha256": "2effa84c4c139a01a2326f4072068861b9b92d937dc1bd15cff01aff78ae9e19"
+    }
+  },
+  "generated": {
+    "tool": "hfield_scene_import.py",
+    "tool_version": "1",
+    "mujoco": "3.12.0",
+    "argv": [
+      "--scene",
+      "/data/pair360_map_v3/src/PAIR360-Go2-mesh_v3/scene/scene.xml",
+      "--out",
+      "/data/pair360_map_v3/derived",
+      "--robot-usd",
+      "v0=/data/usd/hn_v0_go2/hypernova_go2_1/hypernova_go2.usda",
+      "--robot-usd",
+      "v1=/data/usd/hn_v1_hyper/hypernova_hyper/hypernova_hyper.usda",
+      "--route-yaml",
+      "/workspace/hypernova/sim_scenes/pair360_map_v3/routes.yaml"
+    ],
+    "files": {
+      "ground_grid.npz": {
+        "bytes": 20829536,
+        "sha256": "c319f414b6daac9b0caf2e096d496baed544b8dded8aac2960d6d72bb5e39abd"
+      },
+      "isaac/scene_v0.usda": {
+        "bytes": 755,
+        "sha256": "4b557525e6cca45351d6f3d5b15d1d6350bab17ae6d1323482b10a47ff7b91ba"
+      },
+      "isaac/scene_v1.usda": {
+        "bytes": 759,
+        "sha256": "031ac582655ad6c8840e1e490bf49fcc448c1dda7ac632584c58b940fc16f80a"
+      },
+      "isaac/terrain_ground.usdc": {
+        "bytes": 15104404,
+        "sha256": "1e86431d0710335731f02a31ff1cb4524b6ed58257c4488dbcce38ad415da25e"
+      },
+      "isaac/terrain_obstacles.usdc": {
+        "bytes": 3062722,
+        "sha256": "f3a24891abb78d9e66e449af72346d97f841c0c37e160dee9352c7d4e4d3dd9b"
+      }
+    }
+  },
+  "delivered_ply_2026_11_19": {
+    "mesh_v3_all.ply": {
+      "bytes": 75382846,
+      "sha256": "9ff5ca90f936a7e9e29740986d06d559606e6ea392d54fb8e17080a3f4056e8a"
+    },
+    "mesh_v3_ground.ply": {
+      "bytes": 61630931,
+      "sha256": "8eba43ef9161e316e5aa8d0d1694005aa09c3084d4a16619cc6e07921723cb65"
+    },
+    "mesh_v3_obstacle.ply": {
+      "bytes": 12514938,
+      "sha256": "7efe26a98662884226cd969a52abf7700c194a2dce4af4a58e5661afe8a90b43"
+    },
+    "mesh_v3_route.ply": {
+      "bytes": 30009,
+      "sha256": "833c6e1fd968ae6adfbad05ae2f3aaa31501624c8925bd6f538febab0e2f2dde"
+    },
+    "mesh_v3_trees.ply": {
+      "bytes": 1237483,
+      "sha256": "1e83396db667e03dbef53819e8596fa40d03c8a145262a4a629d271ae60414cb"
+    }
+  }
+}

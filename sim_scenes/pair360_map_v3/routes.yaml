@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# PAIR360 mesh_v3 지형 위의 경로. Isaac Lab, MuJoCo, Isaac Sim 재생 스크립트가 같은 파일을 읽습니다.
+# 생성: tools/map/hfield_scene_import.py (v1, mujoco 3.12.0). 손으로 고치지 않고 다시 생성합니다.
+# 입력: manifest.json sha256 ba5dd429cc1e65791e3d22c63357bdb619a7c20a0870f617755145e57d64bb6f / scene.xml sha256 690dff772336b95ca35f6dac77863105801e25a44de317886f0deaeba1784053
+# 좌표는 입력 장면의 pair360_map 좌표 그대로입니다(변환 없음, x/y/z 단위 m, M-002 공통 원점 적용 전).
+# 목표는 지형 팀이 촬영 화면과 측정 흔적으로 추정한 값이라 +-3~5 m 오차가 있습니다(mesh_v3 README).
+# 점검(아래 값은 지면 hfield와 이동 금지 hfield, 나무 줄기 기준): 
+#   A: 길이 101.08 m, 최대 경사 13.5% (0.5 m 간격), 이동 금지까지 최소 0.56 m, 나무 줄기까지 최소 0.88 m
+frame: pair360_map (x, y, z=up, m)
+routes:
+  A:
+    description: 지형 팀이 막힘 없음을 확인한 참조 경로(manifest route_xyz_m)
+    start: [-16.7, 123.4]
+    waypoints:
+      - [-13.5, 187.5]
+      - [-8.4, 190.6]
+      - [21.9, 184.4]
