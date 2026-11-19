@@ -188,7 +188,7 @@ class HnHyperV1RoughEnvCfg(UnitreeGo2RoughEnvCfg):
 # SOSLAB ML-X 120. 장착 위치·각도(가정값: trunk 기준 (0.16, 0, 0.10) m, 아래로 15°)는 URDF의 front_lidar_joint에 있고,
 # 센서는 그 link에 offset 없이 붙습니다. 선 자세에서 바닥 위 약 0.40 m이고, 바닥이 센서 앞 약 0.63 m(trunk 기준 약 0.79 m)부터
 # 보입니다. 맨 위 광선은 수평보다 약 2.5° 위라서 먼 바닥은 광선 최대 거리(6 m)까지 보입니다.
-# 시야 가로 120° × 세로 35°(실제 0.209° × 0.625°)를 2° × 2.5°로 줄였습니다.
+# 시야 가로 120° × 세로 35°(실제 0.209° × 0.625°)를 2° × 2.5°로 줄였습니다. 맞은 점마다 거리 오차 ±30 mm(균일)를 넣습니다.
 LIDAR_PERIOD_S = 0.05  # ML-X 20 fps
 # 정책 grid: x −0.35–1.25 m, y ±0.5 m, 0.1 m (187칸). GT grid(1.6 × 1.0 m)를 앞으로 0.45 m 옮긴 것과 같습니다.
 # 보이기 시작하는 x ≈ 0.79 m 앞으로 보이는 칸이 약 5–6열 남습니다.
@@ -229,6 +229,8 @@ class HnHyperV1RoughLidarEnvCfg(HnHyperV1RoughEnvCfg):
                 "foot_body_regex": FOOT_BODY_REGEX,
                 "foot_radius": 0.025,
                 "foot_window_s": 0.5,
+                # 점마다 거리 오차 ±30 mm (ML-X 사양 오차 < 30 mm, 2026-11-20)
+                "range_noise_m": 0.03,
             },
             noise=Unoise(n_min=-0.1, n_max=0.1),
             clip=(-1.0, 1.0),

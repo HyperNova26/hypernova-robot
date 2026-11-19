@@ -37,6 +37,7 @@ class lidar_memory_height_scan(ManagerTermBase):
     - memory_s: 기억 시간 [s], scan_period_s: LiDAR 주기 [s]
     - foot_body_regex, foot_radius, foot_window_s: 발끝 평면
     - offset: mdp.height_scan과 같은 값 빼기 [m]
+    - range_noise_m: 맞은 점마다 광선 방향으로 더하는 거리 오차, 균일 ±값 [m] (0 = 끔, 2026-11-20)
     """
 
     def __init__(self, cfg, env):
@@ -58,6 +59,7 @@ class lidar_memory_height_scan(ManagerTermBase):
         self.cell_xy = torch.stack([gx.flatten() + self.gx0, gy.flatten()], dim=-1)  # (C, 2), 몸통 yaw frame
         self.C = self.cell_xy.shape[0]
 
+        self.range_noise = p.get("range_noise_m", 0.0)
         self.scan_period = p.get("scan_period_s", 0.05)
         self.S = max(1, round(p.get("memory_s", 3.0) / self.scan_period))
         n = env.num_envs
@@ -89,8 +91,15 @@ class lidar_memory_height_scan(ManagerTermBase):
     def _scan_points(self, env, base_xy, yaw):
         """이번 scan의 칸별 (world x, y, z), 유효 여부. 칸마다 가장 높은 점."""
         n = env.num_envs
-        hits = env.scene.sensors[self.lidar_name].data.ray_hits_w.torch  # (n, R, 3), 안 맞으면 inf
+        lidar = env.scene.sensors[self.lidar_name].data
+        hits = lidar.ray_hits_w.torch  # (n, R, 3), 안 맞으면 inf
         ok = torch.isfinite(hits).all(-1)
+        if self.range_noise > 0.0:
+            # 거리 오차: 센서 → 점 방향으로 균일 ±range_noise_m만큼 점을 옮깁니다(ML-X 사양 오차 < 30 mm).
+            ray = torch.where(ok.unsqueeze(-1), hits - lidar.pos_w.torch.unsqueeze(1), torch.ones_like(hits))
+            unit = ray / ray.norm(dim=-1, keepdim=True).clamp_min(1e-6)
+            dr = (torch.rand(hits.shape[:-1], device=hits.device) * 2.0 - 1.0) * self.range_noise
+            hits = torch.where(ok.unsqueeze(-1), hits + dr.unsqueeze(-1) * unit, hits)
         local = self._to_local(hits[..., :2], base_xy, yaw)
         ix = torch.floor((local[..., 0] - self.x_min) / self.res + 0.5).long()
         iy = torch.floor((local[..., 1] - self.y_min) / self.res + 0.5).long()
@@ -145,6 +154,7 @@ class lidar_memory_height_scan(ManagerTermBase):
         foot_radius=0.025,
         foot_window_s=0.5,
         offset=0.5,
+        range_noise_m=0.0,
     ):
         # 파라미터는 __init__에서 읽었습니다. Isaac Lab이 이름을 검사하므로 여기 그대로 둡니다.
         n = env.num_envs
