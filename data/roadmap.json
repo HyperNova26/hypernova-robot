@@ -269,7 +269,7 @@
       "area": "walk",
       "milestone": "S3",
       "title": "상태 이상 스크립트 수정",
-      "status": "예정",
+      "status": "완료",
       "due": "2026-11-22",
       "url": "https://app.notion.com/p/41b45bd8717881f183c9fd1abda53455",
       "owners": [
@@ -281,7 +281,7 @@
       "area": "walk",
       "milestone": "S3",
       "title": "sim별 완료 시간 격차 조사",
-      "status": "예정",
+      "status": "완료",
       "due": "2026-11-22",
       "url": "https://app.notion.com/p/41b45bd8717881ec9335d9f502e4f499",
       "owners": [
@@ -440,7 +440,7 @@
       "area": "perc",
       "milestone": "S3",
       "title": "통행 가능 영역 분리",
-      "status": "예정",
+      "status": "진행",
       "priority": "긴급",
       "due": "2026-11-22",
       "url": "https://app.notion.com/p/41c45bd8717881dea3c9e60ce2054216",
