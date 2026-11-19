@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""로봇 상태 판정 코어(G-006). 정책 입력 상태 dict에서 정지·보행·낙상을 판정합니다.
+"""로봇 상태 판정 코어(G-006). 정책 입력 상태 dict에서 정지·보행·기울어짐·낙상을 판정합니다.
 
 numpy와 pyyaml만 씁니다. ROS·시뮬레이터를 import하지 않으므로 MuJoCo, Isaac Sim, Isaac Lab, 실기에서 같은 코드가 돕니다.
 ROS 발행과 파일 기록은 어댑터(ros_node.py, jsonl_log.py)가 맡습니다.
@@ -14,7 +14,8 @@ ROS 발행과 파일 기록은 어댑터(ros_node.py, jsonl_log.py)가 맡습니
 입력 끊김(STALE_INPUT)은 wall 시간으로 따로 감시합니다(StaleWatchdog). t가 거꾸로 가면 초기화하고,
 max_dt_s보다 크게 건너뛰면 진행 중인 지속 시간 계산을 다시 시작합니다(상태는 유지).
 
-상태 번호는 S-005(/localization/status)처럼 숫자 enum입니다. 3(TILTING)과 4(SLIPPING)는 번호만 예약했고 아직 내보내지 않습니다.
+상태 번호는 S-005(/localization/status)처럼 숫자 enum입니다. 4(SLIPPING)는 번호만 예약했고 아직 내보내지 않습니다.
+TILTING(3)은 서 있거나 걷는 중에 기울기가 경고 기준을 넘은 상태입니다(낙상 기준보다 작음). 낙상 조건이 우선합니다.
 """
 from __future__ import annotations
 
@@ -36,13 +37,14 @@ class State(IntEnum):
     INITIALIZING = 0
     STANDING = 1
     WALKING = 2
-    # 3 TILTING, 4 SLIPPING: 번호 예약(미구현)
+    TILTING = 3
+    # 4 SLIPPING: 번호 예약(미구현)
     FALLEN = 5
     STALE_INPUT = 6
 
 
 class Severity(IntEnum):
-    """diagnostic_msgs/DiagnosticStatus의 level과 같은 값입니다."""
+    """hn_interfaces/LocomotionStatus의 SEVERITY_*(= diagnostic_msgs/DiagnosticStatus의 level)와 같은 값입니다."""
 
     OK = 0
     WARN = 1
@@ -54,6 +56,7 @@ SEVERITY_OF = {
     State.INITIALIZING: Severity.OK,
     State.STANDING: Severity.OK,
     State.WALKING: Severity.OK,
+    State.TILTING: Severity.WARN,
     State.FALLEN: Severity.ERROR,
     State.STALE_INPUT: Severity.STALE,
 }
@@ -75,6 +78,12 @@ class Thresholds:
     recover_tilt_deg: float = 25.0
     recover_height_ratio: float = 0.8
     recover_s: float = 1.0
+    # 기울어짐(경고): STANDING/WALKING에서 기울기 > tilt_warn_deg가 tilt_enter_s 지속되면 TILTING.
+    # 기울기 < tilt_clear_deg가 tilt_clear_s 지속되면 정지/보행 판정으로 돌아갑니다. 낙상 조건이 우선합니다.
+    tilt_warn_deg: float = 35.0
+    tilt_clear_deg: float = 30.0
+    tilt_enter_s: float = 0.3
+    tilt_clear_s: float = 0.5
     # 정지/보행: stand_* 아래가 stand_dwell_s 지속되면 STANDING, walk_* 이상이 walk_dwell_s 지속되면 WALKING. 사이 구간은 상태 유지(히스테리시스).
     stand_cmd_lin_mps: float = 0.05
     stand_cmd_ang_rps: float = 0.05
@@ -97,7 +106,8 @@ class Thresholds:
 
     def __post_init__(self):
         pos = ("init_stable_s", "init_tilt_max_deg", "init_vertical_speed_max_mps", "fall_tilt_deg", "fall_low_height_ratio",
-               "fall_enter_s", "recover_tilt_deg", "recover_height_ratio", "recover_s", "stand_cmd_lin_mps", "stand_cmd_ang_rps",
+               "fall_enter_s", "recover_tilt_deg", "recover_height_ratio", "recover_s", "tilt_warn_deg", "tilt_clear_deg",
+               "tilt_enter_s", "tilt_clear_s", "stand_cmd_lin_mps", "stand_cmd_ang_rps",
                "stand_speed_mps", "walk_cmd_lin_mps", "walk_cmd_ang_rps", "walk_speed_mps", "scan_off_ground_hit_z_m",
                "stale_timeout_s", "max_dt_s")
         for name in pos:
@@ -110,6 +120,10 @@ class Thresholds:
             raise ValueError("recover_tilt_deg < fall_tilt_deg <= 180 이어야 합니다")
         if not self.init_tilt_max_deg < self.fall_tilt_deg:
             raise ValueError("init_tilt_max_deg는 fall_tilt_deg보다 작아야 합니다")
+        if not self.tilt_clear_deg < self.tilt_warn_deg < self.fall_tilt_deg:
+            raise ValueError("tilt_clear_deg < tilt_warn_deg < fall_tilt_deg 이어야 합니다")
+        if not self.recover_tilt_deg <= self.tilt_clear_deg:
+            raise ValueError("recover_tilt_deg는 tilt_clear_deg 이하여야 합니다(낙상에서 풀리자마자 TILTING이 되지 않게)")
         if not self.fall_low_height_ratio < self.recover_height_ratio <= 1.0:
             raise ValueError("fall_low_height_ratio < recover_height_ratio <= 1 이어야 합니다")
         if self.walk_cmd_lin_mps < self.stand_cmd_lin_mps or self.walk_cmd_ang_rps < self.stand_cmd_ang_rps \
@@ -130,6 +144,7 @@ _YAML_FIELDS = {
     "init": {"stable_s": "init_stable_s", "tilt_max_deg": "init_tilt_max_deg", "vertical_speed_max_mps": "init_vertical_speed_max_mps"},
     "fall": {"tilt_deg": "fall_tilt_deg", "low_height_ratio": "fall_low_height_ratio", "enter_s": "fall_enter_s",
              "recover_tilt_deg": "recover_tilt_deg", "recover_height_ratio": "recover_height_ratio", "recover_s": "recover_s"},
+    "tilt": {"warn_deg": "tilt_warn_deg", "clear_deg": "tilt_clear_deg", "enter_s": "tilt_enter_s", "clear_s": "tilt_clear_s"},
     "motion": {"stand_cmd_lin_mps": "stand_cmd_lin_mps", "stand_cmd_ang_rps": "stand_cmd_ang_rps", "stand_speed_mps": "stand_speed_mps",
                "walk_cmd_lin_mps": "walk_cmd_lin_mps", "walk_cmd_ang_rps": "walk_cmd_ang_rps", "walk_speed_mps": "walk_speed_mps",
                "stand_dwell_s": "stand_dwell_s", "walk_dwell_s": "walk_dwell_s"},
@@ -179,7 +194,7 @@ def load_thresholds(path: str | Path = DEFAULT_CONFIG_PATH) -> Thresholds:
 class StatusReport:
     t: float                  # 입력의 t(호출자 시간)
     state: State
-    reason: str               # initializing: calibrating / standing: idle / walking: moving / fallen: tilt|low_height|off_ground / stale: no_input
+    reason: str               # initializing: calibrating / standing: idle / walking: moving / tilting: tilt / fallen: tilt|low_height|off_ground / stale: no_input
     since_s: float            # 이 상태가 시작된 뒤 지난 시간(t 기준). STALE_INPUT은 입력이 끊긴 시간(wall)
     features: dict            # 판정에 쓴 값(단위는 키 끝: _deg, _mps, _rps, _m). 값이 없으면 None
 
@@ -238,6 +253,8 @@ class StateEstimator:
         self._recover_since = None
         self._stand_since = None
         self._walk_since = None
+        self._tilt_since = None
+        self._untilt_since = None
         self._init_since = None
         self._init_heights: list[float] = []
 
@@ -334,7 +351,7 @@ class StateEstimator:
             self._set_state(State.WALKING, "moving", t)
         else:
             self._set_state(State.STANDING, "idle", t)
-        self._stand_since = self._walk_since = None
+        self._stand_since = self._walk_since = self._tilt_since = self._untilt_since = None
         self._init_since, self._init_heights = None, []
 
     def _step(self, f: dict, t: float) -> None:
@@ -348,14 +365,15 @@ class StateEstimator:
                     self._fall_since = t
                 if t - self._fall_since >= cfg.fall_enter_s - _EPS:
                     self._set_state(State.FALLEN, reason, t)
-                    self._fall_since = self._recover_since = self._stand_since = self._walk_since = self._init_since = None
-                    self._init_heights = []
+                    self._clear_candidates()
                     return
         if self._state == State.FALLEN:
             self._step_fallen(f, t)
         elif self._state == State.INITIALIZING:
             self._step_init(f, t)
-        else:
+        elif self._state == State.TILTING:
+            self._step_tilting(f, t)
+        elif not self._step_tilt_enter(f, t):
             self._step_motion(f, t)
 
     def _step_fallen(self, f: dict, t: float) -> None:
@@ -389,6 +407,28 @@ class StateEstimator:
         if t - self._init_since >= cfg.init_stable_s - _EPS:
             if self._h0 is None and self._init_heights:
                 self._h0 = float(np.median(self._init_heights))
+            self._enter_motion(f, t)
+
+    def _step_tilt_enter(self, f: dict, t: float) -> bool:
+        """STANDING/WALKING: 기울기가 경고 기준을 넘은 채 지속되면 TILTING으로 갑니다. 갔으면 True."""
+        if f["tilt_deg"] <= self.cfg.tilt_warn_deg:
+            self._tilt_since = None
+            return False
+        if self._tilt_since is None:
+            self._tilt_since = t
+        if t - self._tilt_since >= self.cfg.tilt_enter_s - _EPS:
+            self._set_state(State.TILTING, "tilt", t)
+            self._tilt_since = self._stand_since = self._walk_since = None
+            return True
+        return False
+
+    def _step_tilting(self, f: dict, t: float) -> None:
+        if f["tilt_deg"] >= self.cfg.tilt_clear_deg:
+            self._untilt_since = None
+            return
+        if self._untilt_since is None:
+            self._untilt_since = t
+        if t - self._untilt_since >= self.cfg.tilt_clear_s - _EPS:
             self._enter_motion(f, t)
 
     def _step_motion(self, f: dict, t: float) -> None:

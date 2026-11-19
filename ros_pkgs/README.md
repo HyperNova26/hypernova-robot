@@ -6,7 +6,7 @@
 
 후보만 적어 둡니다. package를 만들거나 책임 범위를 정한 단계는 아닙니다.
 
-- `interfaces`: message, service, action과 외부 protocol
+- `interfaces`: message, service, action과 외부 protocol. 첫 package로 [`hn_interfaces`](hn_interfaces/)를 만들었습니다(2026-11-18, `LocomotionStatus`와 S-005의 `LocalizationStatus`. 2026-11-19에 시뮬레이터 고장 주입 서비스 `InjectFault` 추가)
 - `bringup`: 기체·센서 구성별 통합 실행
 - `locomotion`: 이동 제어와 state estimation
 - `localization` / `navigation`: 지도, 위치 추정, 경로와 임무 실행

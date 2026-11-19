@@ -127,6 +127,43 @@ def test_turning_in_place_is_walking():
     assert d.last.state == State.WALKING
 
 
+# ---------------------------------------------------------------------- 기울어짐(TILTING)
+def test_tilting_after_debounce_then_clears_back_to_motion_state():
+    d = standing_driver()
+    t0 = d.t
+    r = d.run(1.0, roll=50)                                          # 경고 35° 초과, 낙상 70° 미만
+    assert 0.30 <= first_time(r, State.TILTING) - t0 <= 0.36         # tilt_enter_s 0.3
+    assert (d.last.reason, d.last.severity, d.last.code) == ("tilt", Severity.WARN, 3)
+    assert d.run(1.0, roll=32)[-1].state == State.TILTING            # 해제 기준(30°)보다 크면 유지(히스테리시스)
+    t1 = d.t
+    r = d.run(1.0, roll=10)
+    assert 0.50 <= first_time(r, State.STANDING) - t1 <= 0.56        # tilt_clear_s 0.5 뒤 정지/보행 판정으로 복귀
+    d.run(0.4, pitch=-45, speed=0.5, cmd=(0.5, 0.0, 0.0))            # 앞뒤 기울기도 같음
+    assert d.last.state == State.TILTING
+    assert d.run(1.0, speed=0.5, cmd=(0.5, 0.0, 0.0))[-1].state == State.WALKING
+
+
+def test_brief_tilt_over_warning_is_ignored():
+    d = standing_driver()
+    assert all(r.state == State.STANDING for r in d.run(0.2, roll=50) + d.run(1.0))
+
+
+def test_tilting_then_fall_has_priority_and_recovery_skips_tilting():
+    d = standing_driver()
+    d.run(1.0, roll=45)
+    assert d.last.state == State.TILTING
+    r = d.run(0.5, roll=80)
+    assert State.FALLEN in {x.state for x in r} and d.last.reason == "tilt"
+    r = d.run(1.5, roll=20)                                          # 해제(25° 미만 1 s) 뒤 바로 정지 판정, TILTING을 거치지 않음
+    assert d.last.state == State.STANDING and State.TILTING not in {x.state for x in r}
+
+
+def test_tilt_during_initialization_does_not_report_tilting():
+    d = Driver()
+    r = d.run(2.0, roll=50)
+    assert {x.state for x in r} == {State.INITIALIZING}
+
+
 # ---------------------------------------------------------------------- 낙상
 def test_brief_tilt_spike_is_ignored():
     d = standing_driver()
@@ -290,7 +327,8 @@ def test_report_is_json_serializable():
 
 # ---------------------------------------------------------------------- 코드·설정
 def test_state_codes_and_severity_values():
-    assert {s.name: int(s) for s in State} == {"INITIALIZING": 0, "STANDING": 1, "WALKING": 2, "FALLEN": 5, "STALE_INPUT": 6}
+    assert {s.name: int(s) for s in State} == {"INITIALIZING": 0, "STANDING": 1, "WALKING": 2, "TILTING": 3, "FALLEN": 5,
+                                               "STALE_INPUT": 6}
     assert [int(x) for x in Severity] == [0, 1, 2, 3]
     try:
         from diagnostic_msgs.msg import DiagnosticStatus
@@ -320,6 +358,8 @@ def _yaml_variant(tmp_path, old, new):
     ("  tilt_deg: 70.0", "  tilt_deg: true", "숫자"),
     ("  nx: 17", "  nx: 17.5", "정수"),
     ("  recover_tilt_deg: 25.0", "  recover_tilt_deg: 80.0", "recover_tilt_deg"),
+    ("  clear_deg: 30.0", "  clear_deg: 50.0", "tilt_clear_deg"),
+    ("  clear_s: 0.5\n", "\n", "키가 다릅니다"),
     ("  max_dt_s: 0.5", "  max_dt_s: 0.5\nextra:\n  a: 1", "모르는 섹션"),
 ])
 def test_yaml_validation(tmp_path, old, new, message):
@@ -330,7 +370,8 @@ def test_yaml_validation(tmp_path, old, new, message):
 
 @pytest.mark.parametrize("kw", [{"walk_speed_mps": 0.05}, {"fall_enter_s": 0.0}, {"scan_center_half_width": 9},
                                 {"fall_low_height_ratio": 0.9}, {"nominal_height_m": -1.0}, {"scan_min_valid_fraction": 0.0},
-                                {"init_tilt_max_deg": 80.0}, {"stand_dwell_s": -0.1}])
+                                {"init_tilt_max_deg": 80.0}, {"stand_dwell_s": -0.1}, {"tilt_warn_deg": 75.0},
+                                {"tilt_clear_deg": 20.0}, {"tilt_enter_s": 0.0}])
 def test_thresholds_validation(kw):
     with pytest.raises(ValueError):
         Thresholds(**kw)

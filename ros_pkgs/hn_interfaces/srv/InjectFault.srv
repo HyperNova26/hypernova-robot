@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 HYPERNOVA contributors
+#
+# 시뮬레이터 고장 주입(시험용). 서비스 /sim/inject_fault
+
+string KIND_COLLAPSE="collapse"  # 주저앉기 -> FALLEN
+string KIND_FLIP="flip"          # 뒤집기 -> FALLEN
+string KIND_STALE="stale"        # 판정기 입력 끊기 -> STALE_INPUT
+string KIND_TILT="tilt"          # 옆으로 기울이기 -> TILTING
+string KIND_PUSH="push"          # 몸통 밀기
+string KIND_CLEAR="clear"        # 모든 고장 끝내기
+string KIND_RESET="reset"        # 모든 고장 끝내고 로봇을 그 자리에 다시 세우기
+
+string kind
+float64 magnitude      # flip: rad/s, tilt: roll deg(+ 오른쪽), push: N. 0이면 기본값
+float64 duration_s     # 0이면 clear까지(push는 0.2 s)
+float64 direction_deg  # push 방향(0 앞, 90 왼쪽)
+---
+bool accepted
+string message
+float64 sim_time_s

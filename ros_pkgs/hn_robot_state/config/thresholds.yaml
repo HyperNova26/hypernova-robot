@@ -24,6 +24,15 @@ fall:
   recover_height_ratio: 0.8 # 높이가 h0의 이 비율보다 크고(높이 입력이 있을 때) 지면이 있는 상태가
   recover_s: 1.0            # 이만큼 지속되면 해제
 
+tilt:
+  # 기울어짐(TILTING, 경고). 서 있거나 걷는 중에 기울기가 warn_deg를 넘은 채 enter_s 지속되면 TILTING,
+  # clear_deg 아래로 clear_s 지속되면 정지/보행으로 돌아갑니다. 낙상 조건(fall)이 우선합니다.
+  # warn_deg는 세 시뮬레이터의 정상 보행 기울기 최대보다 충분히 커야 합니다(docs/interfaces/locomotion-status.md의 시험 결과).
+  warn_deg: 35.0
+  clear_deg: 30.0           # fall.recover_tilt_deg 이상, warn_deg 미만
+  enter_s: 0.3
+  clear_s: 0.5
+
 motion:
   # 정지: 명령과 속도가 모두 stand_* 미만이 stand_dwell_s 지속. 보행: 하나라도 walk_* 이상이 walk_dwell_s 지속.
   # stand_*와 walk_* 사이 구간은 상태를 유지합니다(히스테리시스).
