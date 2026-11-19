@@ -12,6 +12,7 @@ torch·Isaac Lab·ROS 없이 numpy만 씁니다(robot venv에서 그대로 실�
 """
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Mapping
 
@@ -62,6 +63,23 @@ class PolicyRunner:
         if dims != want:
             raise PolicyIOError(f"가중치 구조 {dims}가 yaml과 다릅니다({want})")
         self.last_action = np.zeros(len(io.joints), np.float32)
+        self._trace_f = None
+        self._trace_n = 0
+        self.hold_default = False  # True면 정책을 쓰지 않고 항상 기본 자세를 목표로 냅니다(물리만 비교하는 통제 실험)
+        self.trace_aux = None     # 기록 중이면, 플레이어가 직전 스텝의 관절 토크 |tau| [N·m](정책 조인트 순서)를 넣어 두면 다음 act()가 같이 기록합니다
+
+    def enable_trace(self, path: str | Path, meta: dict | None = None) -> None:
+        """매 act()마다 정책 입출력 한 줄(float32)을 path에 이어 씁니다. 열 이름은 path + '.json'에 적습니다.
+        시뮬레이터 사이 차이를 비교하려고 만든 기능입니다. 프로세스가 갑자기 끝나도 남도록 매 줄 flush합니다."""
+        n = len(self.io.joints)
+        cols = (["step", "cmd_vx", "cmd_vy", "cmd_wz", "vx_b", "vy_b", "vz_b", "wx_b", "wy_b", "wz_b", "gx_b", "gy_b", "gz_b"]
+                + [f"q{i}" for i in range(n)] + [f"qd{i}" for i in range(n)] + [f"a{i}" for i in range(n)] + [f"qt{i}" for i in range(n)]
+                + ["base_z"] + [f"tau_prev{i}" for i in range(n)])
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        Path(str(path) + ".json").write_text(json.dumps({"columns": cols, "dtype": "float32", "policy_dt_s": self.io.policy_dt,
+                                                          "joints": list(self.io.joints), "meta": meta or {}}, ensure_ascii=False, indent=1), encoding="utf-8")
+        self._trace_f = open(path, "wb")
+        self._trace_n = 0
 
     def reset(self) -> None:
         """에피소드 시작(또는 정책 재시작) 때 호출합니다. 직전 행동 관측을 0으로 되돌립니다."""
@@ -73,6 +91,16 @@ class PolicyRunner:
         full = dict(state)
         full["last_action"] = self.last_action
         obs = self.io.build_obs(full)
-        action = self.actor(obs)
+        action = np.zeros(len(self.io.joints), np.float32) if self.hold_default else self.actor(obs)
         self.last_action = action.astype(np.float32)
-        return self.io.decode_action(action)
+        q_target = self.io.decode_action(action)
+        if self._trace_f is not None:
+            n = len(self.io.joints)
+            aux = np.full(n, np.nan) if self.trace_aux is None else np.asarray(self.trace_aux, np.float64).reshape(-1)
+            row = np.concatenate([[self._trace_n]] + [np.asarray(state[k], np.float64).reshape(-1)[:m] for k, m in (
+                ("command", 3), ("base_lin_vel_b", 3), ("base_ang_vel_b", 3), ("projected_gravity_b", 3), ("joint_pos", n), ("joint_vel", n))]
+                + [np.asarray(action, np.float64).reshape(-1), q_target.astype(np.float64), np.asarray(state["base_pos_z"], np.float64).reshape(-1)[:1], aux])
+            self._trace_f.write(row.astype(np.float32).tobytes())
+            self._trace_f.flush()
+            self._trace_n += 1
+        return q_target

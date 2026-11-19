@@ -15,6 +15,8 @@
   --hn-spacing=0               env가 2개 이상일 때 env 원점 간격 m(기본 0 = 모두 같은 지점). 지형이 하나라 0이 아니면 env마다 다른 위치에서 출발합니다
   --hn-lookahead=1.5           선분 추종 시 겨냥 거리 m(작을수록 선분에 바짝 붙고 흔들림이 큼)
   --hn-ground=<ground_grid.npz> 지면 높이 격자. 주면 시작 높이를 맞추고 시작·경로가 지면 위인지 검사합니다
+  --hn-terrain-usd=<지면.usdc>  지형 충돌 메시(height scan ray가 맞는 면). 없으면 예전 데모 지형
+  --hn-obstacles-usd=<장애물.usdc> 이동 금지 장애물·나무 충돌 메시(충돌만, height scan에는 안 보임). 없으면 없음
   --hn-force=1                 경로에 지면이 없어도 그냥 실행
   --hn-exit-on-arrival=1       도착하면 종료(기본은 서서 대기)
   이동 옵션이 없으면 고정 명령으로 걷습니다: --hn-vx=0.5 --hn-vy=0 --hn-wz=0 --hn-yaw=<rad>
@@ -25,12 +27,19 @@
   --hn-debug-camera=1          step 100에 줌을 흉내 내고 카메라-로봇 거리를 출력(follow=2 점검용)
   --hn-cam=dx,dy,dz            카메라 위치. 자유 카메라면 시작점 기준, 따라가기면 로봇 기준 오프셋(기본 3,-3,2)
   --hn-realtime=0              실시간 대기 없이 최대 속도(시험용)
+  --hn-dump-physx=<파일>       런타임 PhysX 파라미터를 이 JSON에 쓰고 끝냅니다(시뮬레이터 비교용)
+  --hn-drop-offset=<m>         처음 낙하 높이(기본 0.40 m)에 더하는 값. 초기 조건을 조금 바꿔 걸음의 변동을 재는 실험용
+  --hn-hold-default=1          정책 대신 기본 자세를 목표로 고정합니다(물리만 비교하는 통제 실험)
+  --hn-substep-probe=<파일>    물리 하위 스텝마다 PhysX의 실제 관절 위치·속도(액추에이터 계산 직전)와 적용된 토크를 float32로 기록합니다(액추에이터가 어떤 상태를 쓰는지 확인하는 실험용)
+  --hn-no-newton=1             Newton 액추에이터를 끄고 예전(torch) 액추에이터 경로를 씁니다(학습 설정은 켬. 시뮬레이터 비교 실험용)
+  --hn-trace=<파일>            정책 입출력을 매 스텝 이 파일에 기록합니다(env 0만. runner.enable_trace). 시뮬레이터 사이 비교용
 
 이동 제어기는 단순한 "경유점 선분을 따라 돌고 걷기"입니다(이전 경유점→현재 경유점 선분을 추종). 장애물(차량·나무)과 구멍을 피하지 않으니, 직선 경로가 지면 위인지
 시작 때 출력되는 경로 검사를 확인하고 필요하면 경유점을 추가하십시오. 창을 닫거나 Ctrl+C로 끝냅니다.
 """
 import contextlib
 import math
+import os
 import sys
 import time
 from pathlib import Path
@@ -72,6 +81,16 @@ FOLLOW = FOLLOW_MODE == 1
 CAM, REALTIME = floats(pop_opt("hn-cam", "3,-3,2")), pop_opt("hn-realtime", "1") != "0"
 DEBUG_CAM = pop_opt("hn-debug-camera", "0") == "1"
 ROUTE_FILE, ROUTE_NAME = pop_opt("hn-route-file"), pop_opt("hn-route", "A")
+TRACE = pop_opt("hn-trace")
+DUMP_PHYSX = pop_opt("hn-dump-physx")
+DROP = float(pop_opt("hn-drop-offset", "0"))
+HOLD_DEFAULT = pop_opt("hn-hold-default", "0") == "1"
+SUBSTEP_PROBE = pop_opt("hn-substep-probe")
+NO_NEWTON = pop_opt("hn-no-newton", "0") == "1"
+for _opt, _env in (("hn-terrain-usd", "HN_TERRAIN_USD"), ("hn-obstacles-usd", "HN_OBSTACLES_USD")):   # demo_task_cfg.py가 env cfg를 만들 때 읽음
+    _val = pop_opt(_opt)
+    if _val:
+        os.environ[_env] = _val
 if not (YAML and ACTOR):
     raise SystemExit("--hn-yaml=... --hn-actor=... 필요")
 if GOAL and WAYPOINTS:
@@ -160,13 +179,15 @@ env_cfg, _ = resolve_task_config(args.task, "")
 apply_env_overrides(args, env_cfg)
 args.device = env_cfg.sim.device
 apply_policy_io(env_cfg, io)
+if NO_NEWTON:
+    env_cfg.sim.use_newton_actuators = False
 
 cmd = env_cfg.commands.base_velocity
 cmd.ranges.lin_vel_x, cmd.ranges.lin_vel_y, cmd.ranges.ang_vel_z = (VX, VX), (VY, VY), (WZ, WZ)
 cmd.heading_command, cmd.rel_standing_envs, cmd.rel_heading_envs, cmd.debug_vis = False, 0.0, 0.0, True
 if navigate:
     cmd.resampling_time_range = (1.0e9, 1.0e9)   # 명령을 이 스크립트가 매 스텝 씁니다(무작위 재추출 방지)
-    env_cfg.episode_length_s = 3600.0           # 긴 이동 중 20 s 타임아웃으로 시작점에 되돌아가지 않게
+env_cfg.episode_length_s = 3600.0               # 20 s 타임아웃으로 시작점에 되돌아가지 않게(경로 없는 고정 명령 모드도 마찬가지)
 env_cfg.observations.policy.enable_corruption = False
 if NOMINAL:  # 데모 재생: 학습 때의 외란·랜덤화를 끕니다(정책이 학습한 조건의 평균에 해당)
     for _ev in ("push_robot", "add_base_mass", "base_com"):
@@ -179,7 +200,7 @@ if NOMINAL:  # 데모 재생: 학습 때의 외란·랜덤화를 끕니다(정�
 if args.num_envs is None or args.num_envs > 1:
     env_cfg.scene.env_spacing = SPACING   # 지형이 월드에 하나뿐이라, env 원점을 흩뜨리면 env마다 다른 곳에서 출발함. 0이면 모두 같은 지점
 rb = env_cfg.events.reset_base.params
-rb["pose_range"] = {"x": (sx, sx), "y": (sy, sy), "z": (start_dz, start_dz), "yaw": (start_yaw, start_yaw)}
+rb["pose_range"] = {"x": (sx, sx), "y": (sy, sy), "z": (start_dz + DROP, start_dz + DROP), "yaw": (start_yaw, start_yaw)}
 rb["velocity_range"] = {k: (0.0, 0.0) for k in ("x", "y", "z", "roll", "pitch", "yaw")}
 try:  # 카메라
     if FOLLOW:
@@ -196,8 +217,41 @@ with launch_simulation(env_cfg, args), contextlib.ExitStack() as cleanup:
     cleanup.callback(lambda: close_env(env))
     u = env.unwrapped
     n = u.num_envs
+    if os.environ.get("HN_OBSTACLES_USD"):   # 장애물이 실제로 장면에 들어갔는지(충돌 메시 prim 수) 확인해 둡니다
+        import omni.usd
+        from pxr import Usd, UsdGeom, UsdPhysics
+
+        _root = omni.usd.get_context().get_stage().GetPrimAtPath("/World/obstacles")
+        _meshes = [p for p in Usd.PrimRange(_root) if p.IsA(UsdGeom.Mesh)] if _root.IsValid() else []
+        _coll = sum(1 for p in _meshes if p.HasAPI(UsdPhysics.CollisionAPI))
+        print(f"[PLAY] 장애물 /World/obstacles: 메시 {len(_meshes)}개 중 충돌 {_coll}개", flush=True)
     obs, _ = env.reset()
     robot, scanner = u.scene["robot"], u.scene.sensors["height_scanner"]
+    if SUBSTEP_PROBE:   # 매 하위 스텝: [PhysX 실제 q 12, qd 12, 액추에이터가 적용한 토크 12]
+        from physx_dump import _to_list
+
+        _probe_f = open(SUBSTEP_PROBE, "wb")
+        _orig_write = robot.write_data_to_sim
+
+        def _probe_write(*a, **k):
+            q = np.asarray(_to_list(robot.root_view.get_dof_positions()), np.float32).reshape(-1)[:12]       # 읽기만 함(robot.data 갱신을 건드리지 않음)
+            qd = np.asarray(_to_list(robot.root_view.get_dof_velocities()), np.float32).reshape(-1)[:12]
+            r = _orig_write(*a, **k)
+            tau = tt(robot.data.applied_torque)[0].detach().cpu().numpy().astype(np.float32).reshape(-1)
+            _probe_f.write(np.concatenate([q, qd, tau]).tobytes())
+            _probe_f.flush()
+            return r
+
+        robot.write_data_to_sim = _probe_write
+    if DUMP_PHYSX:
+        import omni.usd
+        from physx_dump import write_dump
+
+        write_dump(DUMP_PHYSX, robot.root_view, omni.usd.get_context().get_stage(),
+                   ["/physicsScene", "/World/physicsScene", "/World/envs/env_0/Robot", "/World/ground", "/World/obstacles", "/World/PhysicsMaterials", "/World/Looks"],
+                   {"sim": "isaaclab", "task": args.task, "joint_names": list(robot.joint_names)})
+        print(f"[PLAY] PhysX 기록: {DUMP_PHYSX}", flush=True)
+        sys.exit(0)
     problems_env = check_env(env, io)
     _orig = torch.unique(u.scene.env_origins.round(decimals=2), dim=0)
     print(f"[PLAY] env 원점: 서로 다른 값 {len(_orig)}개 (1이면 모든 env가 같은 지점에서 출발) 예: {_orig[:3].cpu().numpy().tolist()}", flush=True)
@@ -221,6 +275,10 @@ with launch_simulation(env_cfg, args), contextlib.ExitStack() as cleanup:
 
     term = u.command_manager.get_term("base_velocity")
     runners = [PolicyRunner(io, ACTOR) for _ in range(n)]
+    for _r in runners:
+        _r.hold_default = HOLD_DEFAULT
+    if TRACE:
+        runners[0].enable_trace(TRACE, {"sim": "isaaclab", "task": args.task})
     wp_idx = [0] * n
     fell = [False] * n
     arrived = [False] * n
@@ -299,6 +357,8 @@ with launch_simulation(env_cfg, args), contextlib.ExitStack() as cleanup:
             actions = np.stack([r.last_action for r in runners])
             with torch.inference_mode():
                 obs, rew, terminated, truncated, _ = env.step(torch.as_tensor(actions, device=u.device))
+            if TRACE:
+                runners[0].trace_aux = np.abs(tt(robot.data.applied_torque)[0].detach().cpu().numpy())   # 마지막 하위 스텝에 가한 토크
             for i in torch.nonzero(terminated | truncated).flatten().tolist():
                 runners[i].reset()
                 wp_idx[i], arrived[i] = 0, False

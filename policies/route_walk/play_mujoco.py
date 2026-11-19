@@ -43,6 +43,10 @@ ap.add_argument("--waypoints", help="'x,y;x,y;...' (경로 파일 대신)")
 ap.add_argument("--vmax", type=float, default=0.5)
 ap.add_argument("--lookahead", type=float, default=1.5)
 ap.add_argument("--friction", type=float, default=0.85, help="지면·발 마찰계수(Isaac 쪽 유효 마찰 0.8~0.9에 맞춤)")
+ap.add_argument("--visuals", type=int, default=1, choices=(0, 1),
+                help="1: URDF <visual> 메시를 그립니다(v0). 0: 충돌 메시만 그립니다(v1: trunk.stl이 255,844면이라 MuJoCo STL 한도 200,000면을 넘어 시각 메시를 못 읽습니다)")
+ap.add_argument("--self-collision", type=int, default=0, choices=(0, 1),
+                help="1: 로봇 링크끼리도 충돌(바로 위·아래 링크 쌍은 MuJoCo가 자동 제외). v1(HYPER)은 자기충돌을 켜고 학습했으므로 1, v0는 0")
 ap.add_argument("--max-steps", type=int, default=0, help="정책 스텝 수 상한(0이면 무제한). 1스텝 = 0.02 s")
 ap.add_argument("--headless", action="store_true")
 ap.add_argument("--exit-on-arrival", action="store_true")
@@ -50,6 +54,17 @@ ap.add_argument("--no-realtime", action="store_true", help="창에서도 실시�
 ap.add_argument("--follow", type=int, default=1, help="1: 카메라 중심이 로봇을 따라감(줌·회전 가능), 0: 고정")
 ap.add_argument("--cam-dist", type=float, default=6.0)
 ap.add_argument("--no-markers", action="store_true", help="경유점 표시(빨간 구)를 끕니다")
+ap.add_argument("--hold-default", action="store_true", help="정책 대신 기본 자세를 목표로 고정합니다(물리만 비교하는 통제 실험)")
+ap.add_argument("--torque-delay", type=int, default=0, help="계산한 모터 토크를 이만큼의 물리 스텝 늦게 적용합니다(시뮬레이터 비교 실험용). 0이면 바로 적용")
+ap.add_argument("--drop-offset", type=float, default=0.0, help="처음 낙하 높이(기본 0.40 m)에 더하는 값 [m]. 초기 조건을 조금 바꿔 걸음의 변동을 재는 실험용")
+ap.add_argument("--mj-opt", action="append", default=[], metavar="이름=값",
+                help="model.opt 속성을 직접 바꿉니다(시뮬레이터 비교 실험용). 예: --mj-opt integrator=3 --mj-opt iterations=200 --mj-opt cone=1")
+ap.add_argument("--substeps", type=int, default=1,
+                help="정책이 기대하는 물리 스텝(yaml의 sim_dt) 하나를 k개로 쪼개 mj_step(dt/k)를 k번, 매번 모터 토크를 다시 계산합니다(실험용. 학습 조건과 다름)")
+ap.add_argument("--solimp", help="모든 geom의 접촉 solimp를 dmin,dmax,width[,midpoint,power]로 바꿉니다(실험용). MuJoCo 기본은 0.9,0.95,0.001,0.5,2")
+ap.add_argument("--solref", help="모든 geom의 접촉 solref를 a,b로 바꿉니다(실험용). MuJoCo 기본은 0.02,1")
+ap.add_argument("--dump-model", help="컴파일한 로봇 모델(링크 질량·관성·무게중심, 관절 속성, 접촉 설정)을 이 JSON에 쓰고 끝냅니다(시뮬레이터 비교용)")
+ap.add_argument("--trace", help="정책 입출력을 매 스텝 이 파일에 기록합니다(runner.enable_trace). 시뮬레이터 사이 비교용")
 args = ap.parse_args()
 
 io = load_policy_io(args.yaml)
@@ -72,7 +87,8 @@ m0 = terrain.compile()
 d0 = mujoco.MjData(m0)
 mujoco.mj_forward(m0, d0)
 gid = np.zeros(1, np.int32)
-dist = mujoco.mj_ray(m0, d0, np.array([start[0], start[1], 60.0]), np.array([0, 0, -1.0]), None, 1, -1, gid)
+GROUND_GROUP = np.array([1, 0, 0, 0, 0, 0], np.uint8)   # 지면 geom은 group 0. 나무 수관(group 3)·이동 금지(group 4) 등에 맞지 않게 지면만 봅니다
+dist = mujoco.mj_ray(m0, d0, np.array([start[0], start[1], 60.0]), np.array([0, 0, -1.0]), GROUND_GROUP, 1, -1, gid)
 if dist < 0:
     raise SystemExit(f"시작점 ({start[0]}, {start[1]}) 아래에 지형이 없습니다(구멍이거나 지형 밖).")
 ground_z = 60.0 - dist
@@ -80,12 +96,15 @@ ground_z = 60.0 - dist
 
 def ground_at(x, y):
     """(x, y) 아래 지형의 높이. 지면이 없으면(구멍·지형 밖) None."""
-    hit = mujoco.mj_ray(m0, d0, np.array([x, y, 60.0]), np.array([0, 0, -1.0]), None, 1, -1, np.zeros(1, np.int32))
+    hit = mujoco.mj_ray(m0, d0, np.array([x, y, 60.0]), np.array([0, 0, -1.0]), GROUND_GROUP, 1, -1, np.zeros(1, np.int32))
     return None if hit < 0 else 60.0 - hit
 
 urdf = Path(args.urdf)
 xml = urdf.read_text(encoding="utf-8")
-block = f'<mujoco><compiler meshdir="{urdf.parent / "meshes"}" strippath="true" discardvisual="false"/></mujoco>'  # URDF 파서는 시각 mesh를 파싱 때 버림
+# URDF 파서는 시각 mesh를 파싱 때 버림(discardvisual). mesh 경로는 URDF에 적힌 상대 경로(meshes/..., v1은 meshes/collision/...)를 URDF 폴더 기준으로 그대로 따름.
+# URDF가 자기 <mujoco> 블록을 이미 가지면(v1: discardvisual="true") 요소가 둘이 되어 파싱이 실패하므로 걷어내고 이 설정으로 대신합니다.
+xml = re.sub(r"<mujoco>.*?</mujoco>", "", xml, flags=re.S)
+block = f'<mujoco><compiler meshdir="{urdf.parent}" strippath="false" discardvisual="{"false" if args.visuals else "true"}"/></mujoco>'
 xml, n_sub = re.subn(r"(<robot\b[^>]*>)", lambda m: m.group(1) + block, xml, count=1)
 if n_sub != 1:
     raise SystemExit("URDF에서 <robot> 태그를 찾지 못했습니다")
@@ -96,7 +115,9 @@ for g in robot.geoms:
     if g.contype == 0 and g.conaffinity == 0:
         g.group = 1                                       # URDF <visual>: 그리기만
     else:
-        g.contype, g.conaffinity, g.group = 1, 0, 3       # URDF <collision>: 지형과만 충돌, 숨김
+        g.contype, g.conaffinity, g.group = 1, args.self_collision, (3 if args.visuals else 1)   # URDF <collision>: 지형과 충돌(자기충돌 1이면 로봇 링크끼리도). 시각 메시가 있으면 숨김, 없으면(--visuals 0) 이것을 그림
+        if not args.visuals:
+            g.rgba = [0.75, 0.75, 0.78, 1.0]
         g.friction = [args.friction, 0.005, 0.0001]
 for j in robot.joints:                                     # Isaac Lab 쪽 설정과 같게(관절 감쇠·마찰은 모터 모델이 전담)
     j.damping = np.zeros(np.size(j.damping)) if np.ndim(j.damping) else 0.0   # MuJoCo 3.12: damping은 3원소 배열
@@ -104,7 +125,7 @@ for j in robot.joints:                                     # Isaac Lab 쪽 설�
     j.armature = np.zeros(np.size(j.armature)) if np.ndim(j.armature) else 0.0
 root = robot.body(io.root_link)
 root.add_freejoint()
-frame = terrain.worldbody.add_frame(pos=[start[0], start[1], ground_z + 0.40], quat=[math.cos(yaw0 / 2), 0, 0, math.sin(yaw0 / 2)])
+frame = terrain.worldbody.add_frame(pos=[start[0], start[1], ground_z + 0.40 + args.drop_offset], quat=[math.cos(yaw0 / 2), 0, 0, math.sin(yaw0 / 2)])
 frame.attach_body(root, "go2_", "")
 for jn, eff in zip(io.joints, io.effort_limit):
     a = terrain.add_actuator(name="a_" + jn, target="go2_" + jn, trntype=mujoco.mjtTrn.mjTRN_JOINT)
@@ -121,8 +142,42 @@ if not args.no_markers:
                                    contype=0, conaffinity=0, group=2)
     print(f"[MJ] 경유점 표시 {len(wps)}개(빨간 구, 시각 전용)", flush=True)
 model = terrain.compile()
-model.opt.timestep = io.sim_dt
+model.opt.timestep = io.sim_dt / args.substeps
+for _item in args.mj_opt:
+    _k, _, _v = _item.partition("=")
+    _cur = getattr(model.opt, _k)
+    setattr(model.opt, _k, type(_cur)(float(_v)) if isinstance(_cur, (int, float)) else _cur)
+if args.solref:
+    model.geom_solref[:] = [float(v) for v in args.solref.split(",")]
+if args.solimp:
+    _si = [float(v) for v in args.solimp.split(",")]
+    model.geom_solimp[:, :len(_si)] = _si
+if args.mj_opt or args.substeps != 1 or args.solref or args.solimp:
+    print(f"[MJ] 실험 설정: opt {args.mj_opt} | substeps {args.substeps} (dt {model.opt.timestep:g} s) | solref {args.solref} | solimp {args.solimp} | integrator {model.opt.integrator} cone {model.opt.cone} iterations {model.opt.iterations}", flush=True)
 data = mujoco.MjData(model)
+
+if args.dump_model:
+    import json as _json
+
+    _bodies = {}
+    for _i in range(model.nbody):
+        _n = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_BODY, _i)
+        if _n and _n.startswith("go2_"):
+            _bodies[_n[4:]] = {"mass": float(model.body_mass[_i]), "com_in_body": model.body_ipos[_i].tolist(), "inertia_diag": model.body_inertia[_i].tolist(),
+                               "inertia_quat": model.body_iquat[_i].tolist()}
+    _joints = {}
+    for _i in range(model.njnt):
+        _n = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_JOINT, _i)
+        if _n and _n.startswith("go2_"):
+            _d = int(model.jnt_dofadr[_i])
+            _joints[_n[4:]] = {"range": model.jnt_range[_i].tolist(), "limited": int(model.jnt_limited[_i]), "armature": float(model.dof_armature[_d]),
+                               "damping": float(model.dof_damping[_d]), "frictionloss": float(model.dof_frictionloss[_d])}
+    _opt = {k: (float(getattr(model.opt, k)) if isinstance(getattr(model.opt, k), (int, float)) else str(getattr(model.opt, k))) for k in
+            ("timestep", "integrator", "cone", "solver", "iterations", "impratio", "tolerance", "noslip_iterations")}
+    _json.dump({"bodies": _bodies, "joints": _joints, "total_robot_mass": sum(v["mass"] for v in _bodies.values()), "opt": _opt,
+                "geom_default_solref": model.geom_solref[0].tolist(), "geom_default_solimp": model.geom_solimp[0].tolist()}, open(args.dump_model, "w"), indent=1)
+    print(f"[MJ] 모델 기록: {args.dump_model} (링크 {len(_bodies)}개, 총 질량 {sum(v['mass'] for v in _bodies.values()):.4f} kg)", flush=True)
+    sys.exit(0)
 
 qadr = np.array([model.joint("go2_" + n).qposadr[0] for n in io.joints])
 dadr = np.array([model.joint("go2_" + n).dofadr[0] for n in io.joints])
@@ -156,6 +211,10 @@ def read_state(command):
 
 runner = PolicyRunner(io, args.actor)
 runner.reset()
+_tau_q = [np.zeros(len(io.joints)) for _ in range(args.torque_delay)]   # 토크 지연 버퍼(--torque-delay)
+runner.hold_default = args.hold_default
+if args.trace:
+    runner.enable_trace(args.trace, {"sim": "mujoco", "scene": str(args.scene), "urdf": str(args.urdf), "friction": args.friction})
 follower = RouteFollower(start, wps, vmax=args.vmax, lookahead=args.lookahead) if wps else None
 fixed_cmd = (args.vmax, 0.0, 0.0)
 print(f"[MJ] 정책 가중치 {Path(args.actor).name} | 모델 body {model.nbody}, geom {model.ngeom}, hfield {model.nhfield} | 시작 ({start[0]}, {start[1]}) 지면 z={ground_z:+.2f} yaw {math.degrees(yaw0):.0f}도"
@@ -195,9 +254,14 @@ try:
         # 2) 정책 -> 관절 목표 -> 모터 모델 PD로 decimation번 적분
         state, pos, yaw, up = read_state(cmd)
         q_target = runner.act(state).astype(np.float64)
-        for _ in range(io.decimation):
-            data.ctrl[:] = motor(q_target, data.qpos[qadr], data.qvel[dadr])
+        for _ in range(io.decimation * args.substeps):
+            _tau = motor(q_target, data.qpos[qadr], data.qvel[dadr])
+            if args.torque_delay:
+                _tau_q.append(_tau)
+                _tau = _tau_q.pop(0)
+            data.ctrl[:] = _tau
             mujoco.mj_step(model, data)
+        runner.trace_aux = np.abs(data.ctrl)          # 마지막 하위 스텝에 가한 토크(기록 중일 때만 쓰임)
         step += 1
         # 3) 넘어짐/추락 검사
         if up < math.cos(math.radians(70)) or data.xpos[bid][2] < ground_z - 3.0:
