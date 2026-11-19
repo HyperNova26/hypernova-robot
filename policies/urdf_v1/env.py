@@ -21,8 +21,9 @@ Isaac Lab 3.0.0 내장 Go2 velocity 과제를 상속합니다. v0와 다른 점:
 6. base_contact 종료는 몸통-바닥 접촉만 셉니다. 몸통 전체 접촉력에는 허벅지-몸통 자기충돌도 섞이기 때문입니다.
 7. PPO는 좌우 대칭 데이터 증강을 씁니다(policies/common/symmetry.py). 정책이 이유 없이 한쪽으로 도는 습관을 막습니다.
 
-Rough는 기준 학습용으로 Isaac Lab 기본 height scan(몸통 위 20 m에서 수직으로 쏘는 1.6 × 1.0 m grid, 0.1 m 간격,
-187칸)을 actor와 critic에 넣습니다(actor 235차원). 지형 조정은 v0 Rough와 같습니다.
+Rough는 비교용(배포 안 함, 2026-11-19 결정)으로 Isaac Lab 기본 height scan(몸통 위 20 m에서 수직으로 쏘는 1.6 × 1.0 m grid, 0.1 m 간격,
+187칸)을 actor와 critic에 넣습니다(actor 235차원). 실기에서 같은 입력을 만들 수 없어 Rough-Lidar가 LiDAR 입력으로
+얼마나 떨어지는지 비교하는 기준으로만 씁니다. 지형 조정은 v0 Rough와 같습니다.
 
 Rough-Lidar(HnHyperV1RoughLidarEnvCfg)는 actor height scan만 실제 센서(ML-X 120 가정, 앞 윗면 15° 아래로,
 바닥이 센서 앞 약 0.63 m부터 보임)를 흉내 낸 값으로 바꿉니다. 같은 크기 grid를 앞으로 0.45 m 옮기고, LiDAR로 본 점을
@@ -67,7 +68,7 @@ from .robot import FOOT_BODY_REGEX, HN_HYPER_V1_CFG, LIDAR_BODY, TRUNK_BODY
 JOINT_ORDER = [f"{leg}_{part}_joint" for part in ("hip", "thigh", "calf") for leg in ("FL", "FR", "RL", "RR")]
 
 # actor 입력 항목 순서. 배포 코드가 같은 순서로 입력을 만들어야 합니다.
-POLICY_OBS_TERMS = ("base_ang_vel", "projected_gravity", "velocity_commands", "joint_pos", "joint_vel", "actions")
+POLICY_OBS_TERMS = ("base_lin_vel", "base_ang_vel", "projected_gravity", "velocity_commands", "joint_pos", "joint_vel", "actions")
 
 # 서 있을 때 몸통 높이 [m]. v0 Flat 환경에서 v1을 세워 본 값(0.29–0.30 m, 2026-11-11)입니다.
 STANDING_HEIGHT = 0.30
@@ -157,6 +158,8 @@ def _use_hn_rewards(cfg, terrain: str) -> None:
 
 @configclass
 class HnHyperV1RoughEnvCfg(UnitreeGo2RoughEnvCfg):
+    """비교용: actor height scan = GT(Isaac Lab 기본). 배포하지 않습니다. Rough-Lidar가 이 설정을 상속합니다."""
+
     observations: HnHyperV1ObservationsCfg = HnHyperV1ObservationsCfg()
 
     def __post_init__(self):

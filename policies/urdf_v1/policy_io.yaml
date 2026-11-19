@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
-# 정책 입출력 계약(Policy IO), v1 HYPER Rough GT 정책. 형식은 policies/urdf_v0/policy_io.yaml(schema 1)과 같고,
+# 정책 입출력 계약(Policy IO), v1 HYPER Rough GT 정책. 비교용이며 배포하지 않습니다(2026-11-19 결정: actor 높이 입력은
+# LiDAR 기억 방식만 배포, GT height scan은 실기에서 만들 수 없음). 형식은 policies/urdf_v0/policy_io.yaml(schema 1)과 같고,
 # 같은 로더(policies/route_walk/policy_io.py)로 읽습니다. 관측 순서, 행동 해석, 제어 주기, PD, 조인트 순서를 여기에서만 정합니다.
 #
 # 2026-11-16 기준. 이 값을 바꾸면 이미 학습된 정책은 다시 학습해야 쓸 수 있습니다.
