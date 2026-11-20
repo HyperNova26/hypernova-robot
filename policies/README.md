@@ -43,6 +43,8 @@ Docker 이미지와 로봇 mesh가 준비된 상태에서 실행합니다. 처�
 
 Rough checkpoint는 평지에서도 Rough 과제 ID를 유지합니다. 지형만 바꾸려면 `--terrain flat --level 0`을 `--terrain stairs --level 3` 등으로 바꿉니다. 지원 선택은 `all`, `flat`, `slope`, `stairs`, `boxes`, `rough`이며 난이도는 0–9입니다. 해당 지형이 버전의 `env.py`에 있어야 합니다.
 
+지형 칸 대신 일자 코스를 걸으려면 `--terrain`을 빼고 `--course --level 5`를 줍니다(2026-11-20 추가, Rough 과제만). +x 방향으로 출발 평지 → 오르막 → 꼭대기 평지 → 내리막 → 평지 → 계단 오르기(6칸) → 계단참 → 계단 내리기(6칸) → 도착 평지가 이어지고(길이 22.6 m, 폭 4 m), 정면을 보고 출발해 키보드로 조종합니다. 난이도 0–9는 학습 terrain level과 같은 공식으로 경사 0.02–0.38(1.1–20.8°, 수평 3 m), 계단 높이 5.9–22.1 cm(발판 30 cm)가 되며, 실행할 때 실제 값을 출력합니다. 경사와 계단을 따로 정하려면 `--slope_level`, `--stairs_level`을 씁니다. 새 구간에 들어설 때마다 구간 이름을 출력하고, 넘어지면 출발점에서 다시 시작합니다. 코스 정의는 `common/course.py`에 있습니다.
+
 ## 처음 준비와 문제 해결
 
 - **이미지가 없을 때:** 호스트에서 `./docker/hn build sim`을 실행합니다. 자세한 환경 준비는 [Docker 안내](../docker/README.md)를 따릅니다.
@@ -88,6 +90,7 @@ hn-rl play \
 | `common/rewards.py` | v1부터 쓰는 보상표(`HnRewards`)와 적용 함수(`apply_hn_rewards`). 최종 보상 값은 이 파일에 모두 있음 |
 | `common/symmetry.py` | PPO 좌우 대칭 데이터 증강 함수 |
 | `common/heightmap.py` | LiDAR 광선으로 본 점을 기억해 만드는 height scan 관측 항목 |
+| `common/course.py` | teleop `--course`용 일자 시험 코스 지형(학습에는 쓰지 않음) |
 | `urdf_v0/` | `robot.py`, `env.py`, `rewards.py`, `TASKS`, `pretrained/`. **동결**: v0 체크포인트와 데모(`route_walk/`)가 쓰므로 고치지 않음 |
 | `urdf_v1/` | `robot.py`, `env.py`, `TASKS`, `pretrained/`, `policy_io.yaml` |
 
