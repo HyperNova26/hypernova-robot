@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 HYPERNOVA contributors
+#
+# 승인된 임무 실행 (IF-03). 액션 /hn/control/execute_mission.
+# 임무경로관리 → 제어권명령관리. Teleop·일시정지 중에는 HELD로 보류했다가 재개합니다 (R-07, R-11).
+
+# goal
+string request_id
+string mission_id
+---
+# result
+CommandStatus status
+Reason reason
+---
+# feedback
+CommandStatus status
+ControlMode mode
+string current_waypoint_id

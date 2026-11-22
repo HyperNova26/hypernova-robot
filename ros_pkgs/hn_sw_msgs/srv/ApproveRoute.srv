@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 HYPERNOVA contributors
+#
+# 경로 승인 (IF-01). 서비스 /hn/mission/approve_route.
+# revision이 최신과 다르면 거부합니다 (R-04, R-05).
+
+string request_id
+string client_id
+string route_id
+uint32 revision
+---
+CommandStatus status
+string mission_id   # 승인되면 만들어진 임무 ID
+Reason reason

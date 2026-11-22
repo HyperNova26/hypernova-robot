@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 HYPERNOVA contributors
+#
+# 운영자가 그린 경로 제출 (IF-01). 서비스 /hn/mission/submit_route.
+# 같은 request_id로 다시 오면 한 번만 처리합니다 (R-16).
+
+string request_id
+string client_id
+Route route
+---
+CommandStatus status    # ACCEPTED 또는 REJECTED
+Route corrected_route   # 보정한 경로 (보정이 없으면 원본과 같음)
+bool approval_required
+Reason reason           # 보정 사유 또는 실패 사유
