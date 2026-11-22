@@ -5,10 +5,11 @@
 +x 방향으로 차례로: 출발 평지 → 오르막 → 꼭대기 평지 → 내리막 → 평지 → 계단 오르기 → 계단참 → 계단 내리기 → 도착 평지.
 학습에는 쓰지 않습니다(policies/teleop.py --course).
 
-난이도 level 0~9는 학습 지형(Isaac Lab ROUGH_TERRAINS_CFG)과 같은 공식으로 바꿉니다.
-학습 curriculum에서 terrain level r은 difficulty (r + U(0, 1)) / 10을 받으므로, 여기서는 그 가운데 (r + 0.5) / 10을 씁니다.
-    경사(높이/수평 거리) = 0.4 × difficulty      (hf_pyramid_slope의 slope_range (0, 0.4))
-    계단 높이 [m] = 0.05 + 0.18 × difficulty   (pyramid_stairs의 step_height_range (0.05, 0.23), 발판 깊이 0.3 m)
+난이도 level 0~9는 학습 지형과 같은 공식으로 바꿉니다. 범위는 teleop이 과제의 지형 설정에서 읽어 넘깁니다
+(hf_pyramid_slope.slope_range, pyramid_stairs.step_height_range). 학습 curriculum에서 terrain level r은
+difficulty (r + U(0, 1)) / 10을 받으므로, 여기서는 그 가운데 (r + 0.5) / 10을 씁니다.
+    값 = 범위 최소 + (최대 − 최소) × difficulty
+v1 Rough(Go2 설정, 2026-11-23 확인): 경사 0~0.4(높이/수평 거리), 계단 0.025~0.12 m(발판 0.3 m).
 """
 
 import math
@@ -32,12 +33,17 @@ def level_to_difficulty(level: int) -> float:
     return (min(max(level, 0), 9) + 0.5) / 10.0
 
 
-def slope_of(level: int) -> float:
-    return 0.4 * level_to_difficulty(level)
+def _lerp(level: int, value_range: tuple[float, float]) -> float:
+    lo, hi = value_range
+    return lo + (hi - lo) * level_to_difficulty(level)
 
 
-def step_height_of(level: int) -> float:
-    return 0.05 + 0.18 * level_to_difficulty(level)
+def slope_of(level: int, slope_range: tuple[float, float]) -> float:
+    return _lerp(level, slope_range)
+
+
+def step_height_of(level: int, step_height_range: tuple[float, float]) -> float:
+    return _lerp(level, step_height_range)
 
 
 def sections() -> list[tuple[str, float]]:
@@ -112,8 +118,8 @@ class CourseTerrainCfg(SubTerrainBaseCfg):
     """계단 한 칸 높이 [m]."""
 
 
-def describe(slope_level: int, stairs_level: int) -> str:
-    s, h = slope_of(slope_level), step_height_of(stairs_level)
+def describe(slope: float, step_height: float, slope_level: int, stairs_level: int) -> str:
+    s, h = slope, step_height
     return (
         f"경사 level {slope_level}: {s:.3f} ({math.degrees(math.atan(s)):.1f}°, 높이 {s * RAMP:.2f} m), "
         f"계단 level {stairs_level}: {h * 100:.1f} cm × {NUM_STEPS}칸 (발판 {STEP_WIDTH * 100:.0f} cm)"

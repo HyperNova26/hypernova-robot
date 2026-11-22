@@ -86,11 +86,11 @@ def configure(env_cfg) -> None:
 
         slope_level = args_cli.level if args_cli.slope_level is None else args_cli.slope_level
         stairs_level = args_cli.level if args_cli.stairs_level is None else args_cli.stairs_level
-        gen.sub_terrains = {
-            "course": course.CourseTerrainCfg(
-                slope=course.slope_of(slope_level), step_height=course.step_height_of(stairs_level)
-            )
-        }
+        # 난이도 범위는 이 과제의 학습 지형 설정에서 읽습니다(Go2는 계단을 0.025–0.12 m로 줄임).
+        subs = gen.sub_terrains
+        slope = course.slope_of(slope_level, subs["hf_pyramid_slope"].slope_range)
+        step_height = course.step_height_of(stairs_level, subs["pyramid_stairs"].step_height_range)
+        gen.sub_terrains = {"course": course.CourseTerrainCfg(slope=slope, step_height=step_height)}
         gen.size = (course.COURSE_LENGTH, course.WIDTH)
         gen.num_rows, gen.num_cols = 1, 1
         gen.curriculum = False
@@ -99,7 +99,7 @@ def configure(env_cfg) -> None:
         reset = env_cfg.events.reset_base.params
         reset["pose_range"] = {"x": (0.0, 0.0), "y": (0.0, 0.0), "yaw": (0.0, 0.0)}
         reset["velocity_range"] = {}
-        print(f"[teleop] 일자 코스 {course.COURSE_LENGTH:.1f} m. {course.describe(slope_level, stairs_level)}")
+        print(f"[teleop] 일자 코스 {course.COURSE_LENGTH:.1f} m. {course.describe(slope, step_height, slope_level, stairs_level)}")
     elif gen is not None:
         if args_cli.terrain != "all":
             gen.sub_terrains = {k: v for k, v in gen.sub_terrains.items() if k in TERRAIN_GROUPS[args_cli.terrain]}
