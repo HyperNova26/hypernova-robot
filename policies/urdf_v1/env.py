@@ -201,7 +201,8 @@ class HnHyperV1RoughLidarEnvCfg(HnHyperV1RoughEnvCfg):
 
     def __post_init__(self):
         super().__post_init__()
-        # GT scanner를 정책 grid와 같은 칸으로 옮깁니다(critic 입력, base_height_l2, 비교용).
+        # GT scanner를 정책 grid와 같은 칸으로 옮깁니다(critic 입력, 비교용). 보상 base_height_l2·foot_clearance도
+        # 이 scanner를 쓰지만 몸통 아래·발 아래 칸만 골라 씁니다(common/rewards.py, 2026-11-23).
         self.scene.height_scanner.offset.pos = (BLIND_GRID_OFFSET_X, 0.0, 20.0)
         self.scene.mlx_lidar = RayCasterCfg(
             # 변환된 USD는 link를 부모 아래에 둡니다(Robot/Geometry/trunk/front_lidar).

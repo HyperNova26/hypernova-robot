@@ -16,14 +16,24 @@ Isaac Lab 기본값이 바뀌어도 영향을 받지 않습니다. v0(urdf_v0)�
 
 지형별 차이(apply_hn_rewards의 terrain)
     항목                    rough                          flat
-    base_height_l2 기준     height_scanner 바닥 평균 + 목표   world z = 목표
+    base_height_l2 기준     몸통 아래(반경 0.3 m) 바닥 평균 + 목표  world z = 목표
+    foot_clearance 발 높이   발 z − 발 아래 바닥(height_scanner)   world z
     feet_air_time 기준 시간   0.25 s                         0.5 s
     stand_still            켬 (−1.0)                       없음
     flat_orientation_l2    0 (끔)                          −2.5
 2026-11-17 이전 v1 과제의 최종 값과 같게 맞췄습니다(정리 전후 과제별 보상 설정 비교로 확인).
+
+2026-11-23 rough 두 항목의 지면 기준을 바꿨습니다(그 전 체크포인트와 보상이 다름).
+    base_height_l2: height_scanner 전체 평균 → 몸통 아래 반경 0.3 m 칸의 평균. Rough-Lidar는 scanner grid를 앞으로
+        0.45 m 옮겨서, 목표가 앞쪽 바닥 기준이 되어 내리막 −8 cm, 계단 내리기 −16 cm, 계단 오르기 +14 cm 어긋났고
+        정책이 그대로 따라 몸을 낮추거나 들었습니다(일자 코스 level 5 진단).
+    foot_clearance: 발 world z → 발 아래 바닥 기준. world z 기준은 평지(z ≈ 0) 밖에서 보상이 0에 붙어(0.00–0.06)
+        지형 위에서 발 들기를 가르치지 못했습니다.
 """
 
 import math
+
+import torch
 
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
@@ -31,6 +41,44 @@ from isaaclab.utils import configclass
 
 import isaaclab_tasks.contrib.velocity.config.spot.mdp as spot_mdp
 import isaaclab_tasks.core.velocity.mdp as mdp
+
+def base_height_under_body_l2(env, target_height: float, sensor_cfg: SceneEntityCfg, radius: float = 0.3,
+                              asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    """(몸통 높이 − (몸통 아래 바닥 평균 + target_height))² [m²].
+
+    바닥 = sensor_cfg(GT height scanner)가 맞은 점 중 몸통 원점에서 수평 거리 radius [m] 안의 z 평균.
+    scanner grid가 몸통 중심에서 벗어나 있어도(Rough-Lidar: 앞으로 0.45 m) 발밑 바닥을 기준으로 합니다.
+    그 안에 맞은 점이 없으면 벌점 0입니다.
+    """
+    asset = env.scene[asset_cfg.name]
+    hits = env.scene[sensor_cfg.name].data.ray_hits_w.torch
+    root = asset.data.root_pos_w.torch
+    near = torch.isfinite(hits).all(-1) & ((hits[..., :2] - root[:, None, :2]).norm(dim=-1) <= radius)
+    count = near.sum(1)
+    ground = torch.where(near, hits[..., 2], 0.0).sum(1) / count.clamp(min=1)
+    err = root[:, 2] - (ground + target_height)
+    return torch.where(count > 0, err.square(), torch.zeros_like(err))
+
+
+def foot_clearance_terrain_reward(env, asset_cfg: SceneEntityCfg, sensor_cfg: SceneEntityCfg, target_height: float,
+                                  std: float, tanh_mult: float, max_xy_dist: float = 0.15) -> torch.Tensor:
+    """Isaac Lab Spot foot_clearance_reward와 같은 식이지만 발 높이를 발 아래 바닥 기준으로 잽니다.
+
+    exp(−Σ_발 (발 z − 바닥 z − target_height)² · tanh(tanh_mult · 발 수평 속도) / std)
+    바닥 z = sensor_cfg(GT height scanner)의 맞은 점 중 발과 수평으로 가장 가까운 점. max_xy_dist [m]보다 멀면
+    (grid 밖) 그 발은 오차 0으로 둡니다.
+    """
+    asset = env.scene[asset_cfg.name]
+    hits = env.scene[sensor_cfg.name].data.ray_hits_w.torch  # (N, R, 3)
+    foot = asset.data.body_pos_w.torch[:, asset_cfg.body_ids]  # (N, F, 3)
+    d2 = (foot[:, :, None, :2] - hits[:, None, :, :2]).square().sum(-1)  # (N, F, R)
+    d2 = torch.where(torch.isfinite(d2), d2, torch.full_like(d2, float("inf")))
+    best, idx = d2.min(-1)
+    ground = torch.gather(hits[..., 2], 1, idx)
+    err = torch.where(best <= max_xy_dist**2, (foot[..., 2] - ground - target_height).square(), 0.0)
+    vel = torch.tanh(tanh_mult * asset.data.body_lin_vel_w.torch[:, asset_cfg.body_ids, :2].norm(dim=-1))
+    return torch.exp(-(err * vel).sum(-1) / std)
+
 
 # apply_hn_rewards가 버전별 값으로 채우는 자리표시. 이 값이 남아 있으면 apply_hn_rewards를 부르지 않은 것입니다.
 _FOOT = "<foot_body_regex>"
@@ -55,7 +103,8 @@ class HnRewards:
     # ---- 몸통 안정 (−) ----
     lin_vel_z_l2 = RewTerm(func=mdp.lin_vel_z_l2, weight=-2.0)  # 위아래로 튀는 속도². [출처] 기본 그대로
     ang_vel_xy_l2 = RewTerm(func=mdp.ang_vel_xy_l2, weight=-0.05)  # 앞뒤·좌우로 흔들리는 각속도². [출처] 기본 그대로
-    # 몸통 높이가 목표에서 벗어난 정도². 목표 [m]와 지면 기준(sensor_cfg)은 apply_hn_rewards가 채웁니다.
+    # 몸통 높이가 목표에서 벗어난 정도². 목표 [m]와 지면 기준은 apply_hn_rewards가 채웁니다
+    # (rough는 base_height_under_body_l2로 바꿈, 2026-11-23).
     # [출처] 기본에는 없음. Go2가 추가(weight −30, 목표 0.4 m, rough는 height_scanner 기준) → 우리 목표 v1 0.30 m(2026-11-15)
     base_height_l2 = RewTerm(
         func=mdp.base_height_l2, weight=-30.0, params={"target_height": 0.0, "sensor_cfg": None}
@@ -98,8 +147,8 @@ class HnRewards:
             "sensor_cfg": SceneEntityCfg("contact_forces"),
         },
     )
-    # 수평으로 움직이는 발의 높이(world z)가 target_height [m]에 가까울수록 보상(Isaac Lab Spot foot_clearance_reward).
-    # 평지 칸과 낮은 난이도에서만 의미가 있습니다.
+    # 수평으로 움직이는 발의 높이가 target_height [m]에 가까울수록 보상(Isaac Lab Spot foot_clearance_reward).
+    # 여기 값은 world z 기준(flat). rough는 apply_hn_rewards가 발 아래 바닥 기준(foot_clearance_terrain_reward)으로 바꿈(2026-11-23)
     # [출처] 기본에 없음. 우리 추가(2026-11-05). std를 Spot(0.05)보다 작은 0.01로 둬서 발 끌기와 차이가 드러나게 함
     foot_clearance = RewTerm(
         func=spot_mdp.foot_clearance_reward,
@@ -169,8 +218,11 @@ def apply_hn_rewards(
     r.foot_clearance.params["asset_cfg"].body_names = foot_body_regex
     r.base_height_l2.params["target_height"] = standing_height
     if terrain == "rough":
-        # 목표 = height scanner가 본 바닥들의 평균 + standing_height
+        # 몸통 높이 목표 = 몸통 아래(반경 0.3 m) 바닥 평균 + standing_height, 발 높이 = 발 아래 바닥 기준 (2026-11-23)
+        r.base_height_l2.func = base_height_under_body_l2
         r.base_height_l2.params["sensor_cfg"] = SceneEntityCfg("height_scanner")
+        r.foot_clearance.func = foot_clearance_terrain_reward
+        r.foot_clearance.params["sensor_cfg"] = SceneEntityCfg("height_scanner")
         r.feet_air_time.params["threshold"] = 0.25
     else:
         # 평지: 목표 = world z standing_height, 몸통 기울기 벌점 켬, 정지 벌점 없음
