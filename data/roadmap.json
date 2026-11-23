@@ -492,6 +492,18 @@
       ]
     },
     {
+      "id": "S-018",
+      "area": "perc",
+      "milestone": "S4",
+      "title": "tools·test 폴더 정리",
+      "status": "예정",
+      "due": "2026-11-26",
+      "url": "https://app.notion.com/p/42145bd871788188aefae9164b052cbd",
+      "owners": [
+        "장승민"
+      ]
+    },
+    {
       "id": "G-015",
       "area": "walk",
       "milestone": "S4",
