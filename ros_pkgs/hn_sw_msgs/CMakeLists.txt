@@ -21,8 +21,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/MissionStatus.msg"
   "msg/WaypointEvent.msg"
   "msg/TargetResult.msg"
+  "msg/InspectionDetection.msg"
   # 제어권 (IF-02, 04)
   "msg/TeleopCmd.msg"
+  "msg/AppHeartbeat.msg"
   "msg/ControlState.msg"
   "msg/SelectedSafeCmd.msg"
   # 안전 (IF-04, 05, 06, 20, 21)
