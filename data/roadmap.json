@@ -536,6 +536,30 @@
     {
       "id": "G-017",
       "area": "walk",
+      "milestone": "S4",
+      "title": "Asymmetric actor-critic 학습",
+      "status": "예정",
+      "due": "2026-11-29",
+      "url": "https://app.notion.com/p/42145bd8717881fbbc38d5ed8f8784e4",
+      "owners": [
+        "조재대"
+      ]
+    },
+    {
+      "id": "G-018",
+      "area": "walk",
+      "milestone": "S5",
+      "title": "Teacher–Student 증류",
+      "status": "예정",
+      "due": "2026-12-07",
+      "url": "https://app.notion.com/p/42145bd87178818ea97bfb45efbefe75",
+      "owners": [
+        "조재대"
+      ]
+    },
+    {
+      "id": "G-019",
+      "area": "walk",
       "milestone": "S5",
       "title": "MuJoCo 평지 체크",
       "status": "예정",
