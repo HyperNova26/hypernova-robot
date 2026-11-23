@@ -197,10 +197,10 @@
     {
       "id": "G-002",
       "area": "walk",
-      "milestone": "S3",
+      "milestone": "S4",
       "title": "Policy IO 통일",
       "status": "진행",
-      "due": "2026-11-19",
+      "due": "2026-11-25",
       "url": "https://app.notion.com/p/3fe45bd87178813f801beeed99cdba84"
     },
     {
@@ -245,7 +245,7 @@
       "area": "walk",
       "milestone": "S3",
       "title": "V1 보상 튜닝 기록",
-      "status": "진행",
+      "status": "완료",
       "due": "2026-11-22",
       "url": "https://app.notion.com/p/3fe45bd8717881938d0ac337ce835730",
       "owners": [
@@ -255,10 +255,10 @@
     {
       "id": "G-012",
       "area": "walk",
-      "milestone": "S3",
+      "milestone": "S4",
       "title": "학습에 LiDAR 적용",
       "status": "진행",
-      "due": "2026-11-22",
+      "due": "2026-11-26",
       "url": "https://app.notion.com/p/41b45bd8717881a597dbd2c1b027a811",
       "owners": [
         "조재대"
@@ -417,10 +417,10 @@
     {
       "id": "S-009",
       "area": "perc",
-      "milestone": "S3",
+      "milestone": "S4",
       "title": "Nav2 글로벌 경로",
       "status": "완료",
-      "due": "2026-11-22",
+      "due": "2026-11-25",
       "url": "https://app.notion.com/p/41c45bd8717881088de5c665a800ead7",
       "owners": [
         "김완준"
@@ -484,7 +484,7 @@
       "area": "walk",
       "milestone": "S4",
       "title": "학기말발표회 영상 촬영 #1",
-      "status": "예정",
+      "status": "완료",
       "due": "2026-11-27",
       "url": "https://app.notion.com/p/41c45bd8717881ed9faed97642e3c6a7",
       "owners": [
@@ -538,7 +538,7 @@
       "area": "walk",
       "milestone": "S4",
       "title": "Asymmetric actor-critic 학습",
-      "status": "예정",
+      "status": "완료",
       "due": "2026-11-29",
       "url": "https://app.notion.com/p/42145bd8717881fbbc38d5ed8f8784e4",
       "owners": [
