@@ -37,10 +37,13 @@ def test_locomotion_status_numbers_are_fixed():
 
 
 def test_localization_status_layout_matches_dashboard_assumption():
-    """S-006 대시보드(PR #24)는 header와 정수 필드 `status`를 읽습니다. 이 둘이 바뀌면 대시보드가 상태를 못 읽습니다."""
+    """S-006 대시보드(PR #24)는 header와 정수 필드 `status`를 읽습니다. 이 둘이 바뀌면 대시보드가 상태를 못 읽습니다.
+    나머지는 LIO 어댑터가 채우는 S-005 v0 필드입니다."""
     fields = msgs.LocalizationStatus.get_fields_and_field_types()
-    assert list(fields) == ["header", "status"]
-    assert fields["status"] == "uint8"
+    assert list(fields)[:2] == ["header", "status"]
+    assert fields == {"header": "std_msgs/Header", "status": "uint8", "status_text": "string",
+                      "pose_accepted": "boolean", "source": "string", "latency_ms": "float",
+                      "fitness": "float", "rmse_m": "float", "detail_json": "string"}
 
 
 def test_inject_fault_kinds_and_fields():
