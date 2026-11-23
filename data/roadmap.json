@@ -558,6 +558,15 @@
       "url": "https://app.notion.com/p/40645bd871788156a7b7de9450133497"
     },
     {
+      "id": "M-008",
+      "area": "common",
+      "milestone": "EXAM",
+      "title": "PoC 경로 세부조정 방안",
+      "status": "예정",
+      "due": "2026-12-15",
+      "url": "https://app.notion.com/p/42145bd87178816484e5de7620c699ee"
+    },
+    {
       "id": "G-017",
       "area": "walk",
       "milestone": "S4",
