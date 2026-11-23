@@ -408,6 +408,7 @@
       "milestone": "S4",
       "title": "sim–Nav2 연결",
       "status": "예정",
+      "priority": "보통",
       "due": "2026-11-29",
       "url": "https://app.notion.com/p/41c45bd87178819dbd69d6af952b42ab",
       "owners": [
@@ -415,24 +416,12 @@
       ]
     },
     {
-      "id": "G-010",
-      "area": "walk",
-      "milestone": "S4",
-      "title": "PoC 정책 선정",
-      "status": "예정",
-      "due": "2026-11-29",
-      "url": "https://app.notion.com/p/41c45bd87178817abeb9c2744de6c95f",
-      "owners": [
-        "조재대"
-      ]
-    },
-    {
       "id": "S-009",
       "area": "perc",
-      "milestone": "S4",
+      "milestone": "S3",
       "title": "Nav2 글로벌 경로",
       "status": "완료",
-      "due": "2026-11-25",
+      "due": "2026-11-22",
       "url": "https://app.notion.com/p/41c45bd8717881088de5c665a800ead7",
       "owners": [
         "김완준"
@@ -441,10 +430,10 @@
     {
       "id": "S-010",
       "area": "perc",
-      "milestone": "S3",
+      "milestone": "S4",
       "title": "대시보드 실데이터 연결",
       "status": "예정",
-      "due": "2026-11-22",
+      "due": "2026-11-28",
       "url": "https://app.notion.com/p/40645bd871788157b2ccf23eb4561311"
     },
     {
@@ -459,16 +448,6 @@
       "owners": [
         "장승민"
       ]
-    },
-    {
-      "id": "S-011",
-      "area": "perc",
-      "milestone": "S4",
-      "title": "오프라인 지도 정합",
-      "status": "예정",
-      "priority": "낮음",
-      "due": "2026-11-29",
-      "url": "https://app.notion.com/p/40645bd871788182b821cbaba38e8a85"
     },
     {
       "id": "S-012",
@@ -532,7 +511,7 @@
       "area": "walk",
       "milestone": "S4",
       "title": "학기말발표회 영상 촬영 #3",
-      "status": "진행",
+      "status": "완료",
       "due": "2026-11-27",
       "url": "https://app.notion.com/p/41c45bd871788115aba6c27d7bc46936",
       "owners": [
@@ -581,10 +560,11 @@
     {
       "id": "G-018",
       "area": "walk",
-      "milestone": "S5",
+      "milestone": "S4",
       "title": "Teacher–Student 증류",
       "status": "예정",
-      "due": "2026-12-07",
+      "priority": "낮음",
+      "due": "2026-11-29",
       "url": "https://app.notion.com/p/42145bd87178818ea97bfb45efbefe75",
       "owners": [
         "조재대"
