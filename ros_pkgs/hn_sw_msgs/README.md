@@ -28,7 +28,7 @@
 | 이벤트·기록 | `Event`, srv `AckEvent` | `/hn/event/stream`, `/hn/event/ack` | 18 |
 | | srv `QueryRecord` | `/hn/record/query` | 19 |
 
-관절·IMU·배터리는 표준 `sensor_msgs/JointState`, `Imu`, `BatteryState`를 씁니다(명세 3.5).
+관절·IMU·배터리는 표준 `sensor_msgs/JointState`, `Imu`, `BatteryState`를 씁니다(명세 3.5). 장치 진단(`/hn/device/health`, IF-08)은 표준 `diagnostic_msgs/DiagnosticArray`를 씁니다.
 
 ## 규칙
 
