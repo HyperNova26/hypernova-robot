@@ -25,11 +25,14 @@
     정면(+x)을 보고 출발하고, 새 구간에 들어설 때마다 터미널에 출력합니다. 넘어지면 출발점에서 다시 시작합니다.
 
         --task HN-Velocity-Rough-HYPERv1-Lidar --course --level 5 --visualizer kit
+--gt_height: actor의 height map 입력(LiDAR 기억)을 같은 grid의 GT(critic 입력)로 바꿔 넣습니다. 같은 정책이 LiDAR
+    인식 오차 없이 어떻게 걷는지 비교할 때 씁니다(Rough-Lidar 과제).
 --checkpoint: model_*.pt 경로. 없으면 이 과제의 가장 최근 학습, 마지막 체크포인트.
 physics는 PhysX(isaacsim_physx)로 고정합니다(ADR-0002).
 """
 
 import argparse
+import math
 import os
 import sys
 import time
@@ -60,6 +63,9 @@ parser.add_argument("--vy", type=float, default=0.4, help="←→ 옆 속도 [m/
 parser.add_argument("--wz", type=float, default=1.0, help="Z/X 회전 속도 [rad/s] (--incremental이면 한 단계)")
 parser.add_argument(
     "--incremental", action="store_true", help="누를 때마다 명령에 한 단계씩 더하고 떼도 유지합니다(원격 데스크톱용)"
+)
+parser.add_argument(
+    "--gt_height", action="store_true", help="actor height map 입력을 GT(critic의 height_scan)로 바꿔 넣습니다"
 )
 parser.add_argument("--log_keys", action="store_true", help="받은 키 이벤트를 모두 출력합니다(키 입력 점검용)")
 add_launcher_args(parser)
@@ -216,6 +222,18 @@ class IncrementalKeyboard:
         self._input.unsubscribe_to_keyboard_events(self._keyboard, self._sub)
 
 
+def obs_term_slice(env, group: str, name: str) -> slice:
+    """관측 group 벡터에서 항목 name이 차지하는 구간."""
+    om = env.unwrapped.observation_manager
+    names = om.active_terms[group]
+    if name not in names:
+        raise SystemExit(f"[teleop] --gt_height: {group} 관측에 {name} 항목이 없습니다(과제 {args_cli.task})")
+    dims = [math.prod(d) for d in om.group_obs_term_dim[group]]
+    i = names.index(name)
+    start = sum(dims[:i])
+    return slice(start, start + dims[i])
+
+
 def print_command(command) -> None:
     vx, vy, wz = command
     print(f"[teleop] 명령 v_x {vx:+.2f} m/s, v_y {vy:+.2f} m/s, ω_z {wz:+.2f} rad/s", flush=True)
@@ -269,6 +287,13 @@ def main() -> None:
         runner = create_rsl_rl_runner(env, agent_cfg)
         runner.load(ckpt)
         policy = runner.get_inference_policy(device=env.unwrapped.device)
+        gt_from = gt_to = None
+        if args_cli.gt_height:
+            gt_to = obs_term_slice(env, "policy", "height_scan")
+            gt_from = obs_term_slice(env, "critic", "height_scan")
+            if gt_to.stop - gt_to.start != gt_from.stop - gt_from.start:
+                raise SystemExit("[teleop] --gt_height: policy와 critic의 height_scan 크기가 다릅니다")
+            print(f"[teleop] actor height map 입력을 GT로 바꿉니다 ({gt_to.stop - gt_to.start}칸)")
 
         if args_cli.incremental:
             ranges = env_cfg.commands.base_velocity.ranges
@@ -311,6 +336,8 @@ def main() -> None:
                 with torch.inference_mode():
                     command = keyboard.advance()
                     cmd_term.vel_command_b[:] = command
+                    if gt_to is not None:
+                        obs["policy"][:, gt_to] = obs["critic"][:, gt_from]
                     obs, _, dones, _ = env.step(policy(obs))
                     policy.reset(dones)
                 command = command.tolist()
