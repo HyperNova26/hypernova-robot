@@ -289,6 +289,18 @@
       ]
     },
     {
+      "id": "G-020",
+      "area": "walk",
+      "milestone": "S3",
+      "title": "ROS2 인터페이스 패키지 업로드",
+      "status": "완료",
+      "due": "2026-11-22",
+      "url": "https://app.notion.com/p/42145bd871788126bb08d3e44c35caa1",
+      "owners": [
+        "정찬원"
+      ]
+    },
+    {
       "id": "G-005",
       "area": "walk",
       "milestone": "S2",
