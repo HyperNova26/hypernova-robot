@@ -25,6 +25,10 @@ def test_unfilled_messages_default_to_safe_side():
     assert msgs.TeleopCmd().deadman is False
     assert msgs.DeviceFault().mcu_link == msgs.DeviceFault.LINK_UNKNOWN
     assert msgs.InspectionDetection().result == msgs.InspectionDetection.UNKNOWN
+    assert msgs.HazardState().resumable is False
+    assert msgs.SafetyVerdict().resumable is False
+    assert msgs.SafetyVerdict().stop_confirmed is False
+    assert msgs.SafetyVerdict().hazard_type == msgs.Hazard.TYPE_NONE == 0
 
 
 def test_request_mode_zero_is_not_a_request():

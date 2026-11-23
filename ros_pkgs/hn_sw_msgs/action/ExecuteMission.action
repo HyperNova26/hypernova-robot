@@ -16,3 +16,4 @@ Reason reason
 CommandStatus status
 ControlMode mode
 string current_waypoint_id
+Reason reason   # HELD일 때 보류 사유 (예: CONTROL_TELEOP_ACTIVE, CONTROL_APP_DISCONNECTED)
