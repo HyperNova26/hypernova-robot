@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 HYPERNOVA contributors
 #
-# 경유점 하나. 좌표는 Route.header.frame_id(map) 기준, 단위 m.
+# 경유점 하나. 좌표는 Route.header.frame_id(지도 프레임) 기준, 단위 m.
 
 string waypoint_id         # 관제 앱이 만듦
 geometry_msgs/Pose pose

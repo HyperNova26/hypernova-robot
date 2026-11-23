@@ -7,11 +7,11 @@
 std_msgs/Header header
 RunTarget run_target                  # 지금 명령이 가는 대상 (R-20)
 
-geometry_msgs/Pose pose               # map 기준 위치·방향
+geometry_msgs/Pose pose               # 지도 프레임(pair360_map) 기준 몸체(trunk) 위치·방향
 Validity pose_validity
-float32 localization_confidence       # 0~1. 위치추정이 안 주면 NaN
+float32 localization_confidence       # 0~1. AICV /localization/status의 fitness(지도 정합 비율). 없으면 NaN
 
-geometry_msgs/Twist twist             # base_link 기준 실제 속도
+geometry_msgs/Twist twist             # 몸체 프레임(trunk) 기준 실제 속도
 Validity twist_validity
 
 float32 battery_ratio                 # 0~1

@@ -2,7 +2,7 @@
 # Copyright 2026 HYPERNOVA contributors
 #
 # 조이스틱 조종 입력 (IF-02). 토픽 /hn/control/teleop, QoS STREAM, 20 Hz.
-# 좌표 base_link (x 전방, y 좌측, z 상방). 카메라는 쓰지 않습니다.
+# 좌표는 몸체 프레임 trunk (명세의 base_link, x 전방, y 좌측, z 상방). 카메라는 쓰지 않습니다.
 # deadman이 false이거나 입력이 끊기면 받는 쪽은 속도 0으로 처리합니다 (R-06).
 
 std_msgs/Header header

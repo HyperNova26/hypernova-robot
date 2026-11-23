@@ -46,9 +46,23 @@ ros2 interface show hn_sw_msgs/msg/RobotState
 python3 -m pytest ros_pkgs/hn_sw_msgs/test -q
 ```
 
+## AICV·Nav2와 맞춘 것 (2026-11-23)
+
+AICV 브랜치 `feat/localization-status-fields`의 `hn_interfaces` README "Nav2 연결(계획)"에 맞췄습니다. Nav2 쪽은 모두 표준 타입이라 이 패키지에 새 정의를 두지 않습니다.
+
+| 항목 | 정한 것 |
+| --- | --- |
+| 좌표 이름 | 지도 프레임은 `pair360_map`(ADR-0005 Proposed), 몸체 프레임은 `trunk`. 명세의 `map`, `base_link`에 해당합니다 |
+| 위치추정 신뢰도 (IF-09) | `RobotState.localization_confidence`에 AICV `LocalizationStatus.fitness`(0~1)를 씁니다 |
+| Auto 속도 명령 | Nav2 표준 `/cmd_vel`(`Twist`)을 **제어권명령관리가 받아** `SelectedSafeCmd`로 안전 위협 관리에 넘깁니다. AICV 표에는 "Nav2 → 보행 제어"로 적혀 있지만 명세 2.3(모든 이동 명령은 안전 위협 관리를 거침)에 따라 이렇게 제안합니다 |
+| 경로 추종 (IF-15) | 앱은 Nav2에 직접 목표를 주지 않고, `SubmitRoute`·`ApproveRoute`로 임무경로관리에 승인받은 뒤 임무경로관리가 Nav2 표준 action(`NavigateToPose` 또는 `FollowWaypoints`)을 부릅니다. AICV 표의 "앱 → Nav2"와 다르므로 합의가 필요합니다 |
+| 2D 지도 | 지도관리가 표준 `nav_msgs/OccupancyGrid`로 `/map`에 냅니다 |
+| 재위치추정 (R-13) | 앱 → 위치추정 표준 `/initialpose`(`PoseWithCovarianceStamped`) |
+
 ## 정하지 않은 것
 
-- 토픽 이름의 `/hn/` 접두사: AICV 토픽(`/locomotion/status`, `/localization/*`)에는 없습니다. launch의 remap으로 맞출 수 있습니다.
+- 토픽 이름의 `/hn/` 접두사: AICV 토픽(`/locomotion/status`, `/localization/*`)과 Nav2 토픽에는 없습니다. launch의 remap으로 맞출 수 있습니다.
 - `Hazard.TYPE_*` 번호 목록은 초안입니다.
-- 경로 보정·추종(IF-15), 위치추정(IF-09), 점검 탐지(IF-17)는 AICV팀과 정할 항목이라 넣지 않았습니다.
+- 위치추정 결과에 지도 버전이 없습니다(IF-09).
+- 경로 보정(통행 불가 구간만 고치기, IF-15)과 점검 탐지(IF-17)의 양식은 AICV팀과 정할 항목이라 넣지 않았습니다.
 - 보행 정책을 ROS로 연결하는 쪽, 모터 제어 경로(MCU 경유 여부)에 따라 `JointCommand` 필드가 바뀔 수 있습니다.
