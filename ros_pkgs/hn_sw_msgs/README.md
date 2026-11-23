@@ -4,7 +4,9 @@
 
 2026-11-22 기준 초안입니다. SW 모듈(임무경로관리, 제어권명령관리, 안전 위협 관리, 로봇상태관리, 장치연동, 지도관리, 이벤트점검관리, 실행환경기록관리)과 관제 앱이 주고받는 ROS 2 message, service, action의 **정의만** 둡니다. 코드는 없습니다.
 
-기준 문서는 SW팀 인터페이스 명세(노션, IF-01~IF-25)의 3.5절 "주요 메시지"와 5절 계약 표입니다. AICV팀이 만드는 위치추정·보행 상태 메시지는 [`hn_interfaces`](../hn_interfaces/)에 따로 있으며(브랜치 `feat/sim-fault-injection`), 병합 충돌을 피하려고 패키지를 나눴습니다.
+기준 문서는 SW팀 인터페이스 명세(노션, IF-01~IF-25)의 3.5절 "주요 메시지"와 5절 계약 표입니다. AICV팀이 만드는 위치추정·보행 상태 메시지는 [`hn_interfaces`](../hn_interfaces/)에 따로 있으며(브랜치 `feat/localization-status-fields`), 병합 충돌을 피하려고 패키지를 나눴습니다.
+
+누가 내고 받는지, QoS, 끊김 판단 시간, 모드 전환, 사유 코드는 [SW 인터페이스 계약](../../docs/interfaces/sw-contract.md)에 있습니다.
 
 ## 들어 있는 것
 
@@ -36,7 +38,7 @@
 
 - **기본값은 안전한 쪽입니다.** ROS 메시지는 채우지 않은 숫자 필드가 0, bool이 false입니다. 그래서 0을 `Validity.UNAVAILABLE`, `RunTarget.MOCK`, `CommandStatus.NONE`, `JointCommand.MODE_DAMP`, `TargetResult.UNVISITED`, `InspectionDetection.UNKNOWN`으로 두었습니다. 명세의 enum 순서와 다르고, `CommandStatus.NONE`은 명세에 없던 값입니다. `test/test_contract.py`가 이 기본값을 확인합니다.
 - **관절은 이름으로 짝을 맞춥니다.** `JointTargets`, `JointCommand`는 `name` 배열을 함께 싣습니다. 정책(`policies/urdf_v1/policy_io.yaml`)은 hip×4 → thigh×4 → calf×4 순서이고 명세는 다리별 순서라서, 숫자 순서를 가정하지 않습니다.
-- 모르는 실수 값은 `NaN`, 사유는 `Reason`(코드 + 화면 문장)으로 보냅니다(명세 3.1).
+- 모르는 실수 값은 `NaN`, 사유는 `Reason`(코드 + 화면 문장)으로 보냅니다(명세 3.1). 코드 목록은 [사유 코드](../../docs/interfaces/sw-contract.md#사유-코드)에 있습니다.
 - 번호(상수)는 정하고 나면 바꾸거나 다른 뜻으로 재사용하지 않습니다. 필드를 바꾸면 보내는 쪽과 받는 쪽이 같은 정의로 다시 빌드해야 합니다.
 
 ## 빌드
