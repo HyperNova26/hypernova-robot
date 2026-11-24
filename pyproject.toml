@@ -30,6 +30,7 @@ dependencies = [
   "pyproj",
   "trimesh",
   "usd-core",
+  "pillow",  # Nav2 map PNG (tools/map/pair360_v3/s11_nav2.py); already locked as a matplotlib dependency
 ]
 
 [tool.uv]

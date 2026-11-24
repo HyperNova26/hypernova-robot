@@ -1,0 +1,610 @@
+{
+  "purpose": "Hand-reviewed terrain edits. Step 7 turns every curb line into a vertical step in the ground heightfield and limits the mesh to the scope; step 8 makes curbs with nogo=true a solid obstacle strip strip_height_m above the road side, adds the no-go areas, clears obstacles inside the parking lot, and applies the tree corrections.",
+  "frame": "pair360_map (m, Z up)",
+  "reviewed": "2026-11-17",
+  "reviewer": "Claude (Opus 5.5) from point-cloud cross sections, on the user's request (ramp curbs as obstacles, straight-road curb as a real vertical step, false ramp trees removed)",
+  "curb_step_half_width_m": 0.6,
+  "curbs": [
+    {
+      "id": "ramp_south_curb",
+      "nogo": true,
+      "strip_width_m": 0.3,
+      "strip_height_m": 0.3,
+      "measured_step_m": {
+        "p10": 0.21,
+        "p50": 0.26,
+        "p90": 0.35
+      },
+      "polyline_xy": [
+        [
+          -9.48,
+          184.88
+        ],
+        [
+          -6.47,
+          184.64
+        ],
+        [
+          -3.47,
+          184.34
+        ],
+        [
+          -0.48,
+          183.97
+        ],
+        [
+          2.5,
+          183.56
+        ],
+        [
+          5.47,
+          183.11
+        ],
+        [
+          8.44,
+          182.63
+        ],
+        [
+          11.4,
+          182.13
+        ],
+        [
+          14.35,
+          181.62
+        ],
+        [
+          17.31,
+          181.11
+        ],
+        [
+          20.27,
+          180.61
+        ],
+        [
+          23.24,
+          180.13
+        ],
+        [
+          26.2,
+          179.68
+        ],
+        [
+          27.2,
+          179.53
+        ]
+      ],
+      "how": "Step position every 0.5 m along the ramp from the 30th-percentile height profile across it, cubic fit with outliers (driveways, planter walls) rejected; residual p90 0.09 m."
+    },
+    {
+      "id": "ramp_north_curb",
+      "nogo": true,
+      "strip_width_m": 0.3,
+      "strip_height_m": 0.3,
+      "measured_step_m": {
+        "p10": 0.29,
+        "p50": 0.33,
+        "p90": 0.4
+      },
+      "polyline_xy": [
+        [
+          -7.0,
+          196.9
+        ],
+        [
+          -4.03,
+          196.44
+        ],
+        [
+          -1.06,
+          195.98
+        ],
+        [
+          1.9,
+          195.51
+        ],
+        [
+          4.87,
+          195.02
+        ],
+        [
+          7.83,
+          194.53
+        ],
+        [
+          10.79,
+          194.04
+        ],
+        [
+          13.75,
+          193.54
+        ],
+        [
+          16.71,
+          193.05
+        ],
+        [
+          19.67,
+          192.55
+        ],
+        [
+          22.63,
+          192.06
+        ],
+        [
+          25.59,
+          191.57
+        ],
+        [
+          28.56,
+          191.09
+        ],
+        [
+          31.03,
+          190.69
+        ]
+      ],
+      "how": "As ramp_south_curb; residual p90 0.05 m."
+    },
+    {
+      "id": "straight_road_west_curb",
+      "nogo": false,
+      "measured_step_m": {
+        "p10": 0.11,
+        "p50": 0.15,
+        "p90": 0.17
+      },
+      "polyline_xy": [
+        [
+          -19.13,
+          123.59
+        ],
+        [
+          -19.32,
+          127.6
+        ],
+        [
+          -19.51,
+          131.62
+        ],
+        [
+          -19.68,
+          135.63
+        ],
+        [
+          -19.85,
+          139.65
+        ],
+        [
+          -20.01,
+          143.66
+        ],
+        [
+          -20.05,
+          144.67
+        ]
+      ],
+      "how": "Quadratic fit, residual p90 0.03 m. North of y 145 the sidewalk is flush with the road (< 0.05 m), so the line stops there. Go2 can climb it; it is kept walkable."
+    }
+  ],
+  "scope": {
+    "purpose": "The mesh covers only what the two captures cover. Step 7 builds the area from input returns and cuts the reviewed polygons; steps 7-8 draw nothing outside it (MuJoCo keeps a 0.5 m no-go wall along the edge and lowers the ground beyond by 1 m).",
+    "reviewed": "2026-11-17, user check of the CloudCompare bundle: scraps outside the inputs (west of the parking lot) and the building area beyond the ramp's north tree row are not wanted",
+    "cell_m": 0.5,
+    "min_returns": 5,
+    "close_m": 1.0,
+    "open_m": 3.0,
+    "close_after_open_m": 3.0,
+    "min_area_m2": 1000,
+    "fill_holes_below_m2": 100,
+    "cut": [
+      {
+        "id": "beyond_ramp_north_trees",
+        "polygon_xy": [
+          [
+            -11.0,
+            200.8
+          ],
+          [
+            0.0,
+            199.0
+          ],
+          [
+            9.0,
+            197.8
+          ],
+          [
+            15.0,
+            196.6
+          ],
+          [
+            27.0,
+            194.7
+          ],
+          [
+            33.0,
+            194.0
+          ],
+          [
+            36.0,
+            196.5
+          ],
+          [
+            45.0,
+            194.5
+          ],
+          [
+            62.0,
+            191.5
+          ],
+          [
+            110.0,
+            191.5
+          ],
+          [
+            110.0,
+            250.0
+          ],
+          [
+            -11.0,
+            250.0
+          ]
+        ],
+        "why": "Building area north of the ramp, behind the row of street trees; Go2 cannot reach it. The line runs about 2.5 m north of the tree stems, so the trees themselves stay."
+      },
+      {
+        "id": "west_of_pc_v1_crop",
+        "polygon_xy": [
+          [
+            -200.0,
+            0.0
+          ],
+          [
+            -81.4,
+            0.0
+          ],
+          [
+            -81.4,
+            300.0
+          ],
+          [
+            -200.0,
+            300.0
+          ]
+        ],
+        "why": "West of the pc_v1 crop edge (x -81.4) only far pc_v2 returns reach (a wall line and the end of the y 147-152 aisle); they left a 3 m tongue on the parking lot's west side."
+      }
+    ]
+  },
+  "parking_lot": {
+    "polygon_xy": [
+      [
+        -90.0,
+        60.0
+      ],
+      [
+        -25.0,
+        60.0
+      ],
+      [
+        -25.0,
+        123.3
+      ],
+      [
+        -22.9,
+        123.3
+      ],
+      [
+        -22.9,
+        152.6
+      ],
+      [
+        -18.6,
+        152.6
+      ],
+      [
+        -16.7,
+        183.0
+      ],
+      [
+        -17.5,
+        200.0
+      ],
+      [
+        -30.0,
+        200.0
+      ],
+      [
+        -30.0,
+        230.0
+      ],
+      [
+        -90.0,
+        230.0
+      ]
+    ],
+    "why": "User request: inside the parking lot no obstacles, continuous floor as in mesh_v1 (trees stay). East edge: the planting strip along the straight road (kept as an obstacle) and the road's west edge."
+  },
+  "curb_rims": {
+    "purpose": "Raised planting islands of the parking lot and beside the start, traced by hand (user check 2026-11-18 with a sketch: the island rows must stay obstacles across the whole lot). Each island is a block height_m above the lowest ground within 0.3 m; trees on it keep their own solids.",
+    "rows_slope": "the lot grid is turned about 2.5 deg: island faces rise 0.043 m in y per metre of x (fitted on the south row, checked on all four)",
+    "islands": [
+      {
+        "id": "lot_row_north",
+        "height_m": 0.3,
+        "polygon_xy": [
+          [
+            -81.2,
+            193.58
+          ],
+          [
+            -22.6,
+            196.1
+          ],
+          [
+            -22.6,
+            200.4
+          ],
+          [
+            -81.2,
+            197.88
+          ]
+        ],
+        "measured": "low-surface profiles x -78..-25: faces at y 196.0-200.3 (x -25), 193.5-198 (x -78); top 0.3-0.5 m above the aisles"
+      },
+      {
+        "id": "lot_row_ramp_side",
+        "height_m": 0.3,
+        "polygon_xy": [
+          [
+            -81.2,
+            176.58
+          ],
+          [
+            -22.6,
+            179.1
+          ],
+          [
+            -22.6,
+            183.7
+          ],
+          [
+            -81.2,
+            181.18
+          ]
+        ],
+        "measured": "faces at y 177.0-181.6 (x -25), 175.5-180 (x -60); top 0.25-0.6 m above the aisles; moved 2.0 m north on the user's check (2026-11-18): its trees (y 180-182.8 near x -24 and -39) stood off the north face, and the first top-view trace had put it at y 179-184"
+      },
+      {
+        "id": "tree_zone_north_row",
+        "height_m": 0.3,
+        "polygon_xy": [
+          [
+            -81.2,
+            146.28
+          ],
+          [
+            -22.9,
+            148.79
+          ],
+          [
+            -22.9,
+            152.59
+          ],
+          [
+            -81.2,
+            150.08
+          ]
+        ],
+        "measured": "faces at y 149.3-153.2 (x -30), 147-148.5 (x -78); the lot south of it is 0.2-0.5 m lower, so the south face is the higher step; moved 0.8 m south on the user's check (2026-11-18) so the tree at (-40.2, 148.4) stands on it"
+      },
+      {
+        "id": "tree_zone_south_row",
+        "height_m": 0.18,
+        "polygon_xy": [
+          [
+            -81.2,
+            119.98
+          ],
+          [
+            -22.4,
+            122.51
+          ],
+          [
+            -22.4,
+            125.71
+          ],
+          [
+            -81.2,
+            123.18
+          ]
+        ],
+        "measured": "south face 0.15-0.24 m (sections x -50, -40, -30, -24: y 121.3, 121.7, 122.1, 122.45), north face 0.13-0.15 m; the start-side trees stand on it"
+      },
+      {
+        "id": "start_east_island",
+        "height_m": 0.15,
+        "polygon_xy": [
+          [
+            -25.4,
+            116.5
+          ],
+          [
+            -21.9,
+            116.5
+          ],
+          [
+            -21.9,
+            103.0
+          ],
+          [
+            -20.6,
+            74.0
+          ],
+          [
+            -23.6,
+            74.0
+          ],
+          [
+            -25.4,
+            103.0
+          ]
+        ],
+        "measured": "rim about 0.1 m on both long sides at y 110, shrubs inside; extended on the user's check (2026-11-18) along the line of shrubs south to y 74 (the curb the user marked in the point cloud), as one island like the other rows"
+      }
+    ]
+  },
+  "nogo_areas": [
+    {
+      "id": "straight_road_west_planting_strip",
+      "polygon_xy": [
+        [
+          -22.9,
+          123.6
+        ],
+        [
+          -19.13,
+          123.59
+        ],
+        [
+          -19.32,
+          127.6
+        ],
+        [
+          -19.51,
+          131.62
+        ],
+        [
+          -19.68,
+          135.63
+        ],
+        [
+          -19.85,
+          139.65
+        ],
+        [
+          -20.01,
+          143.66
+        ],
+        [
+          -20.05,
+          144.67
+        ],
+        [
+          -20.2,
+          152.6
+        ],
+        [
+          -22.9,
+          152.6
+        ]
+      ],
+      "why": "Raised planting strip between the parking lot and the straight road (0.15 m curb on the road side, trees and shrubs on it). pc_v2 sees the strip surface and the stems; the shrubs are only in pc_v1, which the pc_v2-priority merge drops here, so the band rule alone left it walkable."
+    }
+  ],
+  "trees": [
+    {
+      "near_xy": [
+        -9.56,
+        185.72
+      ],
+      "action": "not_trunk",
+      "why": "Planter 0.3-0.6 m high at the ramp entrance under a neighbour's crown; no stem between the planter and the crown."
+    },
+    {
+      "near_xy": [
+        -6.23,
+        197.2
+      ],
+      "action": "not_trunk",
+      "why": "Low shrub on the north sidewalk under an overhanging crown."
+    },
+    {
+      "near_xy": [
+        21.09,
+        181.87
+      ],
+      "action": "not_trunk",
+      "why": "Not a tree: a parked object on the south edge of the ramp road (route_review parked_object_ramp_pc_v2)."
+    },
+    {
+      "near_xy": [
+        29.84,
+        191.49
+      ],
+      "action": "move_trunk",
+      "to_xy": [
+        32.6,
+        191.1
+      ],
+      "why": "Shrub under the crown; the stem with returns continuous from 0 to 3.5 m stands 2.8 m east."
+    }
+  ],
+  "nogo_clear": [
+    {
+      "id": "straight_road_east_edge_branch_bits",
+      "polygon_xy": [
+        [
+          -13.8,
+          129.0
+        ],
+        [
+          -12.7,
+          129.0
+        ],
+        [
+          -12.7,
+          131.7
+        ],
+        [
+          -13.8,
+          131.7
+        ]
+      ],
+      "why": "Two small no-go blocks sticking out onto the straight road at its east edge (x -13.6..-12.9, y 129.2-131.5): pc_v2 returns mostly 4-5 m up with a few low ones, branch ends of the roadside trees. The user asked to remove these two (2026-11-18)."
+    },
+    {
+      "id": "road_surface_bits",
+      "polygon_xy": [
+        [
+          -19.0,
+          118.0
+        ],
+        [
+          -13.2,
+          118.0
+        ],
+        [
+          -13.2,
+          183.0
+        ],
+        [
+          -19.0,
+          183.0
+        ]
+      ],
+      "why": "Small no-go bits on the straight road surface between the planting strip and the east edge (user check 2026-11-18). The east edge and bank from x -13.2 stay."
+    },
+    {
+      "id": "south_road_surface_bits",
+      "polygon_xy": [
+        [
+          -20.4,
+          64.0
+        ],
+        [
+          -12.8,
+          64.0
+        ],
+        [
+          -12.8,
+          118.0
+        ],
+        [
+          -20.4,
+          118.0
+        ]
+      ],
+      "why": "Scattered small no-go bits on the road south of the start, east of the shrub island (user check 2026-11-18), including the comb-like line near x -14 that was kept earlier. The bank from x -12.8 stays."
+    }
+  ]
+}

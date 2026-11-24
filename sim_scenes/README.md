@@ -4,6 +4,8 @@
 
 데모 구역의 Nav2 정적 지도와 금지 구역 마스크는 [S-017 안내](pair360_nav2/README.md)에 있습니다(2026-11-24). 확인 도구는 `tools/map/check_nav2_keepout.sh`입니다.
 
+지도(map_v3), 지형(mesh_v3), Nav2 지도를 점군 두 개에서 만드는 도구는 `tools/map/build_pair360_v3.sh`입니다. 사람이 정한 입력과 실행 방법은 [map_v3·mesh_v3 입력](pair360_v3_decisions/README.md)에 있습니다.
+
 ## S-004 ground 최종 전달본
 
 현재 로컬 전달본과 재현 절차는 [S-004 안내](S004_ground_final/README.md)에 있습니다. Git에는 코드·판단 설정·문서만 올리며, 원본 점군과 생성된 장면 파일은 로컬에 보관합니다.

@@ -10,7 +10,7 @@ S-017 "통행 가능 영역 분리"의 Nav2 입력입니다. Nav2가 길을 찾�
 - **검정**: 지형상 못 가는 곳입니다.
 - **빨강**: 금지 구역입니다.
 - **회청색**: 지도 밖입니다.
-- **파란 선**: 11-15 실측 녹화 경로입니다. 사람이 센서를 들고 걸은 경로이며, 로봇의 계획 경로가 아닙니다.
+- **파란 선**: 11-15 촬영 경로입니다. 사람이 센서를 들고 걸은 경로이며, 데모 경로나 로봇의 계획 경로와 다릅니다. 데모 경로는 [`../pair360_v3_decisions/demo_route.json`](../pair360_v3_decisions/demo_route.json)의 출발점·경유점·목표입니다.
 
 ## 파일
 
@@ -28,7 +28,7 @@ S-017 "통행 가능 영역 분리"의 Nav2 입력입니다. Nav2가 길을 찾�
 
 ## 금지 구역
 
-`keepout_zones.json`의 `decision: keepout` 구역에 지도 밖 전체를 더한 것입니다. 구역은 2026-11-22에 PM이 정했고, 11-23에 경계를 수정했습니다.
+`keepout_zones.json`의 `decision: keepout` 구역에 지도 밖 전체를 더한 것입니다. 구역별 허용·금지는 2026-11-22에 장승민이 정했고, 11-23에 장승민이 그린 스케치로 주차장 경계를 고쳤습니다.
 
 | 번호 | 구역 | 이유 |
 | --- | --- | --- |
@@ -49,11 +49,14 @@ S-017 "통행 가능 영역 분리"의 Nav2 입력입니다. Nav2가 길을 찾�
 
 ## 확인 방법
 
+팀 ROS 컨테이너(`./docker/hn ros`) 안에서 실행합니다.
+
 ```bash
+sudo apt-get update && sudo apt-get install -y ros-jazzy-nav2-map-server ros-jazzy-nav2-costmap-2d ros-jazzy-nav2-lifecycle-manager
 tools/map/check_nav2_keepout.sh sim_scenes/pair360_nav2
 ```
 
-팀 ROS 이미지 안에서 Nav2 패키지를 apt로 설치하고 위 순서로 띄운 뒤, 비용지도에서 금지 구역과 지도 밖이 모두 통행 불가인지 검사합니다. 이미지 자체는 바꾸지 않으며 약 5분 걸립니다.
+팀 ROS 이미지에는 아직 Nav2가 없어 첫 줄로 한 번 설치합니다. 없으면 스크립트가 이 설치 명령을 알려 주고 끝납니다. 스크립트는 위 순서대로 노드를 띄우고, 각 노드가 lifecycle `active`가 된 것을 확인한 뒤 다음 노드로 넘어갑니다. 그다음 비용지도에서 금지 구역과 지도 밖이 모두 통행 불가인지 검사합니다. 약 5분 걸립니다.
 
 2026-11-24 결과는 다음과 같습니다.
 
@@ -65,7 +68,12 @@ tools/map/check_nav2_keepout.sh sim_scenes/pair360_nav2
 ## 출처와 생성
 
 - **입력**: PAIR360 T1 주차장 점군(v1, Kim et al., *PAIR360*, IEEE RA-L 2024, ODbL 1.0), 팀 FAST-LIO 촬영 점군(v2, 2026-11-15), 둘을 합친 map_v3와 지형 메시 mesh_v3(2026-11-18)입니다.
-- **생성**: 장승민 로컬 `pair360-map` 파이프라인 11단계(`s11_nav2.py`, Python 3.11, NumPy·Matplotlib)입니다. mesh_v3의 지면 격자와 이동 금지 heightfield에 `keepout_zones.json`을 적용했고, PGM을 Pillow로 PNG로 바꿨습니다. 생성 코드는 아직 이 저장소에 없으며, 지형 생성 과정은 S-017 Notion 페이지에 있습니다.
+- **생성**: [`tools/map/build_pair360_v3.sh`](../../tools/map/build_pair360_v3.sh)의 11단계(`tools/map/pair360_v3/s11_nav2.py`)입니다. 7단계 지면 격자와 8단계 이동 금지 heightfield에 `keepout_zones.json`을 적용합니다. 입력과 단계 설명은 [`../pair360_v3_decisions/README.md`](../pair360_v3_decisions/README.md)에 있습니다.
+
+  ```bash
+  tools/map/build_pair360_v3.sh --data <입력 폴더> --out <결과 폴더>   # 결과: <결과 폴더>/nav2_v3/
+  ```
+
 - **라이선스**: 지도 이미지는 PAIR360(ODbL 1.0)에서 파생한 데이터입니다. 공유할 때 원저자·논문·변경 내용을 함께 밝힙니다. 설정 파일과 도구는 Apache-2.0, 이 문서는 CC BY 4.0입니다.
 
 ## 한계

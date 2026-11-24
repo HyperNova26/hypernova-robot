@@ -1,0 +1,1272 @@
+{
+  "purpose": "Hand review of movable objects the automatic steps kept: demo-corridor items and a map-wide pass over parked cars and moving-object trails. Step 6 removes returns inside each polygon within the height band ('any' = both captures) and then grows every removed vehicle into touching low returns (up to 1 m).",
+  "frame": "pair360_map (m, Z up)",
+  "reviewed": "2026-11-17",
+  "reviewer": "Candidates proposed by Claude (Opus 5.5) from top views (0.3-2 m returns coloured by height on 25 m tiles) and side views; every item reviewed by 장승민. Kept as static after looking: dark round lumps 0.3-0.8 m high beside street trees (low shrubs; the same shape repeats at every tree, also south of the start road), long hedges, planters, mounds, the comb-like structure at x -14..-11, y 85-97.",
+  "items": [
+    {
+      "id": "bus_pc_v2",
+      "source": "pc_v2",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -19.4,
+          131.0
+        ],
+        [
+          -16.2,
+          131.0
+        ],
+        [
+          -16.2,
+          150.0
+        ],
+        [
+          -19.6,
+          150.0
+        ]
+      ],
+      "hag_m": [
+        0.15,
+        3.6
+      ],
+      "reason": "Box 2.5-3 m wide, about 18 m long, 0.4-3.2 m above the road with a vertical side wall and a flat roof at 3 m: a bus standing on the road during the 2026-11-15 capture. pc_v1 (2023) has no bus here. The car detector skipped it because anything above 2.45 m is treated as canopy."
+    },
+    {
+      "id": "bus_trail_pc_v2",
+      "source": "pc_v2",
+      "class": "transient",
+      "polygon_xy": [
+        [
+          -18.0,
+          163.5
+        ],
+        [
+          -17.4,
+          163.5
+        ],
+        [
+          -17.6,
+          209.0
+        ],
+        [
+          -18.1,
+          209.0
+        ],
+        [
+          -18.55,
+          192.0
+        ]
+      ],
+      "hag_m": [
+        0.15,
+        3.4
+      ],
+      "reason": "Wall 0.2 m thick and 0.4-3.0 m high running 45 m along the road (y 164-208) in line with the bus: the side of the bus swept while it drove in. Step 5 kept it because pc_v1 has its own raised ghost returns on this road."
+    },
+    {
+      "id": "passerby_straight_road_pc_v2",
+      "source": "pc_v2",
+      "class": "transient",
+      "polygon_xy": [
+        [
+          -16.9,
+          128.6
+        ],
+        [
+          -13.5,
+          128.6
+        ],
+        [
+          -13.5,
+          136.4
+        ],
+        [
+          -16.9,
+          136.4
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.2
+      ],
+      "reason": "Diagonal row of short streaks 0.3-1.7 m high (350 returns) crossing the straight road at x -16.7..-13.6, y 129-135: someone walking during the capture. The user found nothing standing there in the point cloud (2026-11-17); it made a row of small no-go blocks beside the road's east edge."
+    },
+    {
+      "id": "passerby_ramp_pc_v2",
+      "source": "pc_v2",
+      "class": "transient",
+      "polygon_xy": [
+        [
+          5.0,
+          188.8
+        ],
+        [
+          11.2,
+          188.8
+        ],
+        [
+          11.2,
+          191.1
+        ],
+        [
+          5.0,
+          191.1
+        ]
+      ],
+      "hag_m": [
+        0.15,
+        2.0
+      ],
+      "reason": "A person or bike moving up the ramp road during the 2026-11-15 capture: 573 returns 0.4-1.3 m high already labelled transient by step 5 along x 5-11, and a 66-return tail of the same streak left as obstacle 2 m from the reference path."
+    },
+    {
+      "id": "parked_object_ramp_pc_v2",
+      "source": "pc_v2",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          19.7,
+          180.8
+        ],
+        [
+          22.9,
+          180.8
+        ],
+        [
+          22.9,
+          182.3
+        ],
+        [
+          19.7,
+          182.3
+        ]
+      ],
+      "hag_m": [
+        0.15,
+        1.8
+      ],
+      "reason": "Object 2.6 x 0.6 m, 0.4-1.6 m high standing on the road just inside the south curb: its two ends are labelled transient by step 5 (it moved), the middle was kept and fooled the tree finder into a trunk. Movable, so taken out of the static map like a parked vehicle."
+    },
+    {
+      "id": "car_s_lot_01",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -75.5,
+          86
+        ],
+        [
+          -72.5,
+          86
+        ],
+        [
+          -72.5,
+          87.8
+        ],
+        [
+          -75.5,
+          87.8
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_02",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -71,
+          102.7
+        ],
+        [
+          -66.5,
+          102.7
+        ],
+        [
+          -66.5,
+          104.2
+        ],
+        [
+          -71,
+          104.2
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car (one or two). Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_03",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -59.5,
+          78.8
+        ],
+        [
+          -55.5,
+          78.8
+        ],
+        [
+          -55.5,
+          80.3
+        ],
+        [
+          -59.5,
+          80.3
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_04",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -58.5,
+          66.2
+        ],
+        [
+          -55,
+          66.2
+        ],
+        [
+          -55,
+          67.6
+        ],
+        [
+          -58.5,
+          67.6
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_05",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -54,
+          66.8
+        ],
+        [
+          -48.5,
+          66.8
+        ],
+        [
+          -48.5,
+          68.3
+        ],
+        [
+          -54,
+          68.3
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_06",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -43.5,
+          78.8
+        ],
+        [
+          -40,
+          78.8
+        ],
+        [
+          -40,
+          81
+        ],
+        [
+          -43.5,
+          81
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_07",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -43,
+          81.8
+        ],
+        [
+          -40,
+          81.8
+        ],
+        [
+          -40,
+          83.6
+        ],
+        [
+          -43,
+          83.6
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_08",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -44.5,
+          84.2
+        ],
+        [
+          -40,
+          84.2
+        ],
+        [
+          -40,
+          86
+        ],
+        [
+          -44.5,
+          86
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_09",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -55,
+          78.7
+        ],
+        [
+          -50,
+          78.7
+        ],
+        [
+          -50,
+          79.5
+        ],
+        [
+          -55,
+          79.5
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: one side of a parked car (4.5 m straight line 0.5-0.8 m high, rest unseen); uncertain. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_10",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -38.5,
+          67.2
+        ],
+        [
+          -33.5,
+          67.2
+        ],
+        [
+          -33.5,
+          68.8
+        ],
+        [
+          -38.5,
+          68.8
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_11",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -27.5,
+          91.3
+        ],
+        [
+          -23.5,
+          91.3
+        ],
+        [
+          -23.5,
+          93
+        ],
+        [
+          -27.5,
+          93
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_12",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -28.2,
+          99.7
+        ],
+        [
+          -23.3,
+          99.7
+        ],
+        [
+          -23.3,
+          100.3
+        ],
+        [
+          -28.2,
+          100.3
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: one side of a parked car (4.5 m straight line); uncertain. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_13",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -44.5,
+          93
+        ],
+        [
+          -40.2,
+          93
+        ],
+        [
+          -40.2,
+          95.3
+        ],
+        [
+          -44.5,
+          95.3
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_14",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -44,
+          91
+        ],
+        [
+          -40.2,
+          91
+        ],
+        [
+          -40.2,
+          93
+        ],
+        [
+          -44,
+          93
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_15",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -44,
+          88.3
+        ],
+        [
+          -40.2,
+          88.3
+        ],
+        [
+          -40.2,
+          90.5
+        ],
+        [
+          -44,
+          90.5
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_16",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -60.5,
+          106.5
+        ],
+        [
+          -56.5,
+          106.5
+        ],
+        [
+          -56.5,
+          108.3
+        ],
+        [
+          -60.5,
+          108.3
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_17",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -60.5,
+          108.6
+        ],
+        [
+          -56.5,
+          108.6
+        ],
+        [
+          -56.5,
+          110.8
+        ],
+        [
+          -60.5,
+          110.8
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_18",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -55,
+          92.6
+        ],
+        [
+          -50.5,
+          92.6
+        ],
+        [
+          -50.5,
+          94.5
+        ],
+        [
+          -55,
+          94.5
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_19",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -56,
+          95.5
+        ],
+        [
+          -50,
+          95.5
+        ],
+        [
+          -50,
+          96.8
+        ],
+        [
+          -56,
+          96.8
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car seen from far, sparse. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_nw_01",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -81.5,
+          190.2
+        ],
+        [
+          -78,
+          190.2
+        ],
+        [
+          -78,
+          192.5
+        ],
+        [
+          -81.5,
+          192.5
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car at the map edge. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_nw_02",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -81,
+          182.3
+        ],
+        [
+          -75.5,
+          182.3
+        ],
+        [
+          -75.5,
+          184.4
+        ],
+        [
+          -81,
+          184.4
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_nw_03",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -74.5,
+          181.2
+        ],
+        [
+          -69.5,
+          181.2
+        ],
+        [
+          -69.5,
+          184.6
+        ],
+        [
+          -74.5,
+          184.6
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_w_01",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -79.8,
+          151.2
+        ],
+        [
+          -77.2,
+          151.2
+        ],
+        [
+          -77.2,
+          155.8
+        ],
+        [
+          -79.8,
+          155.8
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_w_02",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -44,
+          153.5
+        ],
+        [
+          -42.3,
+          153.5
+        ],
+        [
+          -42.3,
+          158
+        ],
+        [
+          -44,
+          158
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: rest of a parked car the first pass cut in half. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_nw_04",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -55.5,
+          183
+        ],
+        [
+          -50.5,
+          183
+        ],
+        [
+          -50.5,
+          185.6
+        ],
+        [
+          -55.5,
+          185.6
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_nw_05",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -56.6,
+          171
+        ],
+        [
+          -55.3,
+          171
+        ],
+        [
+          -55.3,
+          176
+        ],
+        [
+          -56.6,
+          176
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: one side of a parked car between two removed cars. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_nw_06",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -53.8,
+          170.8
+        ],
+        [
+          -52.8,
+          170.8
+        ],
+        [
+          -52.8,
+          176
+        ],
+        [
+          -53.8,
+          176
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: one side of a parked car between two removed cars. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "trail_s_lot_01",
+      "source": "any",
+      "class": "transient",
+      "polygon_xy": [
+        [
+          -80.5,
+          103
+        ],
+        [
+          -77,
+          103
+        ],
+        [
+          -77,
+          108.5
+        ],
+        [
+          -80.5,
+          108.5
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: evenly spaced short dashes 0.8-1.5 m high along a curved line across the parking lot: one object (person, bike) moving through successive scanner sweeps."
+    },
+    {
+      "id": "trail_s_lot_02",
+      "source": "any",
+      "class": "transient",
+      "polygon_xy": [
+        [
+          -79.5,
+          65.5
+        ],
+        [
+          -75.5,
+          65.5
+        ],
+        [
+          -75.5,
+          76
+        ],
+        [
+          -79.5,
+          76
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: evenly spaced short dashes 0.8-1.5 m high along a curved line across the parking lot: one object (person, bike) moving through successive scanner sweeps."
+    },
+    {
+      "id": "trail_s_lot_03",
+      "source": "any",
+      "class": "transient",
+      "polygon_xy": [
+        [
+          -38.5,
+          80
+        ],
+        [
+          -30.5,
+          80
+        ],
+        [
+          -30.5,
+          84.5
+        ],
+        [
+          -38.5,
+          84.5
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: evenly spaced short dashes 0.8-1.5 m high along a curved line across the parking lot: one object (person, bike) moving through successive scanner sweeps."
+    },
+    {
+      "id": "trail_s_lot_04",
+      "source": "any",
+      "class": "transient",
+      "polygon_xy": [
+        [
+          -31,
+          75.5
+        ],
+        [
+          -27.5,
+          75.5
+        ],
+        [
+          -27.5,
+          84.5
+        ],
+        [
+          -31,
+          84.5
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: evenly spaced short dashes 0.8-1.5 m high along a curved line across the parking lot: one object (person, bike) moving through successive scanner sweeps."
+    },
+    {
+      "id": "trail_s_lot_05",
+      "source": "any",
+      "class": "transient",
+      "polygon_xy": [
+        [
+          -31.5,
+          85
+        ],
+        [
+          -28.5,
+          85
+        ],
+        [
+          -28.5,
+          98.5
+        ],
+        [
+          -31.5,
+          98.5
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: evenly spaced short dashes 0.8-1.5 m high along a curved line across the parking lot: one object (person, bike) moving through successive scanner sweeps."
+    },
+    {
+      "id": "car_s_lot_20",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -43.5,
+          99.6
+        ],
+        [
+          -39.8,
+          99.6
+        ],
+        [
+          -39.8,
+          103.6
+        ],
+        [
+          -43.5,
+          103.6
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_21",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -40.2,
+          102.2
+        ],
+        [
+          -34.4,
+          102.2
+        ],
+        [
+          -34.4,
+          104.5
+        ],
+        [
+          -40.2,
+          104.5
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: rest of two parked cars the first pass cut. parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_22",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -55.2,
+          87.8
+        ],
+        [
+          -50,
+          87.8
+        ],
+        [
+          -50,
+          90.3
+        ],
+        [
+          -55.2,
+          90.3
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: side and corner of a parked car the first pass cut. parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_23",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -77,
+          102.4
+        ],
+        [
+          -75.8,
+          102.4
+        ],
+        [
+          -75.8,
+          106.3
+        ],
+        [
+          -77,
+          106.3
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: rear ends of two parked cars the first pass cut. parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_nw_07",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -74,
+          174.8
+        ],
+        [
+          -64.8,
+          174.8
+        ],
+        [
+          -64.8,
+          176.8
+        ],
+        [
+          -74,
+          176.8
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: front ends of three parked cars the first pass cut. parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_nw_08",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -72.8,
+          190.5
+        ],
+        [
+          -66.8,
+          190.5
+        ],
+        [
+          -66.8,
+          193.6
+        ],
+        [
+          -72.8,
+          193.6
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: parked car. parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_nw_09",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -52.6,
+          171.8
+        ],
+        [
+          -51.4,
+          171.8
+        ],
+        [
+          -51.4,
+          176.8
+        ],
+        [
+          -52.6,
+          176.8
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: one side of a parked car between two removed cars. parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    },
+    {
+      "id": "car_s_lot_24",
+      "source": "any",
+      "class": "vehicle",
+      "polygon_xy": [
+        [
+          -51,
+          83
+        ],
+        [
+          -49.8,
+          83
+        ],
+        [
+          -49.8,
+          85.3
+        ],
+        [
+          -51,
+          85.3
+        ]
+      ],
+      "hag_m": [
+        0.1,
+        2.4
+      ],
+      "reason": "Map-wide review 2026-11-17: end of a parked car the first pass cut. parked car. Rectangular body 1.2-1.9 m high with hollow (surface-only) returns, standing on parking-lot floor; the box only needs to touch the car, step 6 grows it to the car's edge."
+    }
+  ]
+}

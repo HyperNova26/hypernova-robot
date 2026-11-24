@@ -1,6 +1,6 @@
 {
   "frame": "pair360_map",
-  "purpose": "Nav2 Keepout Filter zones; decision per zone from the PM, relayed by 장승민 2026-11-22",
+  "purpose": "Nav2 Keepout Filter zones; allow/keep-out decision per zone by 장승민 (2026-11-22), parking-lot boundary redrawn by 장승민 on a sketch (2026-11-23)",
   "walkable": "zones marked allowed plus scope cells in no zone (straight road and ramp corridor); waypoints come later from the HW team",
   "base": "mesh_v3 (walking team's edited terrain not yet received)",
   "zones": [
