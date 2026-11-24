@@ -1,0 +1,113 @@
+/* SPDX-FileCopyrightText: 2026 HYPERNOVA contributors
+   SPDX-License-Identifier: Apache-2.0 */
+.mission-editor,
+.mission-library,
+.mission-field {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mission-field {
+  gap: 5px;
+}
+
+.mission-field input {
+  width: 100%;
+  min-width: 0;
+  color: inherit;
+  background: var(--ops-background);
+  border: 1px solid var(--ops-border);
+  border-radius: 5px;
+  padding: 7px 8px;
+}
+
+.mission-library-heading,
+.mission-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mission-library-heading {
+  flex-wrap: wrap;
+}
+
+.mission-meta,
+.mission-empty,
+.mission-issue {
+  color: var(--ops-secondary);
+  overflow-wrap: anywhere;
+}
+
+.mission-issue {
+  color: var(--ops-warn);
+}
+
+.mission-library .mission-empty {
+  border: 1px dashed var(--ops-border);
+  border-radius: 5px;
+  padding: 12px;
+}
+
+.mission-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mission-list li {
+  border: 1px solid var(--ops-border);
+  border-radius: 5px;
+  padding: 10px 12px;
+}
+
+.mission-list-description {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mission-list-description svg {
+  flex: none;
+  color: var(--blue);
+}
+
+.mission-list-description h3 {
+  overflow-wrap: anywhere;
+}
+
+.mission-list-description h3 span {
+  display: inline-block;
+  margin-inline-start: 8px;
+  color: var(--ops-success);
+  font-size: 0.86em;
+}
+
+.mission-list li > button {
+  flex: none;
+}
+
+.mission-archive {
+  border-top: 1px solid var(--ops-border);
+  padding-top: 10px;
+}
+
+.mission-archive summary {
+  cursor: pointer;
+}
+
+.mission-archive > :not(summary) {
+  margin-top: 8px;
+}
+
+@media (max-width: 420px) {
+  .mission-list li {
+    flex-wrap: wrap;
+  }
+}

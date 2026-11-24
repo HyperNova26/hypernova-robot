@@ -30,6 +30,9 @@ export class Telemetry {
   lastReceived = 0;
   receiving = false;
   connection = "미연결";
+  transport: "idle" | "connecting" | "open" | "closed" = "idle";
+  epoch = 0;
+  syntheticFrame?: { frame: string; child: string };
   error = "";
   demo = false;
   pausedInput = false;
@@ -46,6 +49,7 @@ export class Telemetry {
     };
   };
   reset(preserveStatic = false) {
+    this.epoch++;
     this.lio = [];
     this.gt = [];
     this.clouds = [];
@@ -54,6 +58,8 @@ export class Telemetry {
     if (!preserveStatic) {
       this.livePrior = undefined;
       this.liveSession = false;
+      this.transport = "idle";
+      this.syntheticFrame = undefined;
       this.latched.clear();
     }
     this.rows = [];
@@ -177,7 +183,14 @@ export class Telemetry {
   localPrior?: Cloud;
   livePrior?: Cloud;
   liveSession = false;
+  get displayFrame() {
+    return this.syntheticFrame?.frame ?? this.config.frame;
+  }
+  get displayBase() {
+    return this.syntheticFrame?.child ?? this.config.base;
+  }
   get prior() {
+    if (this.syntheticFrame) return undefined;
     return (
       this.livePrior ??
       (!this.liveSession || this.config.mapVerified
@@ -217,12 +230,12 @@ export class Telemetry {
   }
   get mapCloud() {
     const cloud = this.cloud;
-    return cloud ? this.frames.cloud(cloud, this.config.frame) : undefined;
+    return cloud ? this.frames.cloud(cloud, this.displayFrame) : undefined;
   }
   get lidarCloud() {
     const cloud = this.cloud;
     return cloud
-      ? (this.frames.cloud(cloud, this.config.base) ?? cloud)
+      ? (this.frames.cloud(cloud, this.displayBase) ?? cloud)
       : undefined;
   }
 }

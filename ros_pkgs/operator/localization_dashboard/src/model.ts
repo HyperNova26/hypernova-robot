@@ -49,6 +49,14 @@ export const localizationStates = [
   "STALE_INPUT",
   "INPUT_TIMEOUT",
 ] as const;
+type LocalizationQuality = {
+  statusText?: string;
+  poseAccepted?: boolean;
+  source?: string;
+  latencyMs?: number;
+  fitness?: number;
+  rmseM?: number;
+};
 export type LocalizationStatus = {
   code?: number;
   label: string;
@@ -56,8 +64,13 @@ export type LocalizationStatus = {
   received: number;
   field: string;
   issue?: string;
+  quality?: LocalizationQuality;
   raw: unknown;
 };
+const finiteNumber = (value: unknown) =>
+  typeof value === "number" && Number.isFinite(value) ? value : undefined;
+const nonblankString = (value: unknown) =>
+  typeof value === "string" ? value.trim() || undefined : undefined;
 export function localizationStatus(
   message: any,
   field: string,
@@ -68,7 +81,19 @@ export function localizationStatus(
     .reduce((object, key) => object?.[key], message);
   const code =
     typeof value === "number" && Number.isInteger(value) ? value : undefined;
-  const t = message.header?.stamp ? stamp(message.header.stamp) : undefined;
+  const t = message?.header?.stamp ? stamp(message.header.stamp) : undefined;
+  // Optional S-005 fields can coexist with adapters using a custom status path.
+  const quality: LocalizationQuality = {
+    statusText: nonblankString(message?.status_text),
+    poseAccepted:
+      typeof message?.pose_accepted === "boolean"
+        ? message.pose_accepted
+        : undefined,
+    source: nonblankString(message?.source),
+    latencyMs: finiteNumber(message?.latency_ms),
+    fitness: finiteNumber(message?.fitness),
+    rmseM: finiteNumber(message?.rmse_m),
+  };
   return {
     code,
     label:
@@ -84,6 +109,9 @@ export function localizationStatus(
         : localizationStates[code] === undefined
           ? "명세에 없는 상태 코드입니다."
           : undefined,
+    quality: Object.values(quality).some((value) => value !== undefined)
+      ? quality
+      : undefined,
     raw: message,
   };
 }

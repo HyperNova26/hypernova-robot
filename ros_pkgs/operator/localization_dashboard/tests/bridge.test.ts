@@ -121,3 +121,61 @@ it("rejects a topic whose advertised message type differs from the contract", ()
   expect(FakeSocket.latest.sent).toHaveLength(0);
   stop();
 });
+
+it("splits the session before a rewind clock frame can enter the previous recording", () => {
+  vi.useFakeTimers();
+  vi.stubGlobal("WebSocket", FakeSocket);
+  const store = new Telemetry();
+  const boundary = vi.fn(() => {
+    expect(store.simTime).toBe(32);
+    store.recorder = undefined;
+  });
+  const stop = connect(store, boundary);
+  const socket = FakeSocket.latest;
+  const schema = `builtin_interfaces/Time clock
+================================================================================
+MSG: builtin_interfaces/Time
+int32 sec
+uint32 nanosec
+`;
+  socket.onmessage?.({
+    data: JSON.stringify({
+      op: "advertise",
+      channels: [
+        {
+          id: 4,
+          topic: "/clock",
+          encoding: "cdr",
+          schema,
+          schemaName: "rosgraph_msgs/msg/Clock",
+        },
+      ],
+    }),
+  });
+  const writer = new MessageWriter(parse(schema, { ros2: true }));
+  const sendClock = (sec: number) => {
+    const payload = writer.writeMessage({ clock: { sec, nanosec: 0 } });
+    const wire = new Uint8Array(13 + payload.length);
+    wire[0] = 1;
+    new DataView(wire.buffer).setUint32(
+      1,
+      JSON.parse(socket.sent[0]).subscriptions[0].id,
+      true,
+    );
+    wire.set(payload, 13);
+    socket.onmessage?.({ data: wire.buffer });
+  };
+  const write = vi.fn();
+  store.recorder = { write } as unknown as NonNullable<Telemetry["recorder"]>;
+  sendClock(32);
+  const epoch = store.epoch;
+  sendClock(2);
+  expect(boundary).toHaveBeenCalledTimes(1);
+  expect(write).toHaveBeenCalledTimes(1);
+  expect(store.epoch).toBe(epoch + 1);
+  expect(store.simTime).toBe(2);
+  expect(socket.sent.map((event) => JSON.parse(event).op)).toEqual([
+    "subscribe",
+  ]);
+  stop();
+});

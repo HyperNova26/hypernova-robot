@@ -4,8 +4,9 @@ import { FoxgloveClient } from "@foxglove/ws-protocol";
 import { parse } from "@foxglove/rosmsg";
 import { MessageReader } from "@foxglove/rosmsg2-serialization";
 import { type Telemetry } from "./store";
+import { stamp } from "./model";
 import { type RecordChannel } from "./recorder";
-export function connect(store: Telemetry) {
+export function connect(store: Telemetry, onBoundary?: () => void) {
   const endpoint = new URL(store.config.url);
   if (!["ws:", "wss:"].includes(endpoint.protocol))
     throw Error("WebSocket 주소는 ws:// 또는 wss://로 시작해야 합니다.");
@@ -31,12 +32,14 @@ export function connect(store: Telemetry) {
     tf_static: "/tf_static",
   };
   store.connection = "연결 중";
+  store.transport = "connecting";
   store.livePrior = undefined;
   store.liveSession = true;
   store.notify();
   client.on("open", () => {
     if (!active) return;
     store.connection = "Bridge 연결 · 토픽 대기";
+    store.transport = "open";
     store.event("Bridge 연결");
     store.notify();
   });
@@ -54,6 +57,8 @@ export function connect(store: Telemetry) {
   client.on("close", () => {
     if (!active) return;
     store.connection = "연결 종료";
+    store.transport = "closed";
+    onBoundary?.();
     store.event("Bridge 연결 종료");
     store.lastReceived = 0;
     store.tick();
@@ -129,7 +134,8 @@ export function connect(store: Telemetry) {
       message.data.byteOffset,
       message.data.byteLength,
     );
-    store.recorder?.write(sub.channel, raw, message.timestamp);
+    if (sub.role !== "clock")
+      store.recorder?.write(sub.channel, raw, message.timestamp);
     // Latched topics arrive once at subscribe time; keep the last one so a bag started
     // later still contains them (BagRecorder.seed).
     if (sub.channel.latched)
@@ -139,8 +145,19 @@ export function connect(store: Telemetry) {
         logTimeNs: message.timestamp,
       });
     try {
-      store.ingest(sub.role, sub.reader.readMessage(message.data));
+      const decoded = sub.reader.readMessage(message.data);
+      if (sub.role === "clock") {
+        if (
+          stamp((decoded as { clock: unknown }).clock) <
+          store.simTime - 0.001
+        )
+          onBoundary?.();
+        store.recorder?.write(sub.channel, raw, message.timestamp);
+      }
+      store.ingest(sub.role, decoded);
     } catch (e) {
+      if (sub.role === "clock")
+        store.recorder?.write(sub.channel, raw, message.timestamp);
       store.error = "CDR 디코딩 실패: " + String(e);
       store.notify();
     }

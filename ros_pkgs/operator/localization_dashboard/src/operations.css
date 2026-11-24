@@ -1,0 +1,855 @@
+/* SPDX-FileCopyrightText: 2026 HYPERNOVA contributors
+   SPDX-License-Identifier: Apache-2.0 */
+:root {
+  --ops-background: #0b1015;
+  --ops-surface: #111922;
+  --ops-raised: #1b2836;
+  --ops-control-bg: #192532;
+  --ops-control-border: #3b4c5f;
+  --ops-accent: #93caff;
+  --ops-text: #edf4fa;
+  --ops-secondary: #b5c5d4;
+  --ops-success: #83dfc2;
+  --ops-warn: #ffcb84;
+  --ops-danger: #ff9c9b;
+  --ops-border: #344454;
+  --ops-radius: 10px;
+  scroll-padding-top: calc(var(--ops-header-height, 120px) + 10px);
+}
+.ops-app {
+  min-height: 100dvh;
+  background: var(--ops-background);
+  color: var(--ops-text);
+  font-size: 15px;
+  line-height: 1.5;
+  color-scheme: dark;
+}
+.ops-app :is(h2, h3, p, dl, figure) {
+  margin: 0;
+}
+.ops-app h2 {
+  font-size: 22px;
+  line-height: 1.2;
+}
+.ops-app h3 {
+  font-size: 16px;
+}
+.ops-app button {
+  min-height: 38px;
+  line-height: 1.25;
+  border-radius: 7px;
+}
+.ops-app
+  button:where(:not(.primary, .ops-stop, .ops-alert-banner, .ops-status-link)) {
+  color: var(--ops-text);
+  background: var(--ops-control-bg);
+  border-color: var(--ops-control-border);
+}
+.ops-app button:not(:disabled):hover {
+  border-color: #7194b6;
+}
+.ops-app .primary:not(:disabled):hover {
+  background: #2b597f;
+}
+.ops-app button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.ops-app button:disabled:hover {
+  filter: none;
+}
+.ops-app :is(select, input:not([type="range"]):not([type="checkbox"])) {
+  min-width: 0;
+  border: 1px solid var(--ops-border);
+  border-radius: 5px;
+  background: #0e1720;
+  padding: 6px 8px;
+  color: var(--ops-text);
+}
+.ops-app input[type="range"] {
+  accent-color: var(--blue);
+  max-width: 100%;
+}
+.ops-app :is(button, input, summary, select, a, [tabindex]):focus-visible {
+  outline: 2px solid var(--ops-accent);
+  outline-offset: 3px;
+}
+.ops-app .warning {
+  color: var(--ops-warn);
+}
+.ops-app .critical {
+  color: var(--ops-danger);
+}
+.ops-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #131e29;
+  border-bottom: 1px solid var(--ops-border);
+}
+.ops-header-top,
+.ops-status,
+.ops-alert-banner {
+  width: min(100%, 1800px);
+  margin: 0 auto;
+}
+.ops-header-top {
+  min-height: 62px;
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.ops-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+}
+.ops-brand h1 {
+  font-size: 19px;
+  letter-spacing: 0.07em;
+}
+.ops-brand small {
+  font-size: 12px;
+  color: var(--ops-secondary);
+}
+.ops-nav,
+.ops-header-actions,
+.ops-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ops-app .ops-nav button {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ops-secondary);
+  font-weight: 600;
+}
+.ops-app .ops-nav button:hover {
+  background: var(--ops-raised);
+}
+.ops-app .ops-nav button[aria-current] {
+  border-color: #5481a8;
+  background: #263f58;
+  color: var(--ops-text);
+}
+.ops-header-actions {
+  margin-left: auto;
+  flex-wrap: nowrap;
+}
+.ops-source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ops-source span {
+  font-size: 13px;
+  color: var(--ops-secondary);
+  white-space: nowrap;
+}
+.ops-stop {
+  color: #ffdedc;
+  border-color: #b26469;
+  background: #582d35;
+  font-weight: 700;
+}
+.ops-app .ops-stop:not(:disabled):hover {
+  background: #68323a;
+  border-color: #c87879;
+}
+.ops-app .ops-status {
+  margin-inline: auto;
+}
+.ops-status {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 1.5fr) repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  padding: 3px 24px 10px;
+}
+.ops-status > div {
+  padding: 4px 12px;
+  border-left: 1px solid var(--ops-border);
+  min-width: 0;
+}
+.ops-status > div:first-child {
+  border: 0;
+  padding-left: 0;
+}
+.ops-status dt,
+.ops-status dd {
+  overflow-wrap: anywhere;
+}
+.ops-status dt {
+  font-size: 12px;
+  color: var(--ops-secondary);
+}
+.ops-status dd {
+  margin: 3px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.ops-status .connected {
+  color: var(--ops-success);
+}
+.ops-status-time {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 1px 7px;
+  font-variant-numeric: tabular-nums;
+}
+.ops-status-age {
+  color: var(--ops-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+.ops-status-time.warning .ops-status-age {
+  color: inherit;
+}
+.ops-app .ops-status-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  min-height: 0;
+  color: #a9d3ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ops-app .ops-alert-banner {
+  justify-content: flex-start;
+  width: 100%;
+  padding: 6px 24px;
+  gap: 12px;
+  background: #332a20;
+  border: 0;
+  border-radius: 0;
+}
+.ops-alert-banner.critical {
+  background: #38232a;
+}
+.ops-alert-banner span {
+  font-size: 13px;
+}
+.ops-alert-link {
+  margin-left: auto;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ops-content {
+  display: block;
+  max-width: 1800px;
+  margin: auto;
+  padding: 16px 24px 28px;
+}
+.ops-view-heading,
+.ops-section-heading,
+.ops-compact-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ops-view-heading {
+  margin-bottom: 14px;
+}
+.ops-section-heading {
+  margin-bottom: 10px;
+  min-width: 0;
+}
+.ops-section-heading h3,
+.ops-section-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ops-section-heading > span,
+.ops-help,
+.ops-empty,
+.ops-compact-heading span {
+  color: var(--ops-secondary);
+}
+.ops-help {
+  font-size: 14px;
+}
+.ops-card,
+.ops-disclosure,
+.mission-library,
+.records-list,
+.record-detail {
+  min-width: 0;
+  border: 1px solid var(--ops-border);
+  border-radius: var(--ops-radius);
+  background: var(--ops-surface);
+  padding: 14px;
+}
+.ops-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(290px, 340px);
+  grid-template-areas: "map control";
+  gap: 14px;
+  align-items: start;
+}
+.ops-campus-workspace {
+  grid-template-areas:
+    "map mode"
+    "map control";
+  grid-template-rows: auto 1fr;
+}
+.ops-workspace.focus-map {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "map" "control";
+}
+.ops-campus-workspace.focus-map {
+  grid-template-areas: "mode" "map" "control";
+}
+.ops-map {
+  grid-area: map;
+  min-width: 0;
+}
+.ops-mode-card {
+  grid-area: mode;
+}
+.ops-mobile-jump {
+  display: none;
+}
+.ops-control .ops-section-heading span {
+  color: var(--ops-secondary);
+}
+.ops-control {
+  grid-area: control;
+}
+.ops-map .map-panel {
+  min-height: 440px;
+}
+.ops-map .map-surface {
+  min-height: clamp(300px, 49vh, 680px);
+  flex: 1;
+}
+.record-media video {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 5px;
+  background: #0a121a;
+}
+.record-media video[hidden] {
+  display: none;
+}
+.record-media-caption,
+.record-metadata {
+  color: var(--ops-secondary);
+  font-size: 13px;
+  margin-top: 3px;
+}
+.record-video-status {
+  min-height: 144px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  color: var(--ops-secondary);
+  background: #0a121a;
+  border-radius: 5px;
+}
+.ops-control {
+  display: grid;
+  gap: 12px;
+}
+.ops-control .ops-section-heading {
+  margin: 0;
+}
+.ops-app .ops-mode-switch,
+.ops-teleop-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.ops-app :is(.ops-mode-switch, .ops-map) button[aria-pressed="true"] {
+  background: #254b6a;
+  border-color: #6c9ecc;
+  color: white;
+}
+.ops-mode-switch button {
+  font-weight: 700;
+}
+.ops-teleop-buttons button {
+  display: grid;
+  grid-template-columns: 17px minmax(0, 1fr) auto;
+  gap: 6px;
+  min-height: 44px;
+  touch-action: none;
+  user-select: none;
+  text-align: start;
+  white-space: normal;
+  word-break: keep-all;
+  padding: 6px 8px;
+}
+.ops-app .ops-teleop-buttons button.active {
+  background: #254b6a;
+  border-color: var(--ops-accent);
+}
+.ops-teleop-buttons button span {
+  min-width: 0;
+}
+.ops-teleop-buttons button svg {
+  flex: none;
+}
+.ops-teleop-buttons kbd {
+  min-width: 19px;
+  padding: 2px;
+  border: 1px solid var(--ops-border);
+  border-radius: 4px;
+  background: var(--ops-background);
+  color: var(--ops-secondary);
+  font: 12px var(--mono);
+  text-align: center;
+}
+.ops-range {
+  display: grid;
+  gap: 4px;
+}
+.ops-range span {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+.ops-measurements,
+.ops-incident-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.ops-measurements > div,
+.ops-incident-details > div {
+  padding: 7px 9px;
+  border-radius: 5px;
+  background: var(--ops-raised);
+}
+.ops-measurements dt,
+.ops-incident-details dt {
+  color: var(--ops-secondary);
+  font-size: 13px;
+}
+.ops-measurements dd,
+.ops-incident-details dd {
+  margin: 2px 0 0;
+}
+.ops-measurements dd {
+  font: 15px/1.5 var(--mono);
+}
+.ops-auto-progress {
+  margin: 0;
+  padding-left: 23px;
+  max-height: 144px;
+  overflow: auto;
+}
+.ops-auto-progress li {
+  padding: 2px 4px;
+}
+.ops-auto-progress li small {
+  color: var(--ops-secondary);
+  margin-left: 8px;
+}
+.ops-auto-progress li[aria-current] {
+  color: var(--ops-success);
+}
+.ops-compact-heading > div {
+  display: grid;
+  gap: 2px;
+}
+.ops-compact-heading b {
+  color: var(--ops-success);
+}
+.ops-control .mission-editor {
+  border-top: 1px solid var(--ops-border);
+  padding-top: 10px;
+}
+.ops-tag {
+  background: var(--ops-raised);
+  border: 1px solid var(--ops-border);
+  border-radius: 5px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.ops-recording {
+  color: var(--ops-danger);
+}
+.ops-disclosure {
+  margin-top: 10px;
+  padding: 0;
+}
+.ops-disclosure summary {
+  cursor: pointer;
+  padding: 9px 12px;
+  color: var(--ops-secondary);
+}
+.ops-scenario-content,
+.ops-diagnostics {
+  padding: 4px 12px 12px;
+  display: grid;
+  gap: 10px;
+}
+.ops-scenario-content > button {
+  justify-self: start;
+}
+.ops-scenario-events {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+}
+.ops-scenario-events > div {
+  display: grid;
+  gap: 7px;
+  padding: 8px;
+  background: var(--ops-raised);
+  border-radius: 5px;
+}
+.ops-diagnostics-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.65fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.ops-diagnostics .sensor-panel {
+  min-height: 255px;
+}
+.ops-error,
+.ops-feedback {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--ops-raised);
+  border-left: 3px solid var(--blue);
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+.ops-error {
+  color: var(--ops-danger);
+  border-color: var(--ops-danger);
+  overflow-wrap: anywhere;
+}
+.ops-split {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.6fr) minmax(0, 1.4fr);
+  align-items: start;
+  gap: 12px;
+}
+.ops-item-list,
+.ops-incident {
+  display: grid;
+  gap: 8px;
+}
+.ops-item-list {
+  margin-top: 10px;
+}
+.ops-item-list button {
+  justify-content: start;
+  white-space: normal;
+  text-align: start;
+}
+.ops-item-list button span {
+  display: grid;
+  gap: 2px;
+}
+.ops-item-list small {
+  color: var(--ops-secondary);
+}
+.ops-filter,
+.ops-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.ops-note {
+  flex: 1;
+}
+.ops-note input {
+  flex: 1;
+}
+.ops-history {
+  margin: 0;
+  padding-inline-start: 20px;
+}
+.ops-history li {
+  padding: 4px 0;
+  overflow-wrap: anywhere;
+}
+.ops-history time {
+  margin-right: 8px;
+  color: var(--ops-secondary);
+}
+.records-view {
+  display: grid;
+  gap: 12px;
+}
+.records-head,
+.record-detail-head,
+.records-filters,
+.record-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.records-head,
+.record-detail-head {
+  justify-content: space-between;
+}
+.records-head p,
+.record-detail-head > span,
+.record-state dt {
+  color: var(--ops-secondary);
+}
+.records-filters label,
+.record-controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.records-filters select {
+  max-width: min(230px, 64vw);
+}
+.records-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 330px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.records-list {
+  display: grid;
+  gap: 8px;
+}
+.records-list :is(ul, ol) {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 7px;
+}
+.records-list button {
+  width: 100%;
+  display: grid;
+  justify-items: start;
+  text-align: start;
+  white-space: normal;
+}
+.records-list button[aria-pressed="true"] {
+  color: var(--ops-text);
+  background: #1c3a53;
+}
+.record-detail {
+  display: grid;
+  gap: 8px;
+}
+.record-metadata {
+  overflow-wrap: anywhere;
+}
+.record-media {
+  max-width: 100%;
+  overflow: hidden;
+}
+.record-media video {
+  max-height: 48vh;
+}
+.record-timeline {
+  display: grid;
+  gap: 6px;
+}
+.record-controls output,
+.record-track-markers button {
+  font-family: var(--mono);
+}
+.record-scrubber input {
+  display: block;
+  width: 100%;
+  margin: 4px 0;
+}
+.record-track-markers {
+  position: relative;
+  height: 22px;
+  margin-inline: 8px;
+}
+.ops-app .record-track-marker {
+  position: absolute;
+  transform: translateX(-50%);
+  min-height: 20px;
+  padding: 1px;
+  color: var(--ops-warn);
+}
+.record-marker-detail {
+  color: var(--ops-warn);
+}
+.record-event-list {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.record-event-list button {
+  white-space: normal;
+  text-align: start;
+}
+.record-state {
+  display: grid;
+  gap: 6px;
+}
+.record-state dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.record-state dl div {
+  background: var(--ops-raised);
+  padding: 5px 8px;
+  border-radius: 5px;
+}
+.record-state dd {
+  margin: 3px 0 0;
+}
+@media (max-width: 980px) {
+  .ops-header-top {
+    gap: 12px;
+  }
+  .ops-content,
+  .ops-header-top,
+  .ops-status {
+    padding-inline: 14px;
+  }
+  .ops-nav {
+    flex: 1;
+    gap: 2px;
+  }
+  .ops-nav button {
+    padding-inline: 7px;
+  }
+  .ops-source span {
+    display: none;
+  }
+  .ops-workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(252px, 0.52fr);
+  }
+}
+@media (max-width: 720px) {
+  .ops-header-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+  }
+  .ops-nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-column: 1 / -1;
+    grid-row: 2;
+    gap: 4px;
+  }
+  .ops-nav button {
+    min-width: 0;
+    min-height: 42px;
+    padding-inline: 3px;
+    white-space: normal;
+    word-break: keep-all;
+  }
+  .ops-status > div {
+    padding-inline: 7px;
+  }
+  .ops-header-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .ops-status {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    row-gap: 6px;
+  }
+  .ops-status > div:nth-child(5) {
+    grid-column: span 2;
+    border: 0;
+    padding-left: 0;
+  }
+  .ops-content {
+    padding-top: 10px;
+  }
+  .ops-workspace,
+  .ops-split,
+  .ops-diagnostics-grid,
+  .records-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ops-workspace {
+    grid-template-areas: "map" "control";
+  }
+  .ops-campus-workspace {
+    grid-template-areas: "mode" "map" "control";
+  }
+  .ops-mode-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ops-mode-card .ops-mode-switch {
+    flex: 1;
+  }
+  .ops-mobile-jump {
+    display: inline-block;
+    padding: 6px;
+    color: #abd2fb;
+    white-space: nowrap;
+    text-underline-offset: 3px;
+  }
+  .ops-view-heading {
+    flex-wrap: wrap;
+  }
+  .ops-app :is(.ops-mode-switch, .campus-route-toolbar) button,
+  .ops-app .ops-stop {
+    min-height: 42px;
+  }
+  .ops-app .ops-alert-banner {
+    padding-inline: 14px;
+  }
+  .record-state dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 390px) {
+  .ops-brand h1 {
+    font-size: 15px;
+  }
+  .ops-brand .brand-symbol {
+    display: none;
+  }
+  .ops-content,
+  .ops-header-top,
+  .ops-status {
+    padding-inline: 8px;
+  }
+  .ops-status dd {
+    font-size: 13px;
+  }
+  .ops-nav button {
+    font-size: 13px;
+  }
+  .ops-incident-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ops-site {
+  display: grid;
+  gap: 3px;
+}
+.ops-site h2 {
+  font-size: clamp(21px, 2.3vw, 26px);
+}
+.ops-site p {
+  color: var(--ops-secondary);
+  font-size: 14px;
+}

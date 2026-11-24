@@ -1,0 +1,293 @@
+/* SPDX-FileCopyrightText: 2026 HYPERNOVA contributors
+   SPDX-License-Identifier: Apache-2.0 */
+.campus-route {
+  --campus-walkway: #70bcad;
+  --campus-stroke: #ffc77e;
+  --campus-route-line: #90f5b2;
+  --campus-draft: #cdb8fa;
+  --campus-run: #9bddff;
+  --campus-trail: #6195e1;
+  --campus-goal: #ffe086;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.campus-route-toolbar,
+.campus-route-footer,
+.campus-route-review {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.campus-route-surface {
+  overflow: hidden;
+  border: 1px solid var(--ops-border);
+  border-radius: 6px;
+  background: #142630;
+}
+.campus-route-surface svg {
+  display: block;
+  width: 100%;
+  height: clamp(300px, 48vh, 600px);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.focus-map .campus-route-surface svg {
+  height: clamp(410px, 67vh, 780px);
+}
+.campus-route-surface svg.drawing {
+  cursor: crosshair;
+}
+.campus-route-surface svg:active:not(.drawing) {
+  cursor: grabbing;
+}
+.campus-route-surface svg:focus-visible {
+  outline: 2px solid var(--campus-run);
+  outline-offset: -3px;
+}
+.campus-feature,
+.campus-route-surface svg :is(text, line, circle, path) {
+  pointer-events: none;
+}
+.campus-feature {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.campus-building {
+  fill: #2d414e;
+  stroke: #577180;
+  stroke-width: 1;
+}
+.campus-green {
+  fill: #23413a;
+  stroke: #2c514b;
+  stroke-width: 1;
+}
+.campus-water {
+  fill: #1f4255;
+  stroke: #3d6879;
+  stroke-width: 1;
+}
+.campus-road {
+  vector-effect: non-scaling-stroke;
+  fill: none;
+  stroke: #4b626d;
+  stroke-width: 3;
+}
+.campus-walkway {
+  vector-effect: non-scaling-stroke;
+  fill: none;
+  stroke: var(--campus-walkway);
+  stroke-width: 2.5;
+}
+.campus-route-place {
+  fill: #deedf6;
+  stroke: #1a2a32;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+  text-anchor: middle;
+  vector-effect: non-scaling-stroke;
+}
+.campus-route-landmark {
+  fill: #f5faff;
+  stroke: #182a36;
+  stroke-width: 2.6px;
+  font-weight: 700;
+}
+.campus-route-boundary {
+  fill: none;
+  stroke: #a4bac8;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+  opacity: 0.75;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+.campus-route-scale {
+  stroke: #f4faff;
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+.campus-route
+  :is(
+    .campus-route-draft,
+    .campus-route-run,
+    .campus-route-trail,
+    .campus-route-preview,
+    .campus-route-stroke
+  ) {
+  fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+.campus-route-stroke {
+  stroke: var(--campus-stroke);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+.campus-route-preview {
+  stroke: var(--campus-route-line);
+  stroke-width: 4;
+}
+.campus-route-draft {
+  stroke: var(--campus-draft);
+  stroke-width: 3;
+  stroke-dasharray: 5 4;
+}
+.campus-route-run {
+  stroke: var(--campus-run);
+  stroke-width: 3;
+}
+.campus-route-trail {
+  stroke: var(--campus-trail);
+  stroke-width: 5;
+}
+.campus-waypoint {
+  color: var(--campus-run);
+}
+.campus-waypoint.draft {
+  color: var(--campus-draft);
+}
+.campus-waypoint.complete {
+  color: var(--campus-route-line);
+}
+.campus-waypoint.goal {
+  color: var(--campus-goal);
+}
+.campus-waypoint circle {
+  stroke: currentColor;
+  stroke-width: 1.2;
+  fill: #11202a;
+}
+.campus-waypoint .campus-waypoint-focus {
+  fill: none;
+  stroke-dasharray: 1.4 1.4;
+}
+.campus-waypoint text,
+.campus-route-incident text {
+  fill: currentColor;
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-weight: 700;
+  font-size: 6.2px;
+}
+.campus-waypoint .campus-waypoint-check {
+  stroke: #11202a;
+  stroke-width: 1.6;
+  paint-order: stroke;
+}
+.campus-route-position {
+  fill: #163e35;
+  stroke: #b7ffcc;
+  stroke-width: 1.6;
+}
+.campus-route-heading {
+  fill: #f2fff4;
+}
+.campus-route-incident {
+  color: #18262e;
+}
+.campus-route-incident[role="button"] {
+  cursor: pointer;
+  outline: none;
+}
+.campus-route-surface svg .campus-route-incident-hit {
+  fill: transparent;
+  pointer-events: all;
+}
+.campus-route-incident path {
+  fill: var(--campus-stroke);
+  stroke: #11202a;
+  stroke-width: 1;
+}
+.campus-route-incident:is(.selected, :focus-visible) path {
+  stroke: #f4faff;
+  stroke-width: 1.6;
+}
+.campus-route-incident text {
+  font-size: 8px;
+}
+.campus-route-review,
+.campus-route-progress {
+  padding: 8px 10px;
+  border: 1px solid var(--ops-border);
+  border-radius: 5px;
+  background: var(--ops-raised);
+}
+.campus-route-review strong {
+  color: var(--campus-route-line);
+}
+.campus-route-progress output {
+  color: var(--campus-run);
+  font-variant-numeric: tabular-nums;
+}
+.campus-route-notice {
+  color: var(--ops-warn);
+}
+.campus-route-footer {
+  color: var(--ops-secondary);
+  font-size: 14px;
+}
+.campus-route-footer a {
+  color: var(--ops-secondary);
+  font-size: 12px;
+  text-underline-offset: 3px;
+}
+.campus-route-footer
+  :is(
+    .campus-legend-walkway,
+    .campus-legend-boundary,
+    .campus-legend-position,
+    .campus-legend-stroke,
+    .campus-legend-route,
+    .campus-legend-draft,
+    .campus-legend-run,
+    .campus-legend-trail
+  )::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  margin-right: 5px;
+  border-top: 2px solid var(--campus-walkway);
+  vertical-align: middle;
+}
+.campus-route-footer .campus-legend-boundary::before {
+  border-top: 2px dashed #a4bac8;
+}
+.campus-route-footer .campus-legend-position::before {
+  width: 8px;
+  height: 8px;
+  box-sizing: border-box;
+  border: 2px solid #a8ffbc;
+  background: #153d33;
+  border-radius: 50%;
+}
+.campus-route-footer .campus-legend-stroke::before {
+  border-top: 2px dashed var(--campus-stroke);
+}
+.campus-route-footer .campus-legend-route::before {
+  border-color: var(--campus-route-line);
+}
+.campus-route-footer .campus-legend-draft::before {
+  border-top: 2px dashed var(--campus-draft);
+}
+.campus-route-footer .campus-legend-run::before {
+  border-color: var(--campus-run);
+}
+.campus-route-footer .campus-legend-trail::before {
+  border-color: var(--campus-trail);
+}
+@media (max-width: 720px) {
+  .campus-route-surface svg {
+    height: clamp(230px, 36vh, 350px);
+  }
+  .campus-route-toolbar .ops-row {
+    gap: 5px;
+  }
+}

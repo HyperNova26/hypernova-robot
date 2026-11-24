@@ -8,7 +8,10 @@ import { mapClasses, mapReviewLabel, priorExcluded } from "./model";
 import { createGo2Marker } from "./Go2Marker";
 const groundLabel = mapClasses.findIndex((c) => c.name === "지면"),
   priorGray = "#9aa4ad";
-export function MapView() {
+type IncidentPosition = { x: number; y: number; z: number; frame: string };
+export function MapView({ incident }: { incident?: IncidentPosition } = {}) {
+  const incidentPosition = useRef(incident);
+  incidentPosition.current = incident;
   const host = useRef<HTMLDivElement>(null),
     api = useRef<
       | { fit: () => void; top: () => void; iso: () => void; focus: () => void }
@@ -106,7 +109,14 @@ export function MapView() {
     const meshLoad = new AbortController();
     fetch("/terrain-mesh.json", { signal: meshLoad.signal, cache: "no-cache" })
       .then(async (response) => {
-        if (!response.ok) throw Error("메시 없음");
+        if (
+          response.status === 404 ||
+          response.headers.get("content-type")?.includes("text/html")
+        ) {
+          setMeshInfo("지형 메시 없음");
+          return;
+        }
+        if (!response.ok) throw Error("지형 메시를 읽을 수 없습니다.");
         const meta = await response.json();
         if (
           typeof meta.file !== "string" ||
@@ -116,6 +126,7 @@ export function MapView() {
         )
           throw Error("잘못된 메시 메타데이터");
         const bin = await fetch("/" + meta.file, { signal: meshLoad.signal });
+        if (!bin.ok) throw Error("지형 메시 파일을 읽을 수 없습니다.");
         const bytes = await bin.arrayBuffer();
         if (bytes.byteLength !== meta.vertices * 12 + meta.triangles * 12)
           throw Error("메시 길이 불일치");
@@ -160,12 +171,20 @@ export function MapView() {
     scene.add(path, gtLine);
     const robot = createGo2Marker();
     scene.add(robot.root);
+    const marker = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.5),
+      new THREE.MeshBasicMaterial({ color: 0xffc579 }),
+    );
+    marker.visible = false;
+    scene.add(marker);
     let previousMap: unknown,
       previousScan: unknown,
       lastPath = -1,
       lastGT = -1,
       lastColor = false,
       lastLayers = "",
+      lastEpoch = -1,
+      lastIncident: IncidentPosition | undefined,
       id = 0;
     const center = new THREE.Vector3(),
       extent = new THREE.Vector3(40, 40, 10);
@@ -214,7 +233,7 @@ export function MapView() {
       new Float32Array(
         poses
           .filter(
-            (p) => p.frame === s.config.frame && p.child === s.config.base,
+            (p) => p.frame === s.displayFrame && p.child === s.displayBase,
           )
           .flatMap((p) => [p.p.x, p.p.y, p.p.z]),
       );
@@ -265,10 +284,10 @@ export function MapView() {
       terrain.visible =
         opts.mesh &&
         !!terrain.geometry.index &&
-        (s.demo ||
-          !s.liveSession ||
+        !s.syntheticFrame &&
+        (!s.liveSession ||
           s.config.mapVerified ||
-          s.livePrior?.frame === s.config.frame);
+          s.livePrior?.frame === s.displayFrame);
       const cloud = s.mapAligned && opts.scan ? s.mapCloud : undefined;
       if (cloud !== previousScan) {
         previousScan = cloud;
@@ -277,6 +296,11 @@ export function MapView() {
           new THREE.BufferAttribute(cloud?.points ?? new Float32Array(0), 3),
         );
         scanGeometry.computeBoundingSphere();
+      }
+      if (lastEpoch !== s.epoch) {
+        lastEpoch = s.epoch;
+        lastPath = lastGT = -1;
+        lastIncident = undefined;
       }
       if (lastPath !== s.lio.length || lastPath === 6000) {
         lastPath = s.lio.length;
@@ -295,14 +319,32 @@ export function MapView() {
         gtGeometry.computeBoundingSphere();
         gtLine.computeLineDistances();
       }
-      path.visible = s.mapAligned;
-      gtLine.visible = s.mapAligned && opts.gt;
+      const positionAligned = s.mapAligned || !s.prior;
+      path.visible = positionAligned;
+      gtLine.visible = positionAligned && opts.gt;
+      const incident = incidentPosition.current;
+      marker.visible =
+        !!incident && positionAligned && incident.frame === s.displayFrame;
+      if (incident && marker.visible) {
+        marker.position.set(incident.x, incident.y, incident.z + 0.55);
+        if (
+          !lastIncident ||
+          incident.x !== lastIncident.x ||
+          incident.y !== lastIncident.y ||
+          incident.z !== lastIncident.z
+        ) {
+          const delta = marker.position.clone().sub(controls.target);
+          camera.position.add(delta);
+          controls.target.copy(marker.position);
+        }
+      }
+      lastIncident = incident;
       const p = s.current;
       robot.root.visible =
         !!p &&
-        s.mapAligned &&
-        p.frame === s.config.frame &&
-        p.child === s.config.base;
+        positionAligned &&
+        p.frame === s.displayFrame &&
+        p.child === s.displayBase;
       if (p && robot.root.visible) {
         robot.root.position.set(p.p.x, p.p.y, p.p.z);
         const q = s.lio.at(-1)?.q;
@@ -351,7 +393,13 @@ export function MapView() {
           <h2>3D 지도 & 이동 궤적</h2>
         </div>
         <span className="subtle">
-          {s.livePrior ? "ROS 지도" : "로컬 지도"}
+          {s.syntheticFrame
+            ? "합성 평면"
+            : s.livePrior
+              ? "ROS 지도"
+              : s.prior
+                ? "로컬 지도"
+                : "기준 지도 대기"}
           <span className="chip">Z 포함 · m</span>
         </span>
       </div>
@@ -363,7 +411,7 @@ export function MapView() {
             {s.demo
               ? "합성 데이터 미리보기"
               : s.mapAligned
-                ? s.config.frame
+                ? s.displayFrame
                 : "지도 좌표 정합 미확인"}
           </span>
           {s.prior && s.prior === s.localPrior && (
@@ -462,8 +510,10 @@ export function MapView() {
       </div>
       <div className="map-legend">
         <span>
-          {s.prior?.mapVersion ?? "실시간 기준 지도"} · 왼쪽 드래그 회전 ·
-          오른쪽 드래그 이동 · 휠 확대
+          {s.syntheticFrame
+            ? "합성 데모 평면"
+            : (s.prior?.mapVersion ?? "실시간 기준 지도")}{" "}
+          · 왼쪽 드래그 회전 · 오른쪽 드래그 이동 · 휠 확대
         </span>
         <em>
           {s.prior
@@ -472,8 +522,11 @@ export function MapView() {
         </em>
       </div>
       <div className="map-model-note">
-        Go2 간략 모델 · 위치 기준 {s.config.base} · 보행은 속도 기반 표시용
-        애니메이션 (관절 실측 아님) · {meshInfo || "지형 메시 읽는 중"}
+        Go2 간략 모델 · 위치 기준 {s.displayBase} · 보행은 속도 기반 표시용
+        애니메이션 (관절 실측 아님) ·{" "}
+        {s.syntheticFrame
+          ? "합성 평면 · z=0 m"
+          : meshInfo || "지형 메시 읽는 중"}
       </div>
     </section>
   );

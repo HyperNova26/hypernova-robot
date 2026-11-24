@@ -58,6 +58,50 @@ describe("S-005 localization contract", () => {
     );
     expect(localizationStatus({ status: 1 }, "status", 10).t).toBeUndefined();
   });
+  it("reads optional S-005 estimator diagnostics without changing the status code", () => {
+    const payload = {
+      header: h(),
+      status: 4,
+      status_text: "  SLOW_SCAN  ",
+      pose_accepted: false,
+      source: " lidar_only ",
+      latency_ms: 123.4,
+      fitness: 0,
+      rmse_m: 0.18,
+      detail_json: '{"implementation_only":true}',
+    };
+    expect(localizationStatus(payload, "status", 10)).toMatchObject({
+      code: 4,
+      label: "STALE_INPUT",
+      quality: {
+        statusText: "SLOW_SCAN",
+        poseAccepted: false,
+        source: "lidar_only",
+        latencyMs: 123.4,
+        fitness: 0,
+        rmseM: 0.18,
+      },
+      raw: payload,
+    });
+  });
+  it("omits invalid or absent quality values and preserves custom status paths", () => {
+    const custom = {
+      state: { code: 2 },
+      status_text: " ",
+      pose_accepted: 1,
+      source: false,
+      latency_ms: Number.NaN,
+      fitness: "0.7",
+      rmse_m: Number.POSITIVE_INFINITY,
+    };
+    const status = localizationStatus(custom, "state.code", 10);
+    expect(status.label).toBe("DEGRADED");
+    expect(status.quality).toBeUndefined();
+    expect(
+      localizationStatus({ status: 1 }, "status", 10).quality,
+    ).toBeUndefined();
+    expect(localizationStatus(null, "status", 10).code).toBeUndefined();
+  });
   it("keeps received algorithm state separate from odometry reception and expiry", () => {
     vi.useFakeTimers();
     vi.setSystemTime(10000);
