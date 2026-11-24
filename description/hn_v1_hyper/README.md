@@ -2,7 +2,7 @@
 
 # HyperNova HYPER v1 모델
 
-기준일: 2026-11-11. SI 단위(m, kg, s, rad)를 사용합니다.
+기준일: 2026-11-17. SI 단위(m, kg, s, rad)를 사용합니다.
 HYPERNOVA v1 기체 CAD(Inventor 조립품 `trunk-hip-thigh-calf-foot.iam`)에서 질량 특성과 관절 위치를 추출한 모델입니다.
 좌표 규약, 링크·관절 이름(몸통 링크만 팀 표준 `trunk`), 관절 위치 한계는 Unitree Go2를 따르고, 토크·속도는 실제 모터 Unitree GO-M8010-6 값입니다.
 
@@ -14,7 +14,7 @@ HYPERNOVA v1 기체 CAD(Inventor 조립품 `trunk-hip-thigh-calf-foot.iam`)에�
 
 ## 전달 파일
 
-- `hypernova_hyper.urdf`: 원본 URDF에서 두 가지만 바꿨습니다. 로봇 이름(`hyper_v1` → `hn_v1_hyper`)과 메시 경로(`../meshes/` → `meshes/`)입니다. 바꾼 내용은 파일 머리 주석에도 적었습니다.
+- `hypernova_hyper.urdf`: 원본 URDF에서 바꾼 것은 로봇 이름(`hyper_v1` → `hn_v1_hyper`), 메시 경로(`../meshes/` → `meshes/`), 몸통 링크 이름(`base` → `trunk`), 그리고 끝에 추가한 `front_lidar` 센서 frame입니다. 바꾼 내용은 파일 머리 주석에도 적었습니다.
 - `mesh_manifest.json`: 원본 commit과 URDF가 참조하는 메시 41개의 SHA-256입니다.
 - `meshes/`: Git에 넣지 않습니다. 약 54 MB이고 `trunk.stl`이 12.8 MB(10 MiB 초과)라서 v0처럼 로컬 의존성으로 관리합니다.
 
@@ -28,11 +28,12 @@ python3 tools/description/fetch_hyper_v1_meshes.py
 
 | 항목 | 값 |
 | --- | --- |
-| 링크 / 관절 | 17개 / 회전 12개 + 고정 4개(`*_foot_joint`) |
-| 총 질량 | 12.329 kg |
+| 링크 / 관절 | 18개 / 회전 12개 + 고정 5개(`*_foot_joint`, `front_lidar_joint`) |
+| 총 질량 | 12.339 kg (원본 12.329 kg + `front_lidar` 자리표시 0.01 kg) |
 | 허벅지 / 종아리(무릎 축 → 발 중심) / 발 반지름 | 0.2000 / 0.2165 / 0.0250 m |
 | 모터 | GO-M8010-6, 모든 관절 23.7 N·m, 30 rad/s. calf는 thigh에 달린 모터가 벨트 1:1로 구동 |
 | 몸통 링크 이름 | `trunk` (팀 표준 이름. 원본 HYPER URDF는 `base`라서 이 저장소에서 바꿨고, 메시 파일은 `trunk.stl`) |
+| LiDAR frame | `front_lidar`: SOSLAB ML-X 120 **가정** 장착. `trunk` 기준 (0.16, 0, 0.10) m, 아래로 15°(+y축 회전, 2026-11-19), +X가 광축. 선 자세(센서 높이 약 0.40 m)에서 바닥이 센서 앞 약 0.63 m부터 보입니다(0.40 / tan(15° + 세로 시야 절반 17.5°) = 0.63 m). 실측 전이며 실제 질량 0.86 kg은 아직 넣지 않았습니다(자리표시 0.01 kg, 충돌체 없음) |
 
 ## 충돌 설정
 
@@ -43,7 +44,7 @@ python3 tools/description/fetch_hyper_v1_meshes.py
 | 부품별 충돌 STL, `collider_type="convex_hull"` | `collision_type="Convex Hull"` |
 | `self_collision=True`, `enabled_self_collisions=True` | 같음 |
 | `link_density=0.0`(URDF 질량·관성 그대로) | 같음 |
-| `merge_fixed_joints=True` + 발 관절 `dont_collapse` | `merge_fixed_joints=False`. 3.0 변환기는 고정 관절을 모두 합치므로 끄고, 고정 관절이 발 4개뿐이라 결과는 같습니다 |
+| `merge_fixed_joints=True` + 발 관절 `dont_collapse` | `merge_fixed_joints=False`. 3.0 변환기는 고정 관절을 모두 합치므로 끄고, 원본 고정 관절이 발 4개뿐이라 결과는 같습니다(여기서 추가한 `front_lidar`도 별도 body로 남습니다) |
 
 변환한 USD는 생성 파일이라 저장소 밖 `/data/usd/hn_v1_hyper/`(호스트 `~/hypernova-data/usd/hn_v1_hyper/`)에 캐시합니다.
 원본 README의 학습 환경 변경(몸체-지면 접촉만 보는 `base_contact` 종료, 허벅지 접촉 페널티)은 과제 설정(`policies/urdf_v1/env.py`)에서 따로 옮깁니다.

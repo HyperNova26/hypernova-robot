@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 HYPERNOVA contributors
-"""hypernova_go2 보행 과제 공용 보상.
+"""v0(hn_v0_go2) 보행 과제 보상 — 동결 (2026-11-17).
 
-urdf_vN/ 버전별 과제(Flat, Rough)가 함께 씁니다. 발 body 이름은 버전마다 다를 수 있으므로
-각 버전의 env.py에서 use_foot_bodies()로 채웁니다.
+v0 체크포인트(model_3849)와 데모(policies/route_walk)가 이 설정을 씁니다. 동작을 지키기 위해 더 이상 고치지 않습니다.
+2026-11-17 이전 policies/common/rewards.py(그 전 policies/rewards.py)를 그대로 옮긴 것입니다.
+v1부터는 policies/common/rewards.py의 보상표(HnRewards)를 씁니다.
 """
 
 from isaaclab.managers import RewardTermCfg as RewTerm

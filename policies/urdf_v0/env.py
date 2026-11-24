@@ -20,7 +20,7 @@ from isaaclab_tasks.core.velocity.config.go2.agents.rsl_rl_ppo_cfg import (
 from isaaclab_tasks.core.velocity.config.go2.flat_env_cfg import UnitreeGo2FlatEnvCfg
 from isaaclab_tasks.core.velocity.config.go2.rough_env_cfg import UnitreeGo2RoughEnvCfg
 
-from ..rewards import HnGo2Rewards, use_foot_bodies
+from .rewards import HnGo2Rewards, use_foot_bodies  # v0 동결 보상
 from .robot import FOOT_BODY_REGEX, HN_GO2_V0_CFG, TRUNK_BODY
 
 

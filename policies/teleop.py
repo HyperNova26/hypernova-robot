@@ -19,11 +19,20 @@
 
 --terrain (Rough 과제만): all, flat, slope, stairs, boxes, rough
 --level: 지형 난이도 0(쉬움)~9(어려움). 넘어지면 같은 자리에서 다시 시작합니다.
+--course (Rough 과제만): 지형 칸 대신 +x 방향 일자 코스를 걷습니다(policies/common/course.py).
+    출발 평지 → 오르막 → 꼭대기 → 내리막 → 평지 → 계단 오르기 → 계단참 → 계단 내리기 → 도착 평지.
+    난이도는 --level(학습 terrain level과 같은 공식)이고, --slope_level·--stairs_level로 따로 정할 수 있습니다.
+    정면(+x)을 보고 출발하고, 새 구간에 들어설 때마다 터미널에 출력합니다. 넘어지면 출발점에서 다시 시작합니다.
+
+        --task HN-Velocity-Rough-HYPERv1-Lidar --course --level 5 --visualizer kit
+--gt_height: actor의 height map 입력(LiDAR 기억)을 같은 grid의 GT(critic 입력)로 바꿔 넣습니다. 같은 정책이 LiDAR
+    인식 오차 없이 어떻게 걷는지 비교할 때 씁니다(Rough-Lidar 과제).
 --checkpoint: model_*.pt 경로. 없으면 이 과제의 가장 최근 학습, 마지막 체크포인트.
 physics는 PhysX(isaacsim_physx)로 고정합니다(ADR-0002).
 """
 
 import argparse
+import math
 import os
 import sys
 import time
@@ -46,11 +55,17 @@ parser.add_argument("--task", default="HN-Velocity-Rough-Go2v0")
 parser.add_argument("--checkpoint", default=None, help="model_*.pt 경로 (기본: 가장 최근)")
 parser.add_argument("--terrain", default="all", choices=["all", *TERRAIN_GROUPS])
 parser.add_argument("--level", type=int, default=0, help="지형 난이도 0~9")
+parser.add_argument("--course", action="store_true", help="일자 코스(평지·오르막·내리막·계단)를 걷습니다")
+parser.add_argument("--slope_level", type=int, default=None, help="--course 경사 난이도 0~9 (기본 --level)")
+parser.add_argument("--stairs_level", type=int, default=None, help="--course 계단 난이도 0~9 (기본 --level)")
 parser.add_argument("--vx", type=float, default=0.8, help="↑↓ 앞뒤 속도 [m/s] (--incremental이면 한 단계)")
 parser.add_argument("--vy", type=float, default=0.4, help="←→ 옆 속도 [m/s] (--incremental이면 한 단계)")
 parser.add_argument("--wz", type=float, default=1.0, help="Z/X 회전 속도 [rad/s] (--incremental이면 한 단계)")
 parser.add_argument(
     "--incremental", action="store_true", help="누를 때마다 명령에 한 단계씩 더하고 떼도 유지합니다(원격 데스크톱용)"
+)
+parser.add_argument(
+    "--gt_height", action="store_true", help="actor height map 입력을 GT(critic의 height_scan)로 바꿔 넣습니다"
 )
 parser.add_argument("--log_keys", action="store_true", help="받은 키 이벤트를 모두 출력합니다(키 입력 점검용)")
 add_launcher_args(parser)
@@ -72,14 +87,33 @@ def configure(env_cfg) -> None:
     cmd.resampling_time_range = (1.0e6, 1.0e6)
 
     gen = env_cfg.scene.terrain.terrain_generator
-    if gen is not None:
+    if gen is not None and args_cli.course:
+        from policies.common import course
+
+        slope_level = args_cli.level if args_cli.slope_level is None else args_cli.slope_level
+        stairs_level = args_cli.level if args_cli.stairs_level is None else args_cli.stairs_level
+        # 난이도 범위는 이 과제의 학습 지형 설정에서 읽습니다(Go2는 계단을 0.025–0.12 m로 줄임).
+        subs = gen.sub_terrains
+        slope = course.slope_of(slope_level, subs["hf_pyramid_slope"].slope_range)
+        step_height = course.step_height_of(stairs_level, subs["pyramid_stairs"].step_height_range)
+        gen.sub_terrains = {"course": course.CourseTerrainCfg(slope=slope, step_height=step_height)}
+        gen.size = (course.COURSE_LENGTH, course.WIDTH)
+        gen.num_rows, gen.num_cols = 1, 1
+        gen.curriculum = False
+        gen.use_cache = False
+        # 정면(+x)을 보고 출발점에 가만히 놓습니다(학습 기본값은 위치 ±0.5 m, 방향 무작위, 초기 속도 있음).
+        reset = env_cfg.events.reset_base.params
+        reset["pose_range"] = {"x": (0.0, 0.0), "y": (0.0, 0.0), "yaw": (0.0, 0.0)}
+        reset["velocity_range"] = {}
+        print(f"[teleop] 일자 코스 {course.COURSE_LENGTH:.1f} m. {course.describe(slope, step_height, slope_level, stairs_level)}")
+    elif gen is not None:
         if args_cli.terrain != "all":
             gen.sub_terrains = {k: v for k, v in gen.sub_terrains.items() if k in TERRAIN_GROUPS[args_cli.terrain]}
         gen.num_rows = 10
         gen.num_cols = len(gen.sub_terrains)
         gen.curriculum = True  # 행(row)이 난이도 순서가 되게
-    elif args_cli.terrain != "all":
-        print(f"[teleop] {args_cli.task}는 평지 과제라 --terrain {args_cli.terrain}를 무시합니다.")
+    elif args_cli.terrain != "all" or args_cli.course:
+        print(f"[teleop] {args_cli.task}는 평지 과제라 --terrain·--course를 무시합니다.")
 
     # 카메라가 로봇을 따라다니게 (뒤쪽 위에서 바라봄)
     from isaaclab_visualizers.kit import KitVisualizerCfg
@@ -87,6 +121,29 @@ def configure(env_cfg) -> None:
     env_cfg.sim.visualizer_cfgs = [
         KitVisualizerCfg(origin_type="asset", origin_track_path="robot", eye=(-2.5, -1.5, 1.5), lookat=(0.0, 0.0, 0.3))
     ]
+
+
+class CourseProgress:
+    """--course: 로봇이 새 구간에 들어서면 구간 이름과 코스 위 위치를 출력합니다."""
+
+    def __init__(self, env):
+        from policies.common import course
+
+        self._sections = course.sections()
+        self._start_x = course.START_X
+        self._robot = env.unwrapped.scene["robot"]
+        self._origin = env.unwrapped.scene.env_origins[0]
+        self._last = None
+
+    def update(self) -> None:
+        pos = self._robot.data.root_pos_w.torch[0] - self._origin
+        x = float(pos[0]) + self._start_x  # 코스 시작점 기준 x [m]
+        name = next((n for n, end in self._sections if x < end), "코스 끝 지남")
+        if x < 0.0:
+            name = "코스 앞(뒤로 벗어남)"
+        if name != self._last:
+            print(f"[teleop] 구간: {name} (x {x:.1f} m, y {float(pos[1]):+.2f} m)", flush=True)
+            self._last = name
 
 
 class KeyLogger:
@@ -165,6 +222,18 @@ class IncrementalKeyboard:
         self._input.unsubscribe_to_keyboard_events(self._keyboard, self._sub)
 
 
+def obs_term_slice(env, group: str, name: str) -> slice:
+    """관측 group 벡터에서 항목 name이 차지하는 구간."""
+    om = env.unwrapped.observation_manager
+    names = om.active_terms[group]
+    if name not in names:
+        raise SystemExit(f"[teleop] --gt_height: {group} 관측에 {name} 항목이 없습니다(과제 {args_cli.task})")
+    dims = [math.prod(d) for d in om.group_obs_term_dim[group]]
+    i = names.index(name)
+    start = sum(dims[:i])
+    return slice(start, start + dims[i])
+
+
 def print_command(command) -> None:
     vx, vy, wz = command
     print(f"[teleop] 명령 v_x {vx:+.2f} m/s, v_y {vy:+.2f} m/s, ω_z {wz:+.2f} rad/s", flush=True)
@@ -172,7 +241,7 @@ def print_command(command) -> None:
 
 def place_on_level(env) -> None:
     terrain = env.unwrapped.scene.terrain
-    if getattr(terrain, "terrain_origins", None) is None:
+    if getattr(terrain, "terrain_origins", None) is None or args_cli.course:
         return
     level = max(0, min(args_cli.level, terrain.terrain_origins.shape[0] - 1))
     terrain.terrain_levels[:] = level
@@ -218,6 +287,13 @@ def main() -> None:
         runner = create_rsl_rl_runner(env, agent_cfg)
         runner.load(ckpt)
         policy = runner.get_inference_policy(device=env.unwrapped.device)
+        gt_from = gt_to = None
+        if args_cli.gt_height:
+            gt_to = obs_term_slice(env, "policy", "height_scan")
+            gt_from = obs_term_slice(env, "critic", "height_scan")
+            if gt_to.stop - gt_to.start != gt_from.stop - gt_from.start:
+                raise SystemExit("[teleop] --gt_height: policy와 critic의 height_scan 크기가 다릅니다")
+            print(f"[teleop] actor height map 입력을 GT로 바꿉니다 ({gt_to.stop - gt_to.start}칸)")
 
         if args_cli.incremental:
             ranges = env_cfg.commands.base_velocity.ranges
@@ -236,6 +312,7 @@ def main() -> None:
                 )
             )
         key_logger = KeyLogger() if args_cli.log_keys else None
+        progress = CourseProgress(env) if args_cli.course and env_cfg.scene.terrain.terrain_generator else None
         cmd_term = env.unwrapped.command_manager.get_term("base_velocity")
         dt = env.unwrapped.step_dt
         obs = env.get_observations()
@@ -259,9 +336,13 @@ def main() -> None:
                 with torch.inference_mode():
                     command = keyboard.advance()
                     cmd_term.vel_command_b[:] = command
+                    if gt_to is not None:
+                        obs["policy"][:, gt_to] = obs["critic"][:, gt_from]
                     obs, _, dones, _ = env.step(policy(obs))
                     policy.reset(dones)
                 command = command.tolist()
+                if progress is not None:
+                    progress.update()
                 if command != last_command:
                     print_command(command)
                     last_command = command

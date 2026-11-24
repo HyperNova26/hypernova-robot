@@ -8,7 +8,8 @@
      the calf joint is belt driven 1:1 by a GO-M8010-6 mounted on the thigh. -->
 <!-- Right legs mirror the left legs of the CAD about the trunk x-z plane. -->
 <!-- CAD documents with unsaved changes at export (values are their in-memory state): thigh.iam, 숄더M8-L45.ipt -->
-<!-- HYPERNOVA: copied from https://github.com/jaemin0319/HYPER @ e5f9ed59ce04bc668f6830da51bafec7e75aef74 urdf/hyper.urdf; changed only the robot name (hyper_v1 -> hn_v1_hyper), mesh paths (../meshes/ -> meshes/) and the root link name (base -> trunk, team standard link names). -->
+<!-- HYPERNOVA: copied from https://github.com/jaemin0319/HYPER @ e5f9ed59ce04bc668f6830da51bafec7e75aef74 urdf/hyper.urdf; changed only the robot name (hyper_v1 -> hn_v1_hyper), mesh paths (../meshes/ -> meshes/) and the root link name (base -> trunk, team standard link names),
+     and added the front_lidar sensor frame at the end of this file (2026-11-17). -->
 <robot name="hn_v1_hyper">
   <!-- Read only by MuJoCo: keep mesh paths relative to this file, collide with the per-part meshes,
        keep the foot links (as Go2's dont_collapse). -->
@@ -553,5 +554,27 @@
     <origin xyz="0 0 -0.21646923884" rpy="0 0 0"/>
     <parent link="RR_calf"/>
     <child link="RR_foot"/>
+  </joint>
+  <!-- HYPERNOVA: SOSLAB ML-X 120 LiDAR frame (2026-11-17, pitch 15 deg 2026-11-19). Mounting is ASSUMED, not measured: front top of the trunk,
+       (0.16, 0, 0.10) m from the trunk origin, pitched 15 deg down (+y rotation). Optical frame +X = boresight,
+       field of view 120 deg x 35 deg. With this pitch the ground is visible from about 0.63 m ahead of the sensor when standing:
+       sensor height 0.40 m (trunk 0.30 m + 0.10 m), 0.40 / tan(15 deg + half vertical FOV 17.5 deg) = 0.63 m. Placeholder mass 0.01 kg so dynamics stay as before; the real 0.86 kg is not
+       included yet. Visual housing box 0.06 x 0.10 x 0.06 m (assumed), no collision. -->
+  <link name="front_lidar">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.01"/>
+      <inertia ixx="1.1333e-05" ixy="0" ixz="0" iyy="6.0e-06" iyz="0" izz="1.1333e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.06 0.10 0.06"/></geometry>
+      <material name="lidar"><color rgba="0.08 0.08 0.08 1"/></material>
+    </visual>
+  </link>
+  <joint name="front_lidar_joint" type="fixed" dont_collapse="true">
+    <origin xyz="0.16 0 0.10" rpy="0 0.2617994 0"/>
+    <parent link="trunk"/>
+    <child link="front_lidar"/>
   </joint>
 </robot>
