@@ -4,7 +4,7 @@
 
 2026-11-22 기준 초안입니다. SW 모듈(임무경로관리, 제어권명령관리, 안전 위협 관리, 로봇상태관리, 장치연동, 지도관리, 이벤트점검관리, 실행환경기록관리)과 관제 앱이 주고받는 ROS 2 message, service, action의 **정의만** 둡니다. 코드는 없습니다.
 
-기준 문서는 SW팀 인터페이스 명세(노션, IF-01~IF-25)의 3.5절 "주요 메시지"와 5절 계약 표입니다. AICV팀이 만드는 위치추정·보행 상태 메시지는 [`hn_interfaces`](../hn_interfaces/)에 따로 있으며(브랜치 `feat/localization-status-fields`), 병합 충돌을 피하려고 패키지를 나눴습니다.
+기준 문서는 SW팀 인터페이스 명세(노션, IF-01~IF-27)의 3.5절 "주요 메시지"와 5절 계약 표입니다. AICV팀이 만드는 위치추정·보행 상태 메시지는 [`hn_interfaces`](../hn_interfaces/)에 따로 있으며(브랜치 `feat/sim-fault-injection`), 병합 충돌을 피하려고 패키지를 나눴습니다. `feat/localization-status-fields`는 그 위에 `LocalizationStatus` 필드를 더한 제안이고, SW는 두 브랜치에 공통인 `status`만 씁니다.
 
 누가 내고 받는지, QoS, 끊김 판단 시간, 모드 전환, 사유 코드는 [SW 인터페이스 계약](../../docs/interfaces/sw-contract.md)에 있습니다.
 
@@ -50,22 +50,23 @@ ros2 interface show hn_sw_msgs/msg/RobotState
 python3 -m pytest ros_pkgs/hn_sw_msgs/test -q
 ```
 
-## AICV·Nav2와 맞춘 것 (2026-11-23)
+## AICV·Nav2와 맞춘 것 (2026-11-24)
 
-AICV 브랜치 `feat/localization-status-fields`의 `hn_interfaces` README "Nav2 연결(계획)"에 맞췄습니다. Nav2 쪽은 모두 표준 타입이라 이 패키지에 새 정의를 두지 않습니다.
+AICV `hn_interfaces`(`feat/sim-fault-injection`)와 그 위 `feat/localization-status-fields` README의 "Nav2 연결(계획)"을 기준으로 맞췄습니다. AICV가 정한 토픽 이름, 타입, 번호는 SW가 다시 정의하거나 이름을 바꾸지 않고 그대로 받습니다. Nav2 쪽은 모두 표준 타입이라 이 패키지에 새 정의를 두지 않습니다.
 
 | 항목 | 정한 것 |
 | --- | --- |
+| 토픽 이름 | `/hn/`은 SW 토픽에만 붙입니다. AICV·Nav2 토픽(`/localization/*`, `/locomotion/status`, `/cmd_vel`, `/map` 등)은 원래 이름 그대로 씁니다. 예외는 Nav2 속도 출력 하나로, `/cmd_vel`을 안전 위협 관리만 내도록 `/cmd_vel_nav`로 remap합니다(아래 속도 명령, AICV 합의 필요) |
 | 좌표 이름 | 지도 프레임은 `pair360_map`(ADR-0005 Proposed), 몸체 프레임은 `trunk`. 명세의 `map`, `base_link`에 해당합니다 |
 | 위치추정 신뢰도 (IF-09) | 숫자 점수 대신 AICV `LocalizationStatus.status`를 `RobotState.localization_status`로 그대로 옮기고, TRACKING이 아니면 `pose_validity`를 VALID가 아니게 둡니다. `fitness` 기준값은 AICV 실험값이라 SW에서 정하지 않습니다([계약 문서](../../docs/interfaces/sw-contract.md)와 같음) |
 | 속도 명령 | 보행 정책은 AICV 표대로 표준 `/cmd_vel`(`Twist`)을 받습니다. `/cmd_vel`은 안전 위협 관리 하나만 냅니다. Nav2 속도 출력은 `/cmd_vel_nav`로 remap해 제어권명령관리가 Teleop 입력과 함께 받고, 고른 명령(`SelectedSafeCmd`)을 안전 위협 관리에 넘깁니다. 보행 정책 쪽 이름과 타입은 바꾸지 않습니다 |
 | 경로 추종 (IF-15) | 앱은 Nav2에 직접 목표를 주지 않고, `SubmitRoute`·`ApproveRoute`로 임무경로관리에 승인받은 뒤 임무경로관리가 Nav2 표준 action(`NavigateToPose` 또는 `FollowWaypoints`)을 부릅니다. AICV 표의 "앱 → Nav2"와 다르므로 합의가 필요합니다 |
-| 2D 지도 | 지도관리가 표준 `nav_msgs/OccupancyGrid`로 `/map`에 냅니다 |
+| 2D 지도 | `/map`(표준 `OccupancyGrid`)은 Nav2 map server가 AICV 지도 파일로 냅니다. 지도관리는 `/map`을 내지 않고 앱 표시용 `MapInfo`만 냅니다 |
 | 재위치추정 (R-13) | 앱 → 위치추정 표준 `/initialpose`(`PoseWithCovarianceStamped`) |
+| SIM 전용 기능 | `/sim/inject_fault`(`hn_interfaces/srv/InjectFault`, clear·reset 포함)는 AICV 검증용입니다. SW 노드는 쓰지 않고, SW 통합 시험 스크립트에서 위험 상황을 만들 때만 부릅니다([계약 문서](../../docs/interfaces/sw-contract.md#sim과-실기)) |
 
 ## 정하지 않은 것
 
-- 토픽 이름의 `/hn/` 접두사: AICV 토픽(`/locomotion/status`, `/localization/*`)과 Nav2 토픽에는 없습니다. launch의 remap으로 맞출 수 있습니다.
 - `Hazard.TYPE_*` 번호 목록은 초안입니다.
 - 위치추정 결과에 지도 버전이 없습니다(IF-09).
 - 경로 보정(통행 불가 구간만 고치기, IF-15)의 양식은 AICV팀과 정할 항목이라 넣지 않았습니다.

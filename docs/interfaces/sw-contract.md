@@ -2,13 +2,22 @@
 
 # SW 인터페이스 계약
 
-2026-11-23 기준 초안입니다. 메시지 정의([`hn_sw_msgs`](../../ros_pkgs/hn_sw_msgs/))만으로는 알 수 없는 것, 곧 누가 내고 누가 받는지, QoS, 끊김·오래됨 판단 시간, 모드 전환, 사유 코드를 적습니다. 기준 문서는 SW팀 노션의 인터페이스 계약 명세(IF-01~IF-27)이고, 이 문서와 다르면 둘을 같이 고칩니다.
+2026-11-24 기준 초안입니다. 메시지 정의([`hn_sw_msgs`](../../ros_pkgs/hn_sw_msgs/))만으로는 알 수 없는 것, 곧 누가 내고 누가 받는지, QoS, 끊김·오래됨 판단 시간, 모드 전환, 사유 코드를 적습니다. 기준 문서는 SW팀 노션의 인터페이스 계약 명세(IF-01~IF-27)이고, 이 문서와 다르면 둘을 같이 고칩니다.
 
 여기 적은 숫자는 모두 **제안값**입니다. 시뮬레이터와 실기에서 시험하지 않았고 팀 합의도 받지 않았습니다. 정해지면 "제안" 표시를 지우고 근거를 남깁니다.
 
+## AICV 인터페이스 기준
+
+AICV팀이 먼저 정한 인터페이스를 기준으로 SW를 연결합니다. EE·AICV 작업에 따라 요구사항이 바뀔 수 있어서, SW가 따로 정의해 두고 나중에 맞추는 것보다 이쪽이 덜 어긋납니다.
+
+- 기준은 `hn_interfaces`(브랜치 `feat/sim-fault-injection`)입니다. 이 브랜치는 아직 `main`에 없어서, 지금 `main`의 `hn_robot_state`는 `/locomotion/status`를 표준 `DiagnosticArray`로 냅니다. SW는 `LocomotionStatus` 기준으로 만들고, 이 브랜치가 `main`에 들어오면 맞춰집니다. `feat/localization-status-fields`는 그 위에 `LocalizationStatus` 필드와 Nav2 연결 계획을 더한 것이고, SW는 두 브랜치에 공통인 `LocalizationStatus.status`만 씁니다.
+- AICV가 정한 토픽의 이름, 타입, QoS, 번호는 그대로 받습니다. `/hn/`을 붙이거나 이름을 바꾸지 않습니다. 예외는 Nav2 속도 출력 하나입니다. 보행 정책이 받는 `/cmd_vel`을 안전 위협 관리만 내야 해서 Nav2 쪽 출력을 `/cmd_vel_nav`로 remap합니다(AICV 합의 필요). 그 밖에 바꿔야 하면 AICV팀에 요청하고 ADR로 정합니다.
+- 표준 인터페이스가 있는 것(`/cmd_vel`, `/odom`, `/map`, `/tf`, `/initialpose`, Nav2 action)은 표준 타입을 씁니다.
+- SW가 새로 정의하는 것은 SW 영역 사이와 관제 앱 쪽 인터페이스(`/hn/...`, `hn_sw_msgs`)뿐입니다.
+
 ## 토픽·서비스 목록
 
-토픽 하나는 한 영역만 냅니다(단일 작성자). 이름 앞의 `/hn/`을 AICV·Nav2 토픽에 붙일지는 정하지 않았습니다([정하지 않은 것](#정하지-않은-것)).
+토픽 하나는 한 영역만 냅니다(단일 작성자). `/hn/`은 SW 토픽에만 붙이고, AICV·Nav2 토픽은 원래 이름을 씁니다.
 
 ### 토픽
 
@@ -39,12 +48,14 @@
 | `/locomotion/status` | `hn_interfaces/LocomotionStatus` | reliable, transient_local (AICV) | 변경 시 + 10 Hz | 보행 상태 판정 (AICV) | 안전 위협 관리 | 27 |
 | `/hn/state/robot` | `RobotState` | STATE | 20 Hz | 로봇상태관리 | 안전 위협 관리, 임무경로관리, 관제 앱 | 10, 11, 22 |
 | `/hn/map/info` | `MapInfo` | STATE | 변경 시 | 지도관리 | 관제 앱, 임무경로관리 | 13, 14 |
-| `/map` | `nav_msgs/OccupancyGrid` | STATE | 변경 시 | 지도관리 | Nav2, 임무경로관리 | 14 |
+| `/map` | `nav_msgs/OccupancyGrid` | Nav2 기본값 | 시작 시 | Nav2 map server (AICV 지도 파일) | Nav2, 임무경로관리, 지도관리 | 14 |
+| `/initialpose` | `geometry_msgs/PoseWithCovarianceStamped` | Nav2 기본값 | 요청 시 | 관제 앱 | 위치추정 (AICV) | 09 |
+| `/clock` | `rosgraph_msgs/Clock` | AICV 정의 | 50 Hz | 시뮬레이터 (SIM만) | 모든 노드 (`use_sim_time`) | - |
 
 - 관제 앱은 rosbridge로 붙습니다. 앱에는 위 표에서 받는 쪽이나 내는 쪽이 관제 앱인 것만 열어 둡니다. 관절·속도 명령 토픽은 열지 않습니다.
 - `/cmd_vel`은 AICV `hn_interfaces` README의 Nav2 연결 표(Nav2 → 보행 제어, `Twist`)를 따릅니다. 보행 정책이 받는 이름과 타입은 그대로 두고 그 앞에 제어권명령관리와 안전 위협 관리를 둡니다. Nav2가 `/cmd_vel`에 직접 내지 않도록 Nav2 속도 출력은 `/cmd_vel_nav`로 remap합니다. 정지는 0 속도 `Twist`로 보냅니다.
 - 앱은 `/hn/state/robot`을 20 Hz 그대로 받지 않고, rosbridge `subscribe`의 `throttle_rate: 200`(ms)으로 5 Hz만 받습니다. 토픽을 따로 만들지 않습니다.
-- `/locomotion/status`의 `FALLEN`, `TILTING`은 안전 위협 관리가 `Hazard.TYPE_FALLEN`, `TYPE_FALL_RISK`로 옮깁니다. 이 연결은 AICV팀과 아직 맞추지 않았습니다.
+- `/locomotion/status`를 SW 위험으로 옮기는 방법은 [SIM과 실기](#sim과-실기)에 있습니다.
 
 ### 서비스·액션
 
@@ -85,6 +96,7 @@
 | 앱 heartbeat 끊김 | 1.5 s | Teleop: 정지 후 PAUSED. Auto: 일시정지(PAUSED) | 2 Hz 3번 |
 | 관절·IMU 오래됨 | 20 ms | `STALE`, 정책 입력에서 뺌 | 200 Hz 4번 |
 | 로봇 상태 오래됨 | 200 ms | `STALE`, 안전 위협 관리는 이동 차단 | 20 Hz 4번 |
+| `/locomotion/status` 끊김 | 300 ms | 상태 확인 불가(`TYPE_STATE_STALE`), 이동 차단, ERROR | AICV 10 Hz heartbeat 3번 |
 | 위치추정 오래됨 | 300 ms | `pose_validity = STALE`, Auto 보류 | 10 Hz 3번 |
 | 배터리 오래됨 | 3 s | `battery_validity = STALE` | 1 Hz 3번 |
 | 안정 정지 확인 | 선속도 < 0.02 m/s, 회전 < 0.05 rad/s가 0.5 s 유지 | `stop_confirmed = true` | IF-04 |
@@ -92,7 +104,34 @@
 | 배터리 낮음 (R-15) | 30 % 이하 WARN, 15 % 이하 ERROR | WARN: 귀환 판단. ERROR: Auto 시작 거부 | 배터리 사양 확인 전 |
 
 - 위치추정 신뢰도(R-13)는 숫자 대신 `LocalizationStatus.status`를 씁니다. `STATUS_TRACKING`이 아니면 Auto를 보류합니다. `fitness` 기준값은 AICV 쪽 실험값이라 여기서 정하지 않습니다.
-- Sim에서는 모든 시간을 시뮬레이터 시간(`use_sim_time`)으로 잽니다.
+- SIM에서는 모든 SW 노드가 시뮬레이터 시간(`/clock`, `use_sim_time`)으로 잽니다. 실기에서는 시스템 시간입니다.
+
+## SIM과 실기
+
+실제 로봇에 올릴 SW 코드가 SIM에서도 같은 경로로 돌게 합니다.
+
+- SW 노드는 SIM과 실기에서 같은 코드, 같은 토픽 이름으로 돕니다. SIM이라고 다른 경로를 타는 코드는 두지 않습니다.
+- 달라지는 것은 AICV 토픽을 누가 내는지(SIM: 시뮬레이터 하네스·SIM 어댑터, 실기: 센서 드라이버·LIO)와 시간(`/clock`)뿐입니다.
+- 고장 주입과 reset(`/sim/inject_fault`, `hn_interfaces/srv/InjectFault`)은 AICV 검증용 SIM 전용 기능으로 둡니다. SW 노드는 이 서비스를 부르거나 기대하지 않고, rosbridge로 앱에 열지도 않습니다. SW 통합 시험 스크립트만 이 서비스로 위험 상황을 만듭니다.
+
+### 통합 시험에서 기대하는 동작
+
+| `InjectFault.kind` | `/locomotion/status` | SW 동작 |
+| --- | --- | --- |
+| `tilt` | `TILTING` | `TYPE_FALL_RISK`, 이동 차단, PAUSED |
+| `collapse`, `flip` | `FALLEN` | `TYPE_FALLEN`, 이동 차단, PAUSED |
+| `stale` | `STALE_INPUT` (로봇은 계속 걸음) | `TYPE_STATE_STALE`, 이동 차단, ERROR |
+| `push` | 힘에 따라 `WALKING`·`TILTING`(버팀) 또는 `FALLEN` | 나온 상태에 따라 위와 같음 |
+| `clear` | 고장만 끝남. 로봇 자세는 그대로(넘어졌으면 `FALLEN` 유지) | 위험이 남아 있으면 그대로. 풀려도 `resumable = true`까지만 |
+| `reset` | 그 자리에 다시 세움 → `STANDING` | `resumable = true`까지만. 운영자가 재개하기 전에는 움직이지 않음 (R-12) |
+
+### `/locomotion/status`를 받을 때 주의할 것
+
+AICV 인터페이스 문서(`docs/interfaces/locomotion-status.md`)의 알려진 한계 중 SW 동작에 걸리는 것입니다.
+
+- 로봇이 스스로 일어나면 `FALLEN`이 풀릴 수 있습니다. SW는 `TYPE_FALLEN`을 운영자가 재개할 때까지 유지합니다.
+- 걸려서 못 움직여도 `WALKING`으로 남습니다(`SLIPPING` 미구현). 정체 판정(R-10)은 SW가 `RobotState`로 합니다.
+- `header.stamp`는 기본이 시스템 시간입니다. SIM에서 SW 노드는 `use_sim_time`이므로 이 토픽의 오래됨은 stamp가 아니라 받은 시각으로 판단합니다.
 
 ## 모드 전환
 
@@ -150,8 +189,11 @@ PAUSE와 STOP의 차이는 임무를 남기는지입니다. PAUSE는 임무를 `
 
 ## 정하지 않은 것
 
-- `/hn/` 접두사를 AICV·Nav2 토픽에도 붙일지. 지금은 붙이지 않고 launch remap으로 맞추는 쪽입니다.
 - Nav2 속도 출력을 `/cmd_vel_nav`로 remap하는 것(Nav2 설정은 AICV 담당). 앱 목표를 임무경로관리를 거쳐 Nav2로 보내는 것(AICV 표는 "앱 → Nav2"). 둘 다 AICV팀과 합의가 필요합니다.
+- 보행 정책 runner가 SIM에서도 `/cmd_vel`을 받게 하는 것. 지금 SIM의 경로 추종은 시뮬레이터 안에서 명령을 만들고 ROS로 받지 않습니다(AICV 표에서도 받는 쪽 미정).
+- SIM에서 장치 토픽(`/hn/device/*`)을 낼 쪽. 실기와 같은 경로로 시험하려면 시뮬레이터 하네스나 SW Mock이 같은 토픽을 내야 합니다.
+- `/odom`과 `odom` → `trunk` TF를 누가 낼지(AICV 미정). 로봇상태관리는 위치를 `/localization/odometry`에서 받습니다.
+- `/locomotion/status`의 stamp를 SIM에서 시뮬레이션 시간으로 할지(AICV의 `--stamp sim`).
 - MCU 프레임(IF-12)의 물리층과 주기, heartbeat가 끊겼을 때 MCU 동작. 모터를 MCU를 거쳐 돌릴지부터 EE팀과 정해야 합니다.
 - 점검 이상 유형 목록과 낮은 신뢰도 처리(IF-17), 지도 패키지 형식(IF-24).
 - 기록이 빠졌을 때의 처리(IF-25).
