@@ -68,9 +68,13 @@ class Nodes:
         ids = {'configure': Transition.TRANSITION_CONFIGURE, 'activate': Transition.TRANSITION_ACTIVATE}
         request = ChangeState.Request()
         request.transition.id = ids[label]
-        result = self._call(ChangeState, f'{node_name}/change_state', request, timeout_s)
-        if not (result and result.success):
-            raise SystemExit(f'{node_name}: {label} failed; logs in {self.log_dir}')
+        start = time.time()
+        while time.time() - start < timeout_s:   # the node may still be starting: retry until it accepts
+            result = self._call(ChangeState, f'{node_name}/change_state', request, 5.0)
+            if result and result.success:
+                return
+            time.sleep(1.0)
+        raise SystemExit(f'{node_name}: {label} failed after {timeout_s:.0f} s; logs in {self.log_dir}')
 
     def stop(self):
         for proc in reversed(self.procs):
@@ -96,10 +100,12 @@ def grab_grids(node, timeout_s):
     while time.time() - start < timeout_s:
         rclpy.spin_once(node, timeout_sec=0.5)
         if len(got) == len(TOPICS) and len({(m.info.height, m.info.width) for m in got.values()}) == 1:
-            return {t: np.array(m.data, np.int8).reshape(m.info.height, m.info.width).astype(int)
+            grid = {t: np.array(m.data, np.int8).reshape(m.info.height, m.info.width).astype(int)
                     for t, m in got.items()}
+            info = got['/map'].info
+            return grid, (info.resolution, info.origin.position.x, info.origin.position.y)
     print('timeout: costmap did not reach the map size', {t: (m.info.height, m.info.width) for t, m in got.items()})
-    return None
+    return None, None
 
 
 def report(grid):
@@ -107,7 +113,7 @@ def report(grid):
     keepout = mask == 100
     lethal = cost >= 99
     walkable = (static == 0) & ~keepout
-    rows = [('keep-out cells (zones + outside map)', keepout, lethal),
+    rows = [('keep-out cells (off road + outside map)', keepout, lethal),
             ('outside map (unknown in map.yaml)', static == -1, lethal),
             ('walkable cells with cost 0', walkable, cost == 0)]
     for name, sel, ok in rows:
@@ -123,6 +129,7 @@ def main():
                     help='folder with map.yaml, keepout_mask.yaml and nav2_params.example.yaml (default: %(default)s)')
     ap.add_argument('--start-xy', type=float, nargs=2, default=(-16.7, 123.4),
                     help='robot position published as pair360_map -> base_link, m (default: demo start)')
+    ap.add_argument('--save', type=Path, help='also write the three grids to <SAVE>/nav2_grids.npz (int8 values, res, origin)')
     ap.add_argument('--timeout', type=float, default=300.0,
                     help='seconds to wait for the full-size costmap (default: %(default)s; 1611x1616 takes minutes)')
     args = ap.parse_args()
@@ -159,8 +166,15 @@ def main():
         nodes.run('map', 'nav2_map_server', 'map_server', '-p', f'yaml_filename:={maps / "map.yaml"}')
         nodes.run('lm_map', 'nav2_lifecycle_manager', 'lifecycle_manager', '-r', '__node:=lifecycle_manager_map')
         nodes.wait_active('/map_server')
-        grid = grab_grids(node, args.timeout)
-        return report(grid) if grid else 1
+        grid, geometry = grab_grids(node, args.timeout)
+        if grid is None:
+            return 1
+        if args.save:
+            import numpy as np
+            args.save.mkdir(parents=True, exist_ok=True)
+            np.savez_compressed(args.save / 'nav2_grids.npz', res=geometry[0], origin=geometry[1:],
+                                **{t.strip('/').replace('/', '_'): g.astype(np.int8) for t, g in grid.items()})
+        return report(grid)
     finally:
         nodes.stop()
         node.destroy_node()

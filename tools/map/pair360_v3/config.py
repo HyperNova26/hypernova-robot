@@ -2,7 +2,7 @@
 
 Paths come from environment variables set by tools/map/build_pair360_v3.py:
 HN_PAIR360_DATA (point clouds, reviewed S-004 ground, Go2 model; not in Git), HN_PAIR360_DECISIONS
-(hand-made decisions, sim_scenes/pair360_v3_decisions), HN_PAIR360_KEEPOUT (keep-out zones JSON) and
+(hand-made decisions, sim_scenes/pair360_v3_decisions), HN_PAIR360_ROAD (S-009 road mask PNG) and
 HN_PAIR360_OUT (all results).
 """
 import os
@@ -13,7 +13,7 @@ DATA = Path(os.environ.get("HN_PAIR360_DATA", REPO/"data/pair360_v3"))
 RAW = DATA/"raw"
 REVIEWED = DATA/"reviewed"
 DECISIONS = Path(os.environ.get("HN_PAIR360_DECISIONS", REPO/"sim_scenes/pair360_v3_decisions"))
-KEEPOUT_ZONES = Path(os.environ.get("HN_PAIR360_KEEPOUT", REPO/"sim_scenes/pair360_nav2/keepout_zones.json"))
+ROAD_MASK = Path(os.environ.get("HN_PAIR360_ROAD", REPO/"sim_scenes/pair360_nav2/road_s009.png"))
 RESULTS = Path(os.environ.get("HN_PAIR360_OUT", REPO/"data/pair360_v3_results"))
 
 # Inputs by version. pc_v1 defines the map frame; pc_v2 is the newer, more precise capture.

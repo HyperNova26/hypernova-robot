@@ -5,7 +5,7 @@
 
 Steps live in tools/map/pair360_v3/ (s01..s11); see sim_scenes/pair360_v3_decisions/README.md.
 Inputs: --data (point clouds, reviewed S-004 ground, Go2 model; not in Git), --decisions (hand-made
-decisions in Git), --keepout (Nav2 keep-out zones). Every result goes under --out.
+decisions in Git), --road (S-009 road mask for the Nav2 keep-out). Every result goes under --out.
 """
 import argparse
 import importlib
@@ -27,7 +27,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data", type=Path, default=REPO/"data/pair360_v3", help="input data folder (default: %(default)s)")
     ap.add_argument("--decisions", type=Path, default=REPO/"sim_scenes/pair360_v3_decisions")
-    ap.add_argument("--keepout", type=Path, default=REPO/"sim_scenes/pair360_nav2/keepout_zones.json")
+    ap.add_argument("--road", type=Path, default=REPO/"sim_scenes/pair360_nav2/road_s009.png")
     ap.add_argument("--out", type=Path, default=REPO/"data/pair360_v3_results", help="result folder (default: %(default)s)")
     ap.add_argument("--steps", nargs="+", choices=STEPS, help="run only these steps, in pipeline order")
     ap.add_argument("--cloudcompare", action="store_true",
@@ -38,7 +38,7 @@ def main():
     if missing and (not args.steps or {"s01_inputs", "s02_dynamic"} & set(args.steps)):
         sys.exit("Missing input files under {}:\n  {}".format(args.data, "\n  ".join(missing)))
     os.environ.update(HN_PAIR360_DATA=str(args.data.resolve()), HN_PAIR360_DECISIONS=str(args.decisions.resolve()),
-                      HN_PAIR360_KEEPOUT=str(args.keepout.resolve()), HN_PAIR360_OUT=str(args.out.resolve()))
+                      HN_PAIR360_ROAD=str(args.road.resolve()), HN_PAIR360_OUT=str(args.out.resolve()))
     sys.path.insert(0, str(PACKAGE))
     for name in [s for s in STEPS if (s in args.steps if args.steps else s != "s10_bundle" or args.cloudcompare)]:
         start = time.time()

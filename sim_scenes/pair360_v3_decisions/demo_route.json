@@ -2,13 +2,13 @@
   "frame": "pair360_map",
   "source": "Estimated from the 2026-11-15 capture screenshot (team chat) and the scanner trail in pc_v2; no trajectory file was found.",
   "use": "Navigation gets start and goal (plus via points to force the ramp); the planned reference path is only for terrain checks.",
-  "capture_vs_demo": "The 2026-11-15 capture walked a different route from the demo. The capture trail (the scanner path in pc_v2, the blue line in sim_scenes/pair360_nav2/figures) only shows where the road is; the demo route is start, via and goal below, set by 장승민.",
+  "capture_vs_demo": "The demo starts at the 2026-11-15 recording start. After that the capture walked its own loop; the demo route is start, via and goal below, set by 장승민.",
   "start": {
     "xy": [
-      -16.7,
-      123.4
+      -48.46,
+      119.61
     ],
-    "yaw_deg": 87.1
+    "yaw_deg": -0.5
   },
   "via": [
     [
@@ -27,10 +27,10 @@
     ]
   },
   "uncertainty_m": {
-    "start": "about 1 (set by 장승민 on the road)",
+    "start": "about 0.2 (registered capture start)",
     "road section": "about 1 (follows the scanner trail)",
     "goal": "3-5"
   },
   "previous_estimate": "demo_road_route_estimate.json",
-  "start_note": "2026-11-18 check by 장승민: the demo starts at the first bend of the earlier reference path, where the parking-lot exit meets the straight road (was (-31.4, 119.5) inside the lot, yaw -4.6). Yaw points up the straight road."
+  "start_note": "2026-11-24 장승민: the demo starts where the 2026-11-15 recording started (first pose of the registered capture trajectory), heading along the parking aisle toward the straight road. Before: [-16.7, 123.4] yaw 87.1 (2026-11-18, first bend of the reference path)."
 }
