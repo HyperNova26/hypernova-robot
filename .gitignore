@@ -85,7 +85,11 @@ results/
 wandb/
 # 정책 예외(2026-11-10, PR #21 리뷰 요청): v0 Rough 대표 checkpoint 하나만 추적합니다.
 # sha256 e50fa99677e1621429ffd0bbbdb4706c589ad99f3ccb49ec420c4c0fc6be27f4
-!/policies/hn_locomotion/pretrained/hn_go2v0_rough_model_3849.pt
+!/policies/urdf_v0/pretrained/hn_go2v0_rough_model_3849.pt
+# v1 HYPER Rough-Lidar 대표 checkpoint 하나(2026-11-24, 배포용 기준 정책). 계약: policies/urdf_v1/policy_io.yaml
+# (2026-11-16의 Rough GT model_2998 예외는 입력 232차원이라 지금 과제로 안 돌아가서 삭제. 커밋 acff5c6에 남아 있음)
+# sha256 99fd3de8835d0b8fb3d5fceaaec9e6d327abdb6e56e87ab9cc8f9a1b7cb58389
+!/policies/urdf_v1/pretrained/hn_hyperv1_rough_lidar_model_4999.pt
 
 # Local datasets and ad-hoc downloads
 /data/

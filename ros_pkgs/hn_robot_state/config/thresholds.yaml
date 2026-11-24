@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# 로봇 상태 판정 임계값(G-006). hn_robot_state.core.load_thresholds()가 읽습니다. 모든 키를 명시해야 합니다.
+#
+# 2026-11-15 기준 초기값입니다. 시뮬레이션(MuJoCo, Isaac Lab, Isaac Sim) 로그로 조정하며 실기에서 잰 값이 아닙니다.
+# 실기 IMU 노이즈와 모터 지연은 반영되지 않았으므로 실기에 올리기 전에 다시 맞춰야 합니다.
+# 단위: 길이 m, 속도 m/s, 각속도 rad/s, 각도 deg, 시간 s. 좌표: 정책 base 프레임(+X 전방, +Y 좌, +Z 상).
+# 값을 바꾸면 core.py의 Thresholds 기본값도 같이 바꿉니다(단위 시험이 둘이 같은지 검사합니다).
+schema_version: 1
+
+init:
+  # 직립(기울기가 작고 수직 속도가 작음)이 이만큼 지속되면 초기화가 끝나고, 그 동안의 높이 중앙값을 h0(서 있는 높이)로 씁니다.
+  # h0는 시뮬레이터와 모델마다 달라서(v1 README 0.289~0.302 m, 이전 측정 0.24~0.34 m) 절대값을 쓰지 않고 스스로 잽니다.
+  stable_s: 1.0
+  tilt_max_deg: 15.0
+  vertical_speed_max_mps: 0.2
+
+fall:
+  # 기울기 70°는 재생기(play_mujoco, play_isaacsim)의 기존 종료 판정(cos 70°)과 같은 값입니다.
+  tilt_deg: 70.0
+  low_height_ratio: 0.5     # 지면 대비 높이가 h0의 이 비율 아래면 주저앉은 것으로 봄
+  enter_s: 0.2              # 낙상 조건이 이만큼 지속되어야 FALLEN(순간 튐 무시)
+  recover_tilt_deg: 25.0    # FALLEN 해제 조건: 기울기가 이보다 작고
+  recover_height_ratio: 0.8 # 높이가 h0의 이 비율보다 크고(높이 입력이 있을 때) 지면이 있는 상태가
+  recover_s: 1.0            # 이만큼 지속되면 해제
+
+motion:
+  # 정지: 명령과 속도가 모두 stand_* 미만이 stand_dwell_s 지속. 보행: 하나라도 walk_* 이상이 walk_dwell_s 지속.
+  # stand_*와 walk_* 사이 구간은 상태를 유지합니다(히스테리시스).
+  stand_cmd_lin_mps: 0.05
+  stand_cmd_ang_rps: 0.05
+  stand_speed_mps: 0.10
+  walk_cmd_lin_mps: 0.10
+  walk_cmd_ang_rps: 0.10
+  walk_speed_mps: 0.15
+  stand_dwell_s: 0.5
+  walk_dwell_s: 0.1
+
+height_scan:
+  # policies/urdf_v0/policy_io.yaml의 height_scan.grid(shape [17, 11], index = iy*nx + ix)와 같은 격자입니다.
+  # 중심 (nx//2, ny//2)의 (2*half_width+1)^2 블록 중앙값을 지면 높이로 씁니다. 유효한 칸이 min_valid_fraction 미만이면 "지면 없음"입니다.
+  # 지면이 없을 때 시뮬레이터는 매우 큰 값(MuJoCo, Isaac Sim 1e3)이나 inf를 넣으므로 off_ground_hit_z_m 이상도 무효로 봅니다.
+  nx: 17
+  ny: 11
+  center_half_width: 1
+  off_ground_hit_z_m: 100.0
+  min_valid_fraction: 0.5
+  nominal_height_m: null    # 숫자를 주면 h0 자체 측정을 건너뜁니다(실기에서 서 있는 높이를 알 때)
+
+stale:
+  timeout_s: 0.5            # 입력이 이만큼(wall 시간) 끊기면 STALE_INPUT
+
+time:
+  max_dt_s: 0.5             # 입력 시간(t)이 이보다 크게 건너뛰면 지속 시간 계산을 다시 시작(상태는 유지)
