@@ -127,8 +127,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('maps', nargs='?', type=Path, default=REPO / 'sim_scenes/pair360_nav2',
                     help='folder with map.yaml, keepout_mask.yaml and nav2_params.example.yaml (default: %(default)s)')
-    ap.add_argument('--start-xy', type=float, nargs=2, default=(-16.7, 123.4),
-                    help='robot position published as pair360_map -> base_link, m (default: demo start)')
+    ap.add_argument('--start-xy', type=float, nargs=2, default=(-48.46, 119.61),
+                    help='robot position published as pair360_map -> base_link, m (default: 2026-11-15 recording start)')
     ap.add_argument('--save', type=Path, help='also write the three grids to <SAVE>/nav2_grids.npz (int8 values, res, origin)')
     ap.add_argument('--timeout', type=float, default=300.0,
                     help='seconds to wait for the full-size costmap (default: %(default)s; 1611x1616 takes minutes)')
