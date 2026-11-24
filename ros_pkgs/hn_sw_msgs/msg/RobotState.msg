@@ -8,8 +8,8 @@ std_msgs/Header header
 RunTarget run_target                  # 지금 명령이 가는 대상 (R-20)
 
 geometry_msgs/Pose pose               # 지도 프레임(pair360_map) 기준 몸체(trunk) 위치·방향
-Validity pose_validity
-float32 localization_confidence       # 0~1. AICV /localization/status의 fitness(지도 정합 비율). 없으면 NaN
+Validity pose_validity                # localization_status가 TRACKING(1)이 아니거나 300 ms 넘게 안 오면 VALID가 아님. Auto 보류 판단은 이 칸으로 (R-13)
+uint8 localization_status             # AICV hn_interfaces/LocalizationStatus.status 값 그대로. 0 찾는 중, 1 정상 추적, 2 불안정, 3 잃음(재위치추정 필요), 4·5 입력 지연·끊김
 
 geometry_msgs/Twist twist             # 몸체 프레임(trunk) 기준 실제 속도
 Validity twist_validity

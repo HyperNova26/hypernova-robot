@@ -53,7 +53,7 @@ AICV 브랜치 `feat/localization-status-fields`의 `hn_interfaces` README "Nav2
 | 항목 | 정한 것 |
 | --- | --- |
 | 좌표 이름 | 지도 프레임은 `pair360_map`(ADR-0005 Proposed), 몸체 프레임은 `trunk`. 명세의 `map`, `base_link`에 해당합니다 |
-| 위치추정 신뢰도 (IF-09) | `RobotState.localization_confidence`에 AICV `LocalizationStatus.fitness`(0~1)를 씁니다 |
+| 위치추정 신뢰도 (IF-09) | 숫자 점수 대신 AICV `LocalizationStatus.status`를 `RobotState.localization_status`로 그대로 옮기고, TRACKING이 아니면 `pose_validity`를 VALID가 아니게 둡니다. `fitness` 기준값은 AICV 실험값이라 SW에서 정하지 않습니다([계약 문서](../../docs/interfaces/sw-contract.md)와 같음) |
 | Auto 속도 명령 | Nav2 표준 `/cmd_vel`(`Twist`)을 **제어권명령관리가 받아** `SelectedSafeCmd`로 안전 위협 관리에 넘깁니다. AICV 표에는 "Nav2 → 보행 제어"로 적혀 있지만 명세 2.3(모든 이동 명령은 안전 위협 관리를 거침)에 따라 이렇게 제안합니다 |
 | 경로 추종 (IF-15) | 앱은 Nav2에 직접 목표를 주지 않고, `SubmitRoute`·`ApproveRoute`로 임무경로관리에 승인받은 뒤 임무경로관리가 Nav2 표준 action(`NavigateToPose` 또는 `FollowWaypoints`)을 부릅니다. AICV 표의 "앱 → Nav2"와 다르므로 합의가 필요합니다 |
 | 2D 지도 | 지도관리가 표준 `nav_msgs/OccupancyGrid`로 `/map`에 냅니다 |
