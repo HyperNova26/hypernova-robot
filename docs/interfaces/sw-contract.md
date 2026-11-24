@@ -22,10 +22,10 @@
 | `/hn/control/teleop` | `TeleopCmd` | STREAM | 20 Hz | 관제 앱 | 제어권명령관리 | 02 |
 | `/hn/app/heartbeat` | `AppHeartbeat` | STREAM | 2 Hz | 관제 앱 | 제어권명령관리 | 02 |
 | `/hn/control/state` | `ControlState` | STATE | 변경 시 + 1 Hz | 제어권명령관리 | 관제 앱, 임무경로관리 | 02, 03 |
-| `/cmd_vel` | `geometry_msgs/Twist` | Nav2 기본값 | Nav2 controller 주기 | Nav2 (AICV) | 제어권명령관리 | 26 |
+| `/cmd_vel_nav` | `geometry_msgs/Twist` | Nav2 기본값 | Nav2 controller 주기 | Nav2 (AICV) | 제어권명령관리 | 26 |
 | `/hn/control/cmd_vel_selected` | `SelectedSafeCmd` | CONTROL | 50 Hz | 제어권명령관리 | 안전 위협 관리 | 04 |
 | `/hn/safety/verdict` | `SafetyVerdict` | CONTROL | 50 Hz | 안전 위협 관리 | 제어권명령관리 | 04 |
-| `/hn/safety/cmd_vel_safe` | `SelectedSafeCmd` | CONTROL | 50 Hz | 안전 위협 관리 | 보행 정책 (AICV) | 20 |
+| `/cmd_vel` | `geometry_msgs/Twist` | CONTROL | 50 Hz | 안전 위협 관리 | 보행 정책 (AICV) | 20 |
 | `/hn/policy/joint_targets` | `JointTargets` | CONTROL | 50 Hz | 보행 정책 (AICV) | 안전 위협 관리 | 20 |
 | `/hn/safety/joint_cmd` | `JointCommand` | CONTROL | 50 Hz | 안전 위협 관리 | 장치연동 | 21 |
 | `/hn/safety/hazard` | `HazardState` | STATE | 변경 시 + 1 Hz | 안전 위협 관리 | 관제 앱, 임무경로관리 | 05, 06 |
@@ -42,6 +42,7 @@
 | `/map` | `nav_msgs/OccupancyGrid` | STATE | 변경 시 | 지도관리 | Nav2, 임무경로관리 | 14 |
 
 - 관제 앱은 rosbridge로 붙습니다. 앱에는 위 표에서 받는 쪽이나 내는 쪽이 관제 앱인 것만 열어 둡니다. 관절·속도 명령 토픽은 열지 않습니다.
+- `/cmd_vel`은 AICV `hn_interfaces` README의 Nav2 연결 표(Nav2 → 보행 제어, `Twist`)를 따릅니다. 보행 정책이 받는 이름과 타입은 그대로 두고 그 앞에 제어권명령관리와 안전 위협 관리를 둡니다. Nav2가 `/cmd_vel`에 직접 내지 않도록 Nav2 속도 출력은 `/cmd_vel_nav`로 remap합니다. 정지는 0 속도 `Twist`로 보냅니다.
 - 앱은 `/hn/state/robot`을 20 Hz 그대로 받지 않고, rosbridge `subscribe`의 `throttle_rate: 200`(ms)으로 5 Hz만 받습니다. 토픽을 따로 만들지 않습니다.
 - `/locomotion/status`의 `FALLEN`, `TILTING`은 안전 위협 관리가 `Hazard.TYPE_FALLEN`, `TYPE_FALL_RISK`로 옮깁니다. 이 연결은 AICV팀과 아직 맞추지 않았습니다.
 
@@ -78,8 +79,8 @@
 | --- | --- | --- | --- |
 | Teleop 입력 끊김 | 200 ms | 제어권명령관리가 속도 0 | 20 Hz 입력 4번 |
 | `deadman` 해제 | 즉시 | 속도 0 | R-06 |
-| Nav2 `/cmd_vel` 끊김 (Auto) | 200 ms | 속도 0, 임무는 유지 | Nav2 controller 20 Hz 기준 4번 |
-| `cmd_vel_selected`, `cmd_vel_safe`, `joint_targets` 끊김 | 100 ms | 받는 쪽이 정지 명령 | 50 Hz 5번 |
+| Nav2 `/cmd_vel_nav` 끊김 (Auto) | 200 ms | 속도 0, 임무는 유지 | Nav2 controller 20 Hz 기준 4번 |
+| `cmd_vel_selected`, `/cmd_vel`, `joint_targets` 끊김 | 100 ms | 받는 쪽이 정지 | 50 Hz 5번. `/cmd_vel`을 받는 보행 정책 쪽 동작은 AICV와 맞춤 |
 | `joint_cmd` 끊김 | 100 ms | 장치연동이 `MODE_DAMP`를 MCU에 보냄 | 50 Hz 5번 |
 | 앱 heartbeat 끊김 | 1.5 s | Teleop: 정지 후 PAUSED. Auto: 일시정지(PAUSED) | 2 Hz 3번 |
 | 관절·IMU 오래됨 | 20 ms | `STALE`, 정책 입력에서 뺌 | 200 Hz 4번 |
@@ -150,7 +151,7 @@ PAUSE와 STOP의 차이는 임무를 남기는지입니다. PAUSE는 임무를 `
 ## 정하지 않은 것
 
 - `/hn/` 접두사를 AICV·Nav2 토픽에도 붙일지. 지금은 붙이지 않고 launch remap으로 맞추는 쪽입니다.
-- Nav2 `/cmd_vel`을 보행 정책이 아니라 제어권명령관리가 받는 것과, 앱 목표를 임무경로관리를 거쳐 Nav2로 보내는 것. AICV `hn_interfaces` README와 달라서 합의가 필요합니다. 여러 영역에 걸치므로 ADR로 올립니다.
+- Nav2 속도 출력을 `/cmd_vel_nav`로 remap하는 것(Nav2 설정은 AICV 담당). 앱 목표를 임무경로관리를 거쳐 Nav2로 보내는 것(AICV 표는 "앱 → Nav2"). 둘 다 AICV팀과 합의가 필요합니다.
 - MCU 프레임(IF-12)의 물리층과 주기, heartbeat가 끊겼을 때 MCU 동작. 모터를 MCU를 거쳐 돌릴지부터 EE팀과 정해야 합니다.
 - 점검 이상 유형 목록과 낮은 신뢰도 처리(IF-17), 지도 패키지 형식(IF-24).
 - 기록이 빠졌을 때의 처리(IF-25).

@@ -21,7 +21,7 @@
 | 제어권 | `TeleopCmd`, `ControlState` | `/hn/control/teleop`, `/hn/control/state` | 02 |
 | | `AppHeartbeat` | `/hn/app/heartbeat` | 02 (R-16) |
 | | srv `RequestMode` | `/hn/control/request_mode` | 02 |
-| | `SelectedSafeCmd` (명세의 `SelectedCmd`·`SafeCmd`를 합침) | `/hn/control/cmd_vel_selected`, `/hn/safety/cmd_vel_safe` | 04, 20 |
+| | `SelectedSafeCmd` (명세의 `SelectedCmd`) | `/hn/control/cmd_vel_selected` | 04 |
 | 안전 | `Hazard`, `HazardState` | `/hn/safety/hazard` | 05, 06 |
 | | `SafetyVerdict` | `/hn/safety/verdict` | 04 |
 | | `JointTargets` | `/hn/policy/joint_targets` | 20 |
@@ -32,7 +32,7 @@
 | 이벤트·기록 | `Event`, srv `AckEvent` | `/hn/event/stream`, `/hn/event/ack` | 18 |
 | | srv `QueryRecord` | `/hn/record/query` | 19 |
 
-관절·IMU·배터리는 표준 `sensor_msgs/JointState`, `Imu`, `BatteryState`를 씁니다(명세 3.5). 장치 진단(`/hn/device/health`, IF-08)은 표준 `diagnostic_msgs/DiagnosticArray`를 씁니다.
+관절·IMU·배터리는 표준 `sensor_msgs/JointState`, `Imu`, `BatteryState`를 씁니다(명세 3.5). 안전 위협 관리가 보행 정책에 넘기는 속도 명령은 AICV 인터페이스대로 표준 `/cmd_vel`(`geometry_msgs/Twist`)이라 이 패키지에 정의하지 않습니다(IF-20). 장치 진단(`/hn/device/health`, IF-08)은 표준 `diagnostic_msgs/DiagnosticArray`를 씁니다.
 
 ## 규칙
 
@@ -58,7 +58,7 @@ AICV 브랜치 `feat/localization-status-fields`의 `hn_interfaces` README "Nav2
 | --- | --- |
 | 좌표 이름 | 지도 프레임은 `pair360_map`(ADR-0005 Proposed), 몸체 프레임은 `trunk`. 명세의 `map`, `base_link`에 해당합니다 |
 | 위치추정 신뢰도 (IF-09) | 숫자 점수 대신 AICV `LocalizationStatus.status`를 `RobotState.localization_status`로 그대로 옮기고, TRACKING이 아니면 `pose_validity`를 VALID가 아니게 둡니다. `fitness` 기준값은 AICV 실험값이라 SW에서 정하지 않습니다([계약 문서](../../docs/interfaces/sw-contract.md)와 같음) |
-| Auto 속도 명령 | Nav2 표준 `/cmd_vel`(`Twist`)을 **제어권명령관리가 받아** `SelectedSafeCmd`로 안전 위협 관리에 넘깁니다. AICV 표에는 "Nav2 → 보행 제어"로 적혀 있지만 명세 2.3(모든 이동 명령은 안전 위협 관리를 거침)에 따라 이렇게 제안합니다 |
+| 속도 명령 | 보행 정책은 AICV 표대로 표준 `/cmd_vel`(`Twist`)을 받습니다. `/cmd_vel`은 안전 위협 관리 하나만 냅니다. Nav2 속도 출력은 `/cmd_vel_nav`로 remap해 제어권명령관리가 Teleop 입력과 함께 받고, 고른 명령(`SelectedSafeCmd`)을 안전 위협 관리에 넘깁니다. 보행 정책 쪽 이름과 타입은 바꾸지 않습니다 |
 | 경로 추종 (IF-15) | 앱은 Nav2에 직접 목표를 주지 않고, `SubmitRoute`·`ApproveRoute`로 임무경로관리에 승인받은 뒤 임무경로관리가 Nav2 표준 action(`NavigateToPose` 또는 `FollowWaypoints`)을 부릅니다. AICV 표의 "앱 → Nav2"와 다르므로 합의가 필요합니다 |
 | 2D 지도 | 지도관리가 표준 `nav_msgs/OccupancyGrid`로 `/map`에 냅니다 |
 | 재위치추정 (R-13) | 앱 → 위치추정 표준 `/initialpose`(`PoseWithCovarianceStamped`) |
