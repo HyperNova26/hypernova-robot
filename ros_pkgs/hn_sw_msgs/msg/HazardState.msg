@@ -7,4 +7,5 @@
 std_msgs/Header header
 Hazard[] hazards
 bool motion_blocked            # true면 일반 이동 차단 중
+bool resumable                 # 복구 조건을 모두 충족함. 앱은 이때만 재개 버튼을 켭니다. 재개는 운영자 요청으로만 (R-12)
 string[] recovery_conditions   # 다시 움직이려면 충족해야 할 조건 (화면 표시용)
