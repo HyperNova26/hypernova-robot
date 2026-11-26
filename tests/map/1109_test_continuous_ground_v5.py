@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "tools" / "map" / "1109_s004_ground"))
+sys.path.insert(0, str(ROOT / "tools" / "map" / "1109_pair360_v1"))
 from build_continuous_ground_v5 import apply_decisions, build_mesh, canopy_floor_heights, fine_surface, harmonic_fill  # noqa: E402
 
 

@@ -3,7 +3,7 @@
 # Copyright 2026 HYPERNOVA contributors.
 """Build PAIR360 map_v3 (merged point cloud), mesh_v3 (MuJoCo terrain) and the Nav2 map from two captures.
 
-Steps live in tools/map/1124_pair360_v3/ (s01..s11); see sim_scenes/pair360_v3_decisions/README.md.
+Steps live in tools/map/1124_pair360_v3/ (s01..s11); see sim_scenes/pair360_v3/decisions/README.md.
 Inputs: --data (point clouds, reviewed S-004 ground, Go2 model; not in Git), --decisions (hand-made
 decisions in Git), --road (S-009 road mask for the Nav2 keep-out). Every result goes under --out.
 """
@@ -14,8 +14,8 @@ import sys
 import time
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-PACKAGE = Path(__file__).resolve().with_name("1124_pair360_v3")
+REPO = Path(__file__).resolve().parents[3]
+PACKAGE = Path(__file__).resolve().parent
 STEPS = ["s01_inputs", "s02_dynamic", "s03_register", "check_vehicles", "s04_local_fit", "s05_change",
          "s06_merge", "s07_ground", "s08_mesh", "s09_verify", "s10_bundle", "s11_nav2"]
 REQUIRED = ["raw/pc_v1_pair360_t1_parking_demo.ply", "raw/pc_v2_20261115.pcd",
@@ -26,8 +26,8 @@ REQUIRED = ["raw/pc_v1_pair360_t1_parking_demo.ply", "raw/pc_v2_20261115.pcd",
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--data", type=Path, default=REPO/"data/pair360_v3", help="input data folder (default: %(default)s)")
-    ap.add_argument("--decisions", type=Path, default=REPO/"sim_scenes/pair360_v3_decisions")
-    ap.add_argument("--road", type=Path, default=REPO/"sim_scenes/pair360_nav2/road_s009.png")
+    ap.add_argument("--decisions", type=Path, default=REPO/"sim_scenes/pair360_v3/decisions")
+    ap.add_argument("--road", type=Path, default=REPO/"sim_scenes/pair360_v3/nav2/road_s009.png")
     ap.add_argument("--out", type=Path, default=REPO/"data/pair360_v3_results", help="result folder (default: %(default)s)")
     ap.add_argument("--steps", nargs="+", choices=STEPS, help="run only these steps, in pipeline order")
     ap.add_argument("--cloudcompare", action="store_true",

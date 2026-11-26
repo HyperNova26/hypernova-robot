@@ -1,21 +1,31 @@
 # 시뮬레이터 장면 변환 안내
 
-PAIR360 지도 v1·v2·v3가 어떤 입력과 코드로 만들어졌는지는 [도구 안내](../tools/README.md#pair360-지도-v1v2v3)에 정리했습니다(2026-11-26).
+## PAIR360 지도 v1·v2·v3
 
-## S-017 Nav2 지도와 금지 구역
+2026-11-26 기준입니다. 좌표계는 모두 `pair360_map`(PAIR360 T1 원시 XYZ, m, z 위쪽)입니다. 점군·메시는 Git에 넣지 않고 팀 Drive `14. AI Team/`의 `data/map_vN/`, `meshes/mesh_vN/`에 둡니다.
 
-데모 구역의 Nav2 정적 지도와 금지 구역 마스크는 [S-017 안내](pair360_nav2/README.md)에 있습니다(2026-11-24). 확인 도구는 `tools/map/1124_check_nav2_keepout.sh`입니다.
+| 버전 | 입력 | 장면 안내 | 만든 코드 |
+| --- | --- | --- | --- |
+| v1 | PAIR360 `pc_v1`만 | [`pair360_v1/`](pair360_v1/README.md) | `tools/map/1109_pair360_v1/` |
+| v2 | `pc_v1` + 2026-11-15 촬영본, `pc_v1` 우선 병합 | [`pair360_v2/`](pair360_v2/README.md) | `tools/map/1116_pair360_v2/`(기록용) |
+| v3 | `pc_v1` + 2026-11-15 촬영본, 11-15 촬영본 우선 병합, Nav2 지도 | [`pair360_v3/`](pair360_v3/README.md) | `tools/map/1124_pair360_v3/` |
 
-지도(map_v3), 지형(mesh_v3), Nav2 지도를 점군 두 개에서 만드는 도구는 `tools/map/1124_build_pair360_v3.sh`입니다. 사람이 정한 입력과 실행 방법은 [map_v3·mesh_v3 입력](pair360_v3_decisions/README.md)에 있습니다.
+버전별 결과물과 코드의 자세한 대응은 [도구 안내](../tools/README.md#pair360-지도-v1v2v3)에 있습니다. `pair360_parking/`은 그 전(2026-10)의 frame 기록입니다.
 
-## S-004 ground 최종 전달본
+## v3: S-017 Nav2 지도와 금지 구역
 
-현재 로컬 전달본과 재현 절차는 [S-004 안내](S004_ground_final/README.md)에 있습니다. Git에는 코드·판단 설정·문서만 올리며, 원본 점군과 생성된 장면 파일은 로컬에 보관합니다.
+데모 구역의 Nav2 정적 지도와 금지 구역 마스크는 [S-017 안내](pair360_v3/nav2/README.md)에 있습니다(2026-11-24). 확인 도구는 `tools/map/1124_pair360_v3/check_nav2_keepout.sh`입니다.
 
-- CloudCompare: `S004_ground_final/input/original.ply`와 `result/`의 점군·메시
-- MuJoCo: `S004_ground_final/result/mujoco/view_mujoco.py`
-- Isaac Sim: `S004_ground_final/result/isaac/scene.usda`
-- 재현 명령: `tools/map/1109_s004_ground/reproduce_s004_final.py`
+지도(map_v3), 지형(mesh_v3), Nav2 지도를 점군 두 개에서 만드는 도구는 `tools/map/1124_pair360_v3/build_pair360_v3.sh`입니다. 사람이 정한 입력과 실행 방법은 [map_v3·mesh_v3 입력](pair360_v3/decisions/README.md)에 있습니다.
+
+## v1: S-004 ground 최종 전달본
+
+현재 로컬 전달본과 재현 절차는 [S-004 안내](pair360_v1/README.md)에 있습니다. Git에는 코드·판단 설정·문서만 올리며, 원본 점군과 생성된 장면 파일은 로컬에 보관합니다.
+
+- CloudCompare: `pair360_v1/input/original.ply`와 `result/`의 점군·메시
+- MuJoCo: `pair360_v1/result/mujoco/view_mujoco.py`
+- Isaac Sim: `pair360_v1/result/isaac/scene.usda`
+- 재현 명령: `tools/map/1109_pair360_v1/reproduce_s004_final.py`
 
 MuJoCo 충돌 검사와 USD 재열기는 확인했습니다. M-002 공통 frame 합의와 보행팀의 Isaac Lab 로봇 보행 검증은 남아 있습니다. 아래 전체 점군 변환기의 기능은 별개입니다.
 

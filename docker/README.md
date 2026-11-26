@@ -233,7 +233,7 @@ cd hypernova-robot
 
 PAIR360 폴더 이동으로 `/data` mount나 `HN_DATA_DIR` 기본값이 바뀌지는 않습니다. 저장소 최상위 `data/PAIR360_data/`, `data/PAIR360_demo/`는 위의 `/workspace/hypernova/data/` 경로로 읽습니다. 현재 [시뮬레이터 장면 변환 안내](../sim_scenes/README.md)의 전체 점군 변환기는 기본적으로 `sim_scenes/MMDD_demo_whole/`에 결과를 만들고 기존 출력 경로는 거부합니다. 다른 위치는 `--output-root`로 지정합니다. Python은 명시한 `HN_MAP_PYTHON`을 우선하고, 그 외에는 컨테이너의 `/opt/hn-venv/bin/python`을 사용합니다. CloudCompare native BIN 변환은 선택적인 CloudCompare 실행 파일이 필요하며, 컨테이너에 설치되어 있다고 가정하지 않습니다.
 
-`tools/map/`의 `.sh`는 같은 이름의 `.py` 구현을 호출하는 실행기입니다. `1030_demo_sim_converter`는 유한한 XYZ 전체를 기본 0.5 m voxel 점유로 변환하여 정적 USD 삼각형 Mesh와 MuJoCo box geom을 내보내며, 지면 추출이나 heightfield 생성, simulator 실행은 수행하지 않습니다. 지면 분리와 차량·기타 객체 제거는 `tools/map/1109_s004_ground/`(PAIR360 지면)와 `tools/map/1124_pair360_v3/`(두 점군 병합)가 맡습니다.
+`tools/map/`의 `.sh`는 같은 이름의 `.py` 구현을 호출하는 실행기입니다. `1030_demo_sim_converter`는 유한한 XYZ 전체를 기본 0.5 m voxel 점유로 변환하여 정적 USD 삼각형 Mesh와 MuJoCo box geom을 내보내며, 지면 추출이나 heightfield 생성, simulator 실행은 수행하지 않습니다. 지면 분리와 차량·기타 객체 제거는 `tools/map/1109_pair360_v1/`(PAIR360 지면)와 `tools/map/1124_pair360_v3/`(두 점군 병합)가 맡습니다.
 
 - 컨테이너는 **호스트 UID/GID**로 실행됩니다. 그래서 `/workspace/hypernova`와 `/data`에 만든 파일의 주인이 내 계정입니다(root가 아님). 사용자 이름은 `ubuntu`로 보이거나 없을 수 있습니다.
 - Python이 둘입니다. ROS 노드와 같은 interpreter인 robot venv는 `/opt/hn-venv/bin/python`으로 부르고, **`activate`하지 않습니다**. `sim`에서 활성화하면 `isaaclab.sh`가 거부합니다. Isaac Lab은 `./isaaclab.sh -p ...`로 씁니다(`deprecated` 경고는 3.1에서 없어진다는 안내일 뿐 정상 동작).

@@ -1,8 +1,8 @@
 {
   "frame": "pair360_map",
   "source": "Estimated from the 2026-11-15 capture screenshot (team chat) and the scanner trail in pc_v2; no trajectory file was found.",
-  "use": "mesh_v3 reference path only (step 8 picks trees along it, step 9 checks Go2 standing on it). The Nav2 demo starts at the 2026-11-15 recording start (-48.46, 119.61); see sim_scenes/pair360_nav2/README.md.",
-  "capture_vs_demo": "The 2026-11-15 capture walked a different route from the demo. The capture trail (the scanner path in pc_v2, the blue line in sim_scenes/pair360_nav2/figures) only shows where the road is; the demo route is start, via and goal below, set by 장승민.",
+  "use": "mesh_v3 reference path only (step 8 picks trees along it, step 9 checks Go2 standing on it). The Nav2 demo starts at the 2026-11-15 recording start (-48.46, 119.61); see sim_scenes/pair360_v3/nav2/README.md.",
+  "capture_vs_demo": "The 2026-11-15 capture walked a different route from the demo. The capture trail (the scanner path in pc_v2, the blue line in sim_scenes/pair360_v3/nav2/figures) only shows where the road is; the demo route is start, via and goal below, set by 장승민.",
   "start": {
     "xy": [
       -16.7,

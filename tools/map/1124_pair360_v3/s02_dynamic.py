@@ -4,7 +4,7 @@ pc_v1 ground comes from the reviewed pc_v1 ground v1 partition (S-004 "v9"); pc_
 pc_v2 ground and vehicles come from the floor model and the car-size detector.
 
 In : data/raw/pc_v*.{ply,pcd}, data/reviewed/pc_v1_ground_v1_partition/ground.ply,
-     tools/map/1109_s004_ground/continuous_ground_20261109_v9.json
+     tools/map/1109_pair360_v1/continuous_ground_20261109_v9.json
 Out: work/02_<pc>_labels.npy (uint8 per source row: 1 ground, 2 obstacle, 5 vehicle, 6 noise),
      work/02_<pc>_hag.npy (float16 height above local floor), work/02_<pc>_vehicles.json,
      work/02_<pc>_vehicles.png (one thumbnail per vehicle for review)

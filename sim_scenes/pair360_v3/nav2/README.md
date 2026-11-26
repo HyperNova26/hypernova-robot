@@ -51,7 +51,7 @@ S-009 Notion 페이지의 기준을 따랐습니다.
 
 ```bash
 sudo apt-get update && sudo apt-get install -y ros-jazzy-nav2-map-server ros-jazzy-nav2-costmap-2d ros-jazzy-nav2-lifecycle-manager
-tools/map/1124_check_nav2_keepout.sh sim_scenes/pair360_nav2
+tools/map/1124_pair360_v3/check_nav2_keepout.sh sim_scenes/pair360_v3/nav2
 ```
 
 팀 ROS 이미지에는 아직 Nav2가 없어 첫 줄로 한 번 설치합니다. 없으면 스크립트가 이 설치 명령을 알려 주고 끝납니다. 스크립트는 위 순서대로 노드를 띄우고, 각 노드가 lifecycle `active`가 된 것을 확인한 뒤 다음 노드로 넘어갑니다. 그다음 비용지도에서 도로 밖과 지도 밖이 모두 통행 불가인지 검사합니다. `--save <폴더>`를 주면 세 격자를 `nav2_grids.npz`로 저장합니다.
@@ -66,10 +66,10 @@ tools/map/1124_check_nav2_keepout.sh sim_scenes/pair360_nav2
 ## 출처와 생성
 
 - **입력**: PAIR360 T1 주차장 점군(v1, Kim et al., *PAIR360*, IEEE RA-L 2024, ODbL 1.0), 팀 FAST-LIO 촬영 점군(v2, 2026-11-15), 둘을 합친 map_v3와 지면 격자(mesh_v3 7단계), S-009 그림의 통행 도로입니다.
-- **생성**: [`tools/map/1124_build_pair360_v3.sh`](../../tools/map/1124_build_pair360_v3.sh)의 11단계(`tools/map/1124_pair360_v3/s11_nav2.py`)입니다. 입력과 단계 설명은 [`../pair360_v3_decisions/README.md`](../pair360_v3_decisions/README.md)에 있습니다.
+- **생성**: [`tools/map/1124_pair360_v3/build_pair360_v3.sh`](../../../tools/map/1124_pair360_v3/build_pair360_v3.sh)의 11단계(`tools/map/1124_pair360_v3/s11_nav2.py`)입니다. 입력과 단계 설명은 [`../pair360_v3_decisions/README.md`](../decisions/README.md)에 있습니다.
 
   ```bash
-  tools/map/1124_build_pair360_v3.sh --data <입력 폴더> --out <결과 폴더>   # 결과: <결과 폴더>/nav2_v3/
+  tools/map/1124_pair360_v3/build_pair360_v3.sh --data <입력 폴더> --out <결과 폴더>   # 결과: <결과 폴더>/nav2_v3/
   ```
 
 - **라이선스**: 지도 이미지는 PAIR360(ODbL 1.0)에서 파생한 데이터입니다. 공유할 때 원저자·논문·변경 내용을 함께 밝힙니다. 설정 파일과 도구는 Apache-2.0, 이 문서는 CC BY 4.0입니다.
