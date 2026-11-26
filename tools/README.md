@@ -56,3 +56,31 @@
 - v2는 "추가 촬영본만"이 아닙니다. 11-15 촬영본만으로 만든 지도·메시는 없습니다.
 - mesh_v1 장면과 v2를 만든 11-16 코드는 고치지 않고 옮긴 기록용입니다. 당시 폴더 배치 기준이라 이 저장소에서 그대로 실행되지 않습니다.
 - 지면 v1(v9)은 v3 2단계의 입력이기도 합니다(`map/1109_pair360_v1/continuous_ground_20261109_v9.json`).
+
+## 다른 브랜치를 이 정리 위로 옮길 때 (2026-11-26)
+
+main에 있던 아래 경로가 바뀌었습니다. 이 정리 전에 갈라진 브랜치는 main을 병합한 뒤 자기 변경의 경로를 맞춥니다.
+
+| 옛 경로(main) | 새 경로 |
+| --- | --- |
+| `tools/setup-venv.sh` | `tools/1022_setup-venv.sh` |
+| `tools/{make_demo_bag,check_demo_lio,isaac_clock_pub}.py` | `tools/1022_{…}.py` |
+| `tools/description/fetch_go2_meshes.py` | `tools/description/1030_fetch_go2_meshes.py` |
+| `tools/description/fetch_hyper_v1_meshes.py` | `tools/description/1111_fetch_hyper_v1_meshes.py` |
+| `tools/demo/run_route.sh`, `tools/demo/state_*.sh` | `tools/demo/1116_run_route.sh`, `tools/demo/1116_state_*.sh` |
+| `tools/demo/_state_run.sh` | `tools/demo/1116_state_run.sh` |
+| `tools/map/demo_sim_converter.{sh,py}` | `tools/map/1030_demo_sim_converter.{sh,py}` |
+| `tools/map/demo_sim_disassembler.{sh,py}` | 지움 |
+| `tools/map/extract_pair360_demo.py` | `tools/map/1109_extract_pair360_demo.py` |
+| `tools/map/{build_continuous_ground_v5,smooth_local_ground_v8,export_s004_layers,export_final_sim,reproduce_s004_final,review_cloud_io}.py`, `continuous_ground_20261104_v7.json` | `tools/map/1109_pair360_v1/` 안, 이름 그대로 |
+| `tests/map/test_<이름>.py` | `tests/map/1030_test_demo_sim_scripts.py`, `tests/map/1109_test_<이름>.py` |
+| `sim_scenes/S004_ground_final/` | `sim_scenes/pair360_v1/`(로컬 `input/`, `review/*.npz`, `result/`도 옮깁니다) |
+
+옮기는 순서입니다.
+
+1. main을 병합합니다(이 정리가 main에 들어간 뒤).
+2. 브랜치에서 새로 만든 도구에 처음 커밋한 날짜를 붙입니다. 예: `git mv tools/map/hfield_scene_import.py tools/map/1120_hfield_scene_import.py`. 시험은 `tests/<분야>/MMDD_test_<이름>.py`입니다.
+3. 문서·코드 속 옛 경로를 바꿉니다. `git grep -nE "tools/demo/(run_route|_state_run|state_)|tools/description/fetch_|tools/map/(demo_sim|extract_pair360|build_continuous|reproduce_s004)|S004_ground_final|tests/map/test_"`로 남은 곳을 찾습니다.
+4. `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run python -m pytest tests/map -q`와 바꾼 실행기의 `--help`로 확인합니다.
+
+2026-11-26에 열린 브랜치 `feat/sim-fault-injection`, `feat/localization-status-fields`를 시험 병합해 보면, main과 이미 충돌하는 파일이 29개이고 이 정리로 늘어나는 충돌은 3개입니다(`policies/route_walk/__init__.py`, `policies/urdf_v0/policy_io.yaml`의 경로 한 줄씩, `sim_scenes/README.md`). 그 밖에 두 브랜치는 새 도구 3개(`tools/demo/compare_traces.py`, `tools/map/hfield_scene_import.py`, `tools/map/synthetic_hfield_scene.py`, 모두 11-20)의 이름을 바꾸고, `sim_scenes/pair360_map_v3/`를 지도 v3 폴더(`sim_scenes/pair360_v3/` 아래)로 옮기면 됩니다.
