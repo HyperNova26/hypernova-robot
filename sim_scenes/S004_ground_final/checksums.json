@@ -16,5 +16,16 @@
     "result/mujoco/scene.xml": "f670e4daa0f1b16edb188cb7acf69fb72dc34d955a3edf3127217c4f2ca42d38",
     "frame.json": "02784e6a47ec67be44fb02d4c5d48e5d0e846325291908d81fe90abea530a3bc",
     "result/partition.json": "6a48134ddc0f899190983d0f53aaa6d32d4041fb51e337d7573fd091c0988e2a"
+  },
+  "ground_v9": {
+    "note": "pc_v1 ground v1 (S-004 'v9', 2026-11-09): v7 inputs with the v9 decisions, then the v8 local repair. Input of map v1 and of pair360 v3 step 2.",
+    "decisions": {
+      "tools/map/continuous_ground_20261109_v9.json": "b165a03a42c0529bafeace6e514f43c69cfb4ef6645b3b24286f68fc151111a4"
+    },
+    "mesh_sha256": "f72d3c842da61b091c0a9735ab4ea23bb604858d7e0a5216a1b5d95c85a746f4",
+    "pointcloud": {
+      "ground.ply": "4154eb0f1b967223e907257bd38cbaff6ec9ff2b1aa0477ce5156f1079155c9f",
+      "non_ground.ply": "2f6dfcbc2bef607a6440d41d3649bb41e07caaf6867e69c36af2dff111debc2a"
+    }
   }
 }

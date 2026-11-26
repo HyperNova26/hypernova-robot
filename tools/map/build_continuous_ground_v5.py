@@ -98,9 +98,10 @@ def apply_decisions(xy: np.ndarray, base_allowed: np.ndarray, decisions: dict, i
     if inherited_exclusion is not None:
         if inherited_exclusion.shape != excluded.shape:
             raise ValueError("inherited exclusion and xy do not align")
-        # Manual vehicle-floor decisions override old geometric masks, while
-        # explicitly reviewed tree polygons always remain excluded.
-        override = _polygon_mask(xy, _records(decisions, "force_allow", "vehicle_floor_override"))
+        # Manual vehicle-floor and canopy-floor decisions override old geometric
+        # masks, while explicitly excluded polygons always remain holes.  A
+        # canopy floor only reopens the existing domain; it never extends it.
+        override = _polygon_mask(xy, _records(decisions, "force_allow", "vehicle_floor_override", "canopy_floor"))
         excluded |= inherited_exclusion & ~override
     vehicles = _polygon_mask(xy, _records(decisions, "vehicles", "vehicle_polygons", "removed_vehicles"))
     allowed = (np.asarray(base_allowed, bool) | reset_mask | extend) & ~excluded
@@ -116,6 +117,31 @@ def remove_raised_islands(z: np.ndarray, allowed: np.ndarray, threshold_m: float
     reference = np.nanmedian(stack, axis=0)
     bad = allowed & np.isfinite(z) & (np.isfinite(stack).sum(axis=0) >= 5) & (z > reference + threshold_m)
     result = z.copy(); result[bad] = np.nan
+    return result
+
+
+def canopy_floor_heights(keys: np.ndarray, z: np.ndarray, cells: np.ndarray, *, percentile: float = 5.,
+                         band_m: float = .15, min_points: int = 3) -> np.ndarray:
+    """Per-cell floor height under a canopy from its lowest returns.
+
+    ``keys`` are flat cell indices of candidate points and ``cells`` marks the
+    cells to estimate.  The estimate is the median of the points within
+    ``band_m`` above the cell's low percentile; cells with fewer than
+    ``min_points`` such points stay NaN.  Callers must still reject estimates
+    far from the surrounding floor, because a cell seen only through the crown
+    has a low percentile on the canopy rather than on the ground.
+    """
+    result = np.full(len(cells), np.nan)
+    keep = cells[keys]
+    kk, zz = keys[keep], np.asarray(z, float)[keep]
+    order = np.argsort(kk, kind="stable"); kk, zz = kk[order], zz[order]
+    starts = np.r_[0, np.flatnonzero(kk[1:] != kk[:-1]) + 1] if len(kk) else np.empty(0, int)
+    for start, stop in zip(starts, np.r_[starts[1:], len(kk)]):
+        values = zz[start:stop]
+        low = np.percentile(values, percentile)
+        band = values[(values >= low) & (values <= low + band_m)]
+        if len(band) >= min_points:
+            result[kk[start]] = np.median(band)
     return result
 
 
@@ -291,7 +317,10 @@ def main() -> None:
             design_path = candidate
     if design_path is not None:
         design = np.load(design_path)
-        for name in ("planting_exclusion", "column_exclusion"):
+        # A canopy-floor design keeps the floor under planting too; the planting
+        # returns as an obstacle layer instead of an inherited hole.
+        names = ("column_exclusion",) if decision.get("release_inherited_planting") else ("planting_exclusion", "column_exclusion")
+        for name in names:
             if name in design:
                 inherited_exclusion |= np.asarray(design[name], bool)
     inherited_exclusion = coherent_tree_exclusion(inherited_exclusion, shape)
@@ -314,6 +343,26 @@ def main() -> None:
     starts = np.r_[0, np.flatnonzero(kk[1:] != kk[:-1]) + 1] if len(kk) else np.empty(0, int)
     for start, stop in zip(starts, np.r_[starts[1:], len(kk)]): z[kk[start]] = np.median(zz[start:stop])
     z = remove_raised_islands(z.reshape(shape), allowed.reshape(shape)).ravel()
+    canopy_report = None
+    canopy_records = _records(decision, "canopy_floor")
+    if canopy_records:
+        policy = {"percentile": 5., "band_m": .15, "min_points": 3, "max_deviation_m": .5,
+                  **decision.get("canopy_floor_policy", {})}
+        canopy = _polygon_mask(xy, canopy_records) & allowed
+        todo = canopy & ~np.isfinite(z)
+        # Lowest returns of every non-vehicle point, judged against the floor
+        # that the classified ground alone would interpolate across the cell.
+        candidates = valid & ~manual_vehicle & (point_type != 3)
+        estimate = canopy_floor_heights(keys[candidates], source[candidates, 2], todo,
+                                        percentile=policy["percentile"], band_m=policy["band_m"],
+                                        min_points=int(policy["min_points"]))
+        reference, _, _ = harmonic_fill(z.reshape(shape), allowed.reshape(shape))
+        accepted = todo & np.isfinite(estimate) & (np.abs(estimate - reference.ravel()) <= policy["max_deviation_m"])
+        z[accepted] = estimate[accepted]
+        canopy_report = {"policy": policy, "canopy_cells": int(canopy.sum()), "already_observed": int((canopy & ~todo).sum()),
+                         "low_return_accepted": int(accepted.sum()),
+                         "low_return_rejected": int((todo & np.isfinite(estimate) & ~accepted).sum()),
+                         "interpolated": int((todo & ~accepted).sum())}
     coarse, distance_cells, residual = harmonic_fill(z.reshape(shape), allowed.reshape(shape))
     x, y, fine_h, fine_mask = fine_surface(coarse, allowed.reshape(shape), origin, cell_m, args.fine_m)
     vertices, faces = build_mesh(x, y, fine_h, fine_mask)
@@ -342,6 +391,7 @@ def main() -> None:
                 "permitted_fine_vertices": int(len(vertices)), "triangles": int(len(faces)),
                 "finite_permitted_coverage": float(np.isfinite(fine_h[fine_mask]).mean()), "harmonic_residual_m": residual,
                 "excluded_coarse_cells": int(excluded.sum()), "vehicle_coarse_cells": int(vehicle_cells.sum()),
+                "canopy_floor": canopy_report,
                 "files": ["ground_surface_mesh.ply", "ground_surface.npz", "surface_overview.png", "surface_cross_section.png"],
                 "limits": "Approximate car-free collision design.  Tree/exclusion polygons are holes; all other permitted gaps are interpolated from observed reviewed ground.  This is not semantic ground truth or a walking certification."}
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")

@@ -81,6 +81,12 @@ uv run python tools/map/reproduce_s004_final.py --out /tmp/s004-rebuild
 
 이 명령은 `build_continuous_ground_v5.py`로 검토 격자를 표면으로 만들고, `smooth_local_ground_v8.py`로 주차장의 고립된 돌출 후보 7곳을 국소 보정한다. `export_s004_layers.py`는 최종 높이에서 0.15 m 이내인 실측 지면점을 나머지 점과 나눈다. 이어 `export_final_sim.py`가 MuJoCo·USD를 만든다. 실행 전에 입력 해시를 검사하고, 재생성한 메시와 두 점군의 SHA-256을 전달본과 대조한다. MuJoCo 출력에는 허용된 면·나무 구멍·타일 이음새 광선 검사와 낙하 접촉 검사가 포함된다.
 
+`--ground v9`를 주면 같은 입력에 `continuous_ground_20261109_v9.json`(수관 아래 바닥 보강, 2026-11-09)을 적용해 v9 표면과 지면 분할을 만든다. v9는 PAIR360 지도 v1의 지면이자 `tools/map/pair360_v3/` 2단계의 입력이다. 메시와 두 점군의 SHA-256은 `checksums.json`의 `ground_v9`와 대조하며, 시뮬레이터 장면은 만들지 않는다. 2026-11-26 팀 컨테이너 `hn:ros-2026.10.1-local`에서 v8과 v9 모두 해시가 일치했다.
+
+```bash
+uv run python tools/map/reproduce_s004_final.py --ground v9 --out /tmp/s004-v9
+```
+
 ## 이후 작업
 
 - 피드백 사진에 표시된 노천극장 접근 경사로 접속부의 구멍을 원본 점군과 높이 단면으로 다시 확인하고 메시를 수정합니다.

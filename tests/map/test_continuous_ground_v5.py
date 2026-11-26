@@ -8,7 +8,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "map"))
-from build_continuous_ground_v5 import apply_decisions, build_mesh, fine_surface, harmonic_fill  # noqa: E402
+from build_continuous_ground_v5 import apply_decisions, build_mesh, canopy_floor_heights, fine_surface, harmonic_fill  # noqa: E402
 
 
 def test_confirmed_tree_wins_over_legacy_vehicle_floor_override():
@@ -61,6 +61,31 @@ def test_vehicle_floor_override_can_reopen_an_inherited_tree_mask():
     allowed, excluded, _ = apply_decisions(xy, np.ones(3, bool), decisions, inherited)
     assert allowed.tolist() == [True, True, True]
     assert excluded.tolist() == [False, False, False]
+
+
+def test_canopy_floor_reopens_inherited_planting_but_never_extends_domain():
+    xy = np.array([[.5, .5], [1.5, .5], [2.5, .5]])
+    base = np.array([True, True, False])
+    inherited = np.array([False, True, True])
+    canopy = {"polygon_xy": [[1, 0], [3, 0], [3, 1], [1, 1]]}
+    allowed, excluded, _ = apply_decisions(xy, base, {"canopy_floor": [canopy]}, inherited)
+    assert allowed.tolist() == [True, True, False]
+    assert excluded.tolist() == [False, False, False]
+    # An explicit exclusion still wins over a canopy floor.
+    allowed, excluded, _ = apply_decisions(xy, base, {"canopy_floor": [canopy], "exclude": [canopy]}, inherited)
+    assert allowed.tolist() == [True, False, False]
+
+
+def test_canopy_floor_height_uses_lowest_returns_not_the_crown():
+    keys = np.array([0] * 8 + [1] * 5 + [2] * 2)
+    z = np.array([1.40, 1.42, 1.45, 1.48, 1.50, 3.0, 4.0, 5.0,  # floor under a crown
+                  2.80, 2.82, 2.85, 2.90, 6.0,                  # crown only: low band is canopy
+                  1.0, 1.1])                                    # too few returns
+    cells = np.array([True, True, True, False])
+    height = canopy_floor_heights(keys, z, cells, percentile=5., band_m=.15, min_points=3)
+    assert np.isclose(height[0], 1.465)
+    assert np.isclose(height[1], 2.85)   # caller must reject it against the floor
+    assert np.isnan(height[2]) and np.isnan(height[3])
 
 
 def test_harmonic_neighbourhood_does_not_wrap_across_grid_edges():
