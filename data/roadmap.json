@@ -454,7 +454,7 @@
       "area": "perc",
       "milestone": "S4",
       "title": "글로벌 경로 표시",
-      "status": "예정",
+      "status": "진행",
       "due": "2026-11-29",
       "url": "https://app.notion.com/p/41c45bd87178817997e2fd9bb5e23a03"
     },
@@ -463,7 +463,7 @@
       "area": "perc",
       "milestone": "S4",
       "title": "로컬 장애물 회피",
-      "status": "예정",
+      "status": "진행",
       "due": "2026-11-29",
       "url": "https://app.notion.com/p/41c45bd8717881b39281d663b622f596",
       "owners": [
