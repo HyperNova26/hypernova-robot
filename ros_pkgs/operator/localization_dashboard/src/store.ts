@@ -8,10 +8,12 @@ import {
   stamp,
   pointCloud,
   localizationStatus,
+  locomotionStatus,
   type Config,
   type Pose,
   type Cloud,
   type LocalizationStatus,
+  type LocomotionStatus,
   type Sample,
 } from "./model";
 import { FrameTransforms } from "./transforms";
@@ -22,6 +24,7 @@ export class Telemetry {
   gt: Pose[] = [];
   clouds: Cloud[] = [];
   statuses: LocalizationStatus[] = [];
+  gait: LocomotionStatus[] = [];
   frames = new FrameTransforms();
   rows: Sample[] = [];
   events: { t: number; event: string }[] = [];
@@ -50,6 +53,7 @@ export class Telemetry {
     this.gt = [];
     this.clouds = [];
     this.statuses = [];
+    this.gait = [];
     this.frames.clear(preserveStatic);
     if (!preserveStatic) {
       this.livePrior = undefined;
@@ -105,6 +109,29 @@ export class Telemetry {
             if (match) this.rows[i] = { ...row, localization: match };
           }
       }
+      if (role === "locomotion") {
+        const status = locomotionStatus(m, Date.now());
+        const previous = this.gait.at(-1);
+        this.gait.push(status);
+        if (this.gait.length > 1000) this.gait.shift();
+        if (status.label !== previous?.label)
+          this.event(
+            "보행 상태: " +
+              status.label +
+              (status.reason ? ` (${status.reason})` : ""),
+          );
+        if (status.t !== undefined)
+          for (
+            let i = Math.max(0, this.rows.length - 200);
+            i < this.rows.length;
+            i++
+          ) {
+            const row = this.rows[i];
+            const match = this.gaitAt(row.t);
+            if (match && match !== row.locomotion)
+              this.rows[i] = { ...row, locomotion: match };
+          }
+      }
       if (role === "clock") {
         const t = stamp(m.clock);
         if (t < this.simTime - 0.001) {
@@ -131,6 +158,7 @@ export class Telemetry {
           this.rows.push({
             ...sample(p, list.at(-2), gt, this.config, this.lastReceived),
             localization: this.statusAt(p.t),
+            locomotion: this.gaitAt(p.t),
           });
           if (this.rows.length > 6000) this.rows.shift();
         } else {
@@ -148,6 +176,7 @@ export class Telemetry {
                 row.received,
               );
               this.rows[i].localization = row.localization;
+              this.rows[i].locomotion = row.locomotion;
             }
           }
         }
@@ -214,6 +243,20 @@ export class Telemetry {
   }
   get localization() {
     return this.statuses.at(-1);
+  }
+  // Gait reports come on change plus a 10 Hz heartbeat, so a row takes the latest report
+  // at or before its time (within 0.5 s, the judge's input timeout) instead of ±tolerance.
+  // Wall-clock stamps never match SIM-time odometry and stay unpaired.
+  gaitAt(t: number) {
+    for (let i = this.gait.length - 1; i >= 0; i--) {
+      const g = this.gait[i];
+      if (g.t === undefined || g.t > t + this.config.tolerance) continue;
+      return t - g.t <= 0.5 ? g : undefined;
+    }
+    return undefined;
+  }
+  get locomotion() {
+    return this.gait.at(-1);
   }
   get mapCloud() {
     const cloud = this.cloud;
@@ -328,6 +371,21 @@ export function demo(store: Telemetry) {
         [store.config.statusField]: 1,
       });
       store.ingest("lio", od(0.08 * Math.sin(t)));
+      store.ingest("locomotion", {
+        header: od(0).header,
+        code: 2,
+        state: "WALKING",
+        severity: 0,
+        reason: "moving",
+        since_s: t,
+        robot_id: "demo",
+        sim_time_s: t,
+        tilt_deg: 2,
+        roll_deg: 0,
+        pitch_deg: 2,
+        speed_mps: demoSpeed,
+        height_m: demoSensorHeight,
+      });
     }
     const points = demoScan(store.localPrior?.points, x, y, z);
     store.clouds.push({ t, frame: store.config.frame, points });

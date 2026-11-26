@@ -61,6 +61,33 @@ class MujocoTelemetry(Node):
             self.lidar = self.create_publisher(
                 __import__('sensor_msgs.msg', fromlist=['PointCloud2']).PointCloud2,
                 lidar_topic, qos_profile_sensor_data)
+            # mj_multiRay costs ~14 ms per ray on a 1616 x 1611 heightfield (mesh_v3: 27 s per scan).
+            # Large axis-aligned hfields are ray-marched in numpy instead and excluded from mj_multiRay by group.
+            self._grids, skip = [], set()
+            for g in range(model.ngeom):
+                if model.geom_type[g] != mujoco.mjtGeom.mjGEOM_HFIELD:
+                    continue
+                h = model.geom_dataid[g]
+                nrow, ncol = int(model.hfield_nrow[h]), int(model.hfield_ncol[h])
+                if nrow * ncol < 250_000 or not np.allclose(model.geom_quat[g], [1, 0, 0, 0]):
+                    continue
+                rx, ry, rz, _ = model.hfield_size[h]
+                adr = int(model.hfield_adr[h])
+                height = model.hfield_data[adr:adr + nrow * ncol].reshape(nrow, ncol) * rz + model.geom_pos[g][2]
+                x0, y0 = model.geom_pos[g][0] - rx, model.geom_pos[g][1] - ry
+                cell = (x0, y0, 2 * rx / (ncol - 1), 2 * ry / (nrow - 1))
+                same = [k for k, grid in enumerate(self._grids) if grid[0].shape == height.shape and np.allclose(grid[1:], cell)]
+                if same:  # ground + no-go on one grid: the upper surface is what a ray hits first from above
+                    self._grids[same[0]] = (np.maximum(self._grids[same[0]][0], height), *cell)
+                else:
+                    self._grids.append((height, *cell))
+                skip.add(int(model.geom_group[g]))
+            others = [g for g in range(model.ngeom) if model.geom_group[g] in skip
+                      and model.geom_type[g] != mujoco.mjtGeom.mjGEOM_HFIELD]
+            if others:
+                self.get_logger().warning(f'{len(others)} non-hfield geoms share ray-marched groups {sorted(skip)} and are not seen by the LiDAR')
+            self._geomgroup = (np.array([0 if i in skip else 1 for i in range(6)], dtype=np.uint8)
+                               if skip else None)
         self.imu_pub = None
         if accel_sensor is not None or gyro_sensor is not None:
             if not all([accel_sensor, gyro_sensor, imu_topic, imu_frame]):
@@ -106,6 +133,27 @@ class MujocoTelemetry(Node):
         if self.lidar and t - self.last_lidar >= self.period - 1e-9:
             self._scan(data, stamp)
             self.last_lidar = t
+    def _march(self, grid, origin, rays, step=.1):
+        """First crossing below a heightfield along each ray (nearest cell height, linear refine), inf if none."""
+        height, x0, y0, dx, dy = grid
+        s = np.arange(step, self.max_range, step)
+        p = origin + rays[:, None, :] * s[None, :, None]
+        j = np.rint((p[..., 0] - x0) / dx).astype(np.int64)
+        i = np.rint((p[..., 1] - y0) / dy).astype(np.int64)
+        inside = (i >= 0) & (i < height.shape[0]) & (j >= 0) & (j < height.shape[1])
+        gap = np.full(p.shape[:2], np.inf)
+        gap[inside] = p[..., 2][inside] - height[i[inside], j[inside]]
+        below = gap <= 0
+        first = below.argmax(axis=1)
+        found = below[np.arange(len(rays)), first]
+        out = np.full(len(rays), np.inf)
+        k = first[found]
+        before = np.where(k > 0, gap[found.nonzero()[0], np.maximum(k - 1, 0)], 0.0)
+        after = gap[found.nonzero()[0], k]
+        frac = np.where(np.isfinite(before) & (before > after), before / np.maximum(before - after, 1e-9), 1.0)
+        out[found] = s[k] - step * (1 - frac)
+        return out
+
     def _scan(self, data, stamp):
         # Instantaneous scan, lidar_rings x lidar_columns rays (default 16 x 360). Per-point t=0 ns: NOT a spinning LiDAR model.
         origin = np.asarray(data.site_xpos[self.site], dtype=np.float64)
@@ -115,8 +163,11 @@ class MujocoTelemetry(Node):
         n = len(directions)
         geomid, distance = np.zeros(n, dtype=np.int32), np.zeros(n)
         # One batched call instead of n Python-level mj_ray calls; same rays and exclusions.
-        mujoco.mj_multiRay(self.model, data, origin, world, None, 1, self.lidar_body,
+        mujoco.mj_multiRay(self.model, data, origin, world, self._geomgroup, 1, self.lidar_body,
                            geomid, distance, None, n, self.max_range)
+        distance[distance < 0] = np.inf
+        for grid in self._grids:
+            distance = np.minimum(distance, self._march(grid, origin, world.reshape(-1, 3)))
         hit = (distance > .15) & (distance < self.max_range)
         points = [(*map(float, d * r), 1.0, 0) for d, r in zip(directions[hit], distance[hit])]
         fields = [PointField(name=n, offset=i * 4, datatype=PointField.FLOAT32, count=1)

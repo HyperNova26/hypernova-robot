@@ -18,6 +18,43 @@
 
 MuJoCo SIM은 보행 시뮬레이션이 아닙니다. LiDAR만 단 mocap 몸체를 지형 위 경로로 옮기는 kinematic 재생이며, `/localization/odometry`에는 LIO 추정이 아니라 SIM 자세가 들어갑니다.
 
+## 2026-11-26 갱신: 실측 bag 재생과 로봇 표시
+
+11-15 핸드헬드 기록(rosbag2)을 Super-LIO로 다시 추정해 `pair360_map` 위에 보여 줍니다. 위의 '확인한 범위' 표는 11-16 기준이며, 이번 갱신에서 확인한 것은 다음과 같습니다.
+
+| 항목 | 결과 |
+| --- | --- |
+| 단위·인터페이스 시험 | `npm test` 59개 통과, `tsc` 통과 (Windows, Node.js 24.19.0). `public/robot/`이 없으면 URDF 사본 시험 1개는 건너뜁니다 |
+| 실측 bag → Super-LIO → 대시보드 | `replay/run-demo.ps1 -Bag <11-15 rosbag2>`, 0.5배속. 출발점(x -46.7 m)부터 지형 위 로봇, 궤적, LiDAR 누적 갱신을 화면으로 확인 |
+| 지도 정합 | `replay/registration/1115_superlio.env`. FAST-LIO2 정합 경로 대비 수평 차이 중앙값 0.46 m, p95 0.69 m. 같은 기록 안에서만 유효합니다 |
+| 확인하지 못한 것 | LiDAR–IMU 외부 보정(추정값 사용), 실제 `LocalizationStatus`, 실기 보행, 다른 기록의 정합 |
+
+화면에서 바뀐 점은 다음과 같습니다.
+
+- **지형 메시**: pair360-map mesh_v3 PLY(지면·장애물·나무) 전체를 0.4 m 군집으로 단순화한 회색 표시용 메시입니다(`python adapters/prepare-terrain-ply.py <mesh_v3 폴더>`). 이전 Isaac USD 메시는 경로 A 둘레 30 m로 잘려 11-15 출발점이 빠졌습니다.
+- **LiDAR 누적**: 수신한 `/lidar/points`를 0.1 m voxel당 1점으로 최대 200만 점까지 쌓고, 바로 아래 지면 기준 높이(0–5 m)로 무지개색(turbo)을 칠합니다. 현재 스캔은 흰색입니다.
+- **로봇 표시**: `description/hn_v1_hyper` URDF를 `python adapters/prepare-robot.py <description/hn_v1_hyper> --cell-mm 3`으로 `public/robot/hn_v1_hyper/`에 복사·경량화해 그립니다(시각 메시 약 55만 → 8만 삼각형). 로봇 형상의 정본은 `description/`이므로 이 사본은 커밋하지 않습니다. 사본이 없으면 간략 모델로 돌아갑니다. 위치·방향(yaw)은 `mlx_lidar` 추정값에 URDF `front_lidar` 장착 오프셋을 반영하고, 높이는 지형 메시 + 서 있는 높이입니다. 다리는 `src/gait.ts`의 trot 표시용 애니메이션(이동 거리로 위상 진행, 2링크 IK)이며 관절 실측이나 보행 정책 출력이 아닙니다.
+
+### 재생 실행 (`replay/`)
+
+| 파일 | 역할 |
+| --- | --- |
+| `adapters/fast_lio_twist/Dockerfile` | `hn:ros-2026.10.1-local`에 twist를 채우는 FAST-LIO2를 다시 빌드한 `hn:ros-2026.10.1-local-twist` |
+| `replay/Dockerfile.superlio` | 위 이미지에 Super-LIO(`f89f48d`)를 더한 `hn:ros-2026.10.1-local-superlio` |
+| `replay/run_bag_superlio.sh`, `super_lio_mlx.yaml` | bag 재생 → Super-LIO → `adapters/lio_adapter.py` → `foxglove_bridge` |
+| `replay/run_bag_lio.sh`, `fast_lio_mlx.yaml` | 같은 재생을 FAST-LIO2로 (이전 경로) |
+| `replay/registration/` | `pair360_map` 정합값(`1115*.env`·`.json`)과 정합 스크립트 |
+| `replay/run-demo.ps1` | Docker 재생과 dev server를 함께 띄우는 Windows 실행 스크립트 |
+
+```powershell
+cd replay
+docker build -t hn:ros-2026.10.1-local-twist ../adapters/fast_lio_twist
+docker build -t hn:ros-2026.10.1-local-superlio -f Dockerfile.superlio .
+./run-demo.ps1 -Bag <20261115T120809_074988Z_measurement_e03893/rosbag2> -Rate 0.5
+```
+
+컨테이너는 `ROS_DOMAIN_ID=42`로 띄웁니다. 같은 호스트의 다른 ROS 컨테이너(예: MuJoCo SIM)와 같은 domain이면 토픽이 섞입니다. 대시보드의 ROS 주소 설정은 새로고침하면 기본값으로 돌아가므로, 재생 전에 주소를 다시 확인합니다. 원본 bag과 지도·지형 파일은 커밋하지 않습니다.
+
 ## 실행
 
 이 폴더에서 실행합니다.
@@ -128,5 +165,7 @@ ros2 launch foxglove_bridge foxglove_bridge_launch.xml address:=127.0.0.1 port:=
 
 - `hn_interfaces/msg/LocalizationStatus` 정의와 상태 판정 조건
 - GT 토픽 이름과 `mlx_lidar`·`front_lidar` frame 이름 합의
-- 팀 LIO 어댑터 출력으로 실제 추정 궤적 확인
+- 팀 LIO 어댑터 출력으로 실제 추정 궤적 확인 (11-15 bag 재생으로 Super-LIO 경로는 확인, 실기 미확인)
+- LiDAR–IMU 외부 보정과 대시보드 ROS 주소 설정 유지
+- S-012 전역 경로(`/navigation/global_path`, `nav_msgs/msg/Path`) 표시
 - 이 폴더를 colcon package(launch·config 포함)로 정리할지 결정

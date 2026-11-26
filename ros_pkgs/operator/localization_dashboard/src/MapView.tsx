@@ -6,6 +6,8 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { telemetry as s } from "./store";
 import { mapClasses, mapReviewLabel, priorExcluded } from "./model";
 import { createGo2Marker } from "./Go2Marker";
+import { loadRobot, type RobotModel } from "./RobotModel";
+import { LidarMap, TerrainIndex } from "./observed";
 const groundLabel = mapClasses.findIndex((c) => c.name === "지면"),
   priorGray = "#9aa4ad";
 export function MapView() {
@@ -21,8 +23,11 @@ export function MapView() {
     [ground, setGround] = useState(true),
     [offGround, setOffGround] = useState(true),
     [mesh, setMesh] = useState(true),
+    [paint, setPaint] = useState(true),
     [meshInfo, setMeshInfo] = useState(""),
-    [size, setSize] = useState(3),
+    [robotInfo, setRobotInfo] = useState("로봇 모델 읽는 중"),
+    [painted, setPainted] = useState(0),
+    [size, setSize] = useState(1),
     [failure, setFailure] = useState("");
   const options = useRef({
     follow,
@@ -32,6 +37,7 @@ export function MapView() {
     ground,
     offGround,
     mesh,
+    paint,
     size,
   });
   options.current = {
@@ -42,6 +48,7 @@ export function MapView() {
     ground,
     offGround,
     mesh,
+    paint,
     size,
   };
   useEffect(() => {
@@ -83,7 +90,7 @@ export function MapView() {
         size: 0.13,
         vertexColors: true,
       }),
-      scanMaterial = new THREE.PointsMaterial({ size: 0.1, color: 0xe9bd57 });
+      scanMaterial = new THREE.PointsMaterial({ size: 0.1, color: 0xf4f7fa });
     const map = new THREE.Points(mapGeometry, mapMaterial),
       currentScan = new THREE.Points(scanGeometry, scanMaterial);
     scene.add(map, currentScan);
@@ -91,7 +98,7 @@ export function MapView() {
     const terrain = new THREE.Mesh(
       new THREE.BufferGeometry(),
       new THREE.MeshStandardMaterial({
-        color: 0x4f6b5c,
+        color: 0x6f7880,
         roughness: 0.95,
         flatShading: true,
         transparent: true,
@@ -103,6 +110,21 @@ export function MapView() {
     );
     terrain.visible = false;
     scene.add(terrain);
+    let terrainIndex: TerrainIndex | undefined;
+    // Accumulated LiDAR map over the gray prior: turbo by height above the ground (display only).
+    const lidarMap = new LidarMap(),
+      lidarGeometry = new THREE.BufferGeometry(),
+      lidarPositions = new THREE.BufferAttribute(lidarMap.positions, 3),
+      lidarColors = new THREE.BufferAttribute(lidarMap.colors, 3);
+    lidarGeometry.setAttribute("position", lidarPositions);
+    lidarGeometry.setAttribute("color", lidarColors);
+    lidarGeometry.setDrawRange(0, 0);
+    const lidarPoints = new THREE.Points(
+      lidarGeometry,
+      new THREE.PointsMaterial({ size: 0.08, vertexColors: true }),
+    );
+    lidarPoints.frustumCulled = false;
+    scene.add(lidarPoints);
     const meshLoad = new AbortController();
     fetch("/terrain-mesh.json", { signal: meshLoad.signal, cache: "no-cache" })
       .then(async (response) => {
@@ -135,6 +157,10 @@ export function MapView() {
         );
         geometry.computeVertexNormals();
         geometry.computeBoundingSphere();
+        terrainIndex = new TerrainIndex(
+          geometry.getAttribute("position").array as Float32Array,
+          meta.cell_m ?? 0.4,
+        );
         setMeshInfo(
           `지형 메시 ${meta.scene_sha256.slice(0, 12)} · ${meta.triangles.toLocaleString()} 삼각형`,
         );
@@ -160,8 +186,30 @@ export function MapView() {
     scene.add(path, gtLine);
     const robot = createGo2Marker();
     scene.add(robot.root);
+    // Team URDF (v1 HYPER) replaces the box marker once loaded.
+    let model: RobotModel | undefined;
+    const modelRoot = new THREE.Group();
+    modelRoot.visible = false;
+    scene.add(modelRoot);
+    loadRobot("/robot/hn_v1_hyper", meshLoad.signal)
+      .then((m) => {
+        model = m;
+        modelRoot.add(m.root);
+        setRobotInfo("v1 HYPER URDF");
+      })
+      .catch((e) => {
+        if (!meshLoad.signal.aborted)
+          setRobotInfo("URDF 없음, Go2 간략 모델: " + String(e));
+      });
+    let lastFrame = performance.now(),
+      lastYaw: number | undefined,
+      smoothYaw = 0,
+      smoothZ: number | undefined,
+      robotGround = 0,
+      lastPaintCount = 0;
     let previousMap: unknown,
       previousScan: unknown,
+      previousPaint: unknown,
       lastPath = -1,
       lastGT = -1,
       lastColor = false,
@@ -199,7 +247,7 @@ export function MapView() {
         if (!s.current) return;
         const p = s.current.p;
         controls.target.set(p.x, p.y, p.z);
-        camera.position.set(p.x + 6, p.y - 8, p.z + 5);
+        camera.position.set(p.x + 3, p.y - 4, p.z + 2.5);
       },
     };
     const resize = new ResizeObserver(() => {
@@ -269,7 +317,33 @@ export function MapView() {
           !s.liveSession ||
           s.config.mapVerified ||
           s.livePrior?.frame === s.config.frame);
-      const cloud = s.mapAligned && opts.scan ? s.mapCloud : undefined;
+      const aligned = s.mapAligned ? s.mapCloud : undefined;
+      if (s.lio.length < lastPath) {
+        lidarMap.clear();
+        lidarGeometry.setDrawRange(0, 0);
+      }
+      if (aligned && aligned !== previousPaint && !lidarMap.full) {
+        previousPaint = aligned;
+        const first = lidarMap.add(
+          aligned.points,
+          (x, y) => terrainIndex?.groundAt(x, y),
+          robotGround,
+        );
+        if (lidarMap.count > first) {
+          for (const attr of [lidarPositions, lidarColors]) {
+            attr.clearUpdateRanges();
+            attr.addUpdateRange(first * 3, (lidarMap.count - first) * 3);
+            attr.needsUpdate = true;
+          }
+          lidarGeometry.setDrawRange(0, lidarMap.count);
+        }
+      }
+      lidarPoints.visible = opts.paint;
+      if (lidarMap.count !== lastPaintCount) {
+        lastPaintCount = lidarMap.count;
+        setPainted(lidarMap.count);
+      }
+      const cloud = opts.scan ? aligned : undefined;
       if (cloud !== previousScan) {
         previousScan = cloud;
         scanGeometry.setAttribute(
@@ -297,24 +371,73 @@ export function MapView() {
       }
       path.visible = s.mapAligned;
       gtLine.visible = s.mapAligned && opts.gt;
-      const p = s.current;
-      robot.root.visible =
+      const p = s.current,
+        now = performance.now(),
+        dt = Math.min(0.1, (now - lastFrame) / 1000);
+      lastFrame = now;
+      const shown =
         !!p &&
         s.mapAligned &&
         p.frame === s.config.frame &&
         p.child === s.config.base;
-      if (p && robot.root.visible) {
-        robot.root.position.set(p.p.x, p.p.y, p.p.z);
-        const q = s.lio.at(-1)?.q;
-        if (q) robot.root.quaternion.set(q.x, q.y, q.z, q.w);
-        robot.root.scale.setScalar(opts.size);
-        robot.animate(p.t * 8, s.receiving && (p.speed ?? 0) > 0.03);
-        if (opts.follow) {
-          const delta = robot.root.position.clone().sub(controls.target);
-          camera.position.add(delta);
-          controls.target.copy(robot.root.position);
+      robot.root.visible = shown && !model;
+      modelRoot.visible = shown && !!model;
+      if (p && shown) {
+        const q = s.lio.at(-1)?.q,
+          moving = s.receiving ? (p.speed ?? 0) : 0;
+        // Heading only: the recording is hand-held, so its roll/pitch is not the robot's.
+        const forward = q
+          ? new THREE.Vector3(1, 0, 0).applyQuaternion(
+              new THREE.Quaternion(q.x, q.y, q.z, q.w),
+            )
+          : new THREE.Vector3(1, 0, 0);
+        const yaw = Math.atan2(forward.y, forward.x);
+        const turn =
+          lastYaw === undefined
+            ? 0
+            : Math.atan2(Math.sin(yaw - lastYaw), Math.cos(yaw - lastYaw));
+        if (lastYaw === undefined) smoothYaw = yaw;
+        lastYaw = yaw;
+        const k = Math.min(1, dt * 8);
+        smoothYaw +=
+          Math.atan2(Math.sin(yaw - smoothYaw), Math.cos(yaw - smoothYaw)) * k;
+        if (model) {
+          const scale = opts.size,
+            offset = new THREE.Vector3(
+              model.lidarOffset.x,
+              model.lidarOffset.y,
+              0,
+            )
+              .applyAxisAngle(new THREE.Vector3(0, 0, 1), smoothYaw)
+              .multiplyScalar(scale),
+            x = p.p.x - offset.x,
+            y = p.p.y - offset.y,
+            ground = terrainIndex?.groundAt(x, y),
+            bob = model.animate(dt, moving, dt > 0 ? turn / dt : 0);
+          const z =
+            ground !== undefined
+              ? ground + (model.standHeight + bob) * scale
+              : // Off the terrain mesh: the 11-15 recording held the LiDAR about
+                // 0.94 m above the trunk height used in isaac-runpod/trajectory_1115_base.csv.
+                p.p.z - 0.94;
+          smoothZ = smoothZ === undefined ? z : smoothZ + (z - smoothZ) * k;
+          robotGround = ground ?? p.p.z - 0.94 - model.standHeight;
+          modelRoot.position.set(x, y, smoothZ);
+          modelRoot.rotation.set(0, 0, smoothYaw);
+          modelRoot.scale.setScalar(scale);
+        } else {
+          robot.root.position.set(p.p.x, p.p.y, p.p.z);
+          if (q) robot.root.quaternion.set(q.x, q.y, q.z, q.w);
+          robot.root.scale.setScalar(opts.size * 3);
+          robot.animate(p.t * 8, moving > 0.03);
         }
-      }
+        if (opts.follow) {
+          const target = model ? modelRoot.position : robot.root.position;
+          const delta = target.clone().sub(controls.target);
+          camera.position.add(delta);
+          controls.target.copy(target);
+        }
+      } else lastYaw = undefined;
       controls.update();
       renderer.render(scene, camera);
       id = requestAnimationFrame(draw);
@@ -429,7 +552,15 @@ export function MapView() {
               />
               Prior 비지면
             </label>
-            <label title="현재 LiDAR 스캔">
+            <label title="이번 세션에 받은 LiDAR 점을 0.1 m 칸마다 하나씩 누적해, 바닥에서의 높이(0~5 m)로 무지개색을 칠합니다(표시용)">
+              <input
+                type="checkbox"
+                checked={paint}
+                onChange={(e) => setPaint(e.target.checked)}
+              />
+              LiDAR 누적
+            </label>
+            <label title="현재 LiDAR 스캔(흰색)">
               <input
                 type="checkbox"
                 checked={scan}
@@ -446,10 +577,10 @@ export function MapView() {
             />
             분류색
           </label>
-          <label title="실제 크기가 아닌 표시용 배율">
-            Go2 표시 배율
+          <label title="1이 실제 크기입니다">
+            로봇 표시 배율
             <input
-              aria-label="Go2 표시 배율"
+              aria-label="로봇 표시 배율"
               type="range"
               min="1"
               max="8"
@@ -472,8 +603,9 @@ export function MapView() {
         </em>
       </div>
       <div className="map-model-note">
-        Go2 간략 모델 · 위치 기준 {s.config.base} · 보행은 속도 기반 표시용
-        애니메이션 (관절 실측 아님) · {meshInfo || "지형 메시 읽는 중"}
+        {robotInfo} · 위치 기준 {s.config.base}(수평 위치·방향만, 높이는 지형) ·
+        다리는 이동 거리 기반 trot 표시용 애니메이션(관절 실측 아님) · LiDAR
+        누적 {painted.toLocaleString()}점 · {meshInfo || "지형 메시 읽는 중"}
       </div>
     </section>
   );

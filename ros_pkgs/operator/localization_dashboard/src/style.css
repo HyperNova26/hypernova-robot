@@ -561,6 +561,16 @@ input[type="checkbox"] {
 .localization-value strong[data-code="5"] {
   color: #e7a49a;
 }
+.localization-value strong[data-severity="0"] {
+  color: #80cbb5;
+}
+.localization-value strong[data-severity="1"] {
+  color: #e1c483;
+}
+.localization-value strong[data-severity="2"],
+.localization-value strong[data-severity="3"] {
+  color: #e7a49a;
+}
 .localization-value strong.stale {
   opacity: 0.5;
 }

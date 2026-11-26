@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2026 HYPERNOVA contributors
+# SPDX-License-Identifier: Apache-2.0
+# Local image: hn:ros with the FAST-LIO2 twist patch (../adapters/fast_lio_twist) + Super-LIO (ROS 2 branch)
+# for the 11-15 bag replay. Build from this folder:
+#   docker build -t hn:ros-2026.10.1-local-superlio -f Dockerfile.superlio .
+# Source: github.com/Liansheng-Wang/Super-LIO @ f89f48dc7aea6cfa262f18e4d03b319e04e0dbd2 (2026-07-13).
+ARG BASE=hn:ros-2026.10.1-local-twist
+FROM ${BASE}
+USER root
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN apt-get update && apt-get install -y --no-install-recommends libgoogle-glog-dev libtbb-dev \
+    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    git clone https://github.com/Liansheng-Wang/Super-LIO.git /tmp/Super-LIO; \
+    git -C /tmp/Super-LIO checkout f89f48dc7aea6cfa262f18e4d03b319e04e0dbd2; \
+    mkdir -p /opt/superlio_ws; mv /tmp/Super-LIO/src /opt/superlio_ws/src; rm -rf /tmp/Super-LIO; \
+    set +u; . /opt/ros/jazzy/setup.bash; . /opt/hn_ws/install/setup.bash; set -u; \
+    cd /opt/superlio_ws; colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release

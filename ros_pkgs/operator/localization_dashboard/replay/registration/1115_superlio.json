@@ -1,0 +1,56 @@
+{
+  "transform": "pair360_map <- world (Super-LIO run with sensor-capture/ros/super_lio_mlx.yaml, 11-15 recording)",
+  "matrix": [
+    [
+      -0.203753,
+      -0.978412,
+      0.034704,
+      -48.413888
+    ],
+    [
+      0.977102,
+      -0.205445,
+      -0.055356,
+      119.613002
+    ],
+    [
+      0.06129,
+      0.02263,
+      0.997869,
+      1.463196
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "rpy_deg": [
+    1.299,
+    -3.514,
+    101.779
+  ],
+  "via": "1115.json (pair360_map <- FAST-LIO camera_init) composed with the inverse of the first /lio/odom pose",
+  "source_bag": "/hyper/lio_ws/runs/superlio_1115_identity",
+  "check_vs_fastlio_path": {
+    "matched_samples": 5050,
+    "horizontal_m": {
+      "median": 0.45657026138020285,
+      "p95": 0.6920195978509639,
+      "max": 0.7812211318251292
+    },
+    "vertical_m": {
+      "median": 0.19285922630805796,
+      "p95_abs": 0.3362692641722026
+    },
+    "end_point_superlio_xy": [
+      -48.401,
+      119.44
+    ],
+    "start_point_superlio_xy": [
+      -48.429,
+      119.613
+    ]
+  }
+}

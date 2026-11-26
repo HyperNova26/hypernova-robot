@@ -79,6 +79,54 @@ function LocalizationState() {
     </div>
   );
 }
+// G-006 /locomotion/status. Colour follows severity (OK/WARN/ERROR/STALE), not the code.
+function LocomotionState() {
+  const g = s.locomotion;
+  const age = g ? Date.now() - g.received : undefined;
+  const stale = age !== undefined && age >= s.config.timeout;
+  return (
+    <div className="localization-state">
+      <div className="localization-label">
+        <span>보행 상태 (G-006)</span>
+        <span>
+          {stale ? "상태 수신 지연" : g ? "상태 수신 중" : "상태 미수신"}
+        </span>
+      </div>
+      <div className="localization-value">
+        <strong
+          data-severity={g?.severity}
+          className={stale ? "stale" : ""}
+          title={g?.reason}
+        >
+          {g
+            ? g.label + (g.reason ? ` · ${g.reason}` : "")
+            : s.liveSession || s.demo
+              ? "상태 메시지 없음"
+              : "대기 중"}
+        </strong>
+        <small>{g ? `${g.severityLabel} · CODE ${g.code ?? "—"}` : "—"}</small>
+      </div>
+      <div className="localization-detail">
+        {g?.issue ??
+          (g
+            ? `기울기 ${n(g.tilt, 1)}° · R ${n(g.roll, 1)}° P ${n(g.pitch, 1)}° · ${n(g.speed)} m/s · 높이 ${n(g.height)} m · ${g.timeSource} ${g.t === undefined ? "미제공" : n(g.t, 2) + " s"}`
+            : s.config.locomotion + " · 코드 0–6")}
+      </div>
+      {g?.issue && (
+        <details>
+          <summary>수신 메시지 확인</summary>
+          <pre>
+            {JSON.stringify(
+              g.raw,
+              (_, v) => (typeof v === "bigint" ? String(v) : v),
+              2,
+            )}
+          </pre>
+        </details>
+      )}
+    </div>
+  );
+}
 function State() {
   const a = s.current;
   const age = s.lastReceived ? Date.now() - s.lastReceived : undefined;
@@ -94,6 +142,7 @@ function State() {
         </span>
       </div>
       <LocalizationState />
+      <LocomotionState />
       <div className="state-body">
         <div className="state-label">
           POSITION{" "}
@@ -180,7 +229,7 @@ function Logger() {
   const rows = paused ? frozen.current : s.rows;
   const exportCsv = () => {
     const url = URL.createObjectURL(
-      new Blob([csv(s.rows, s.events, s.statuses)], {
+      new Blob([csv(s.rows, s.events, s.statuses, s.gait)], {
         type: "text/csv;charset=utf-8",
       }),
     );
@@ -256,6 +305,7 @@ function Logger() {
                 "SPEED (m/s)",
                 "GT ERROR (m)",
                 "위치추정 상태",
+                "보행 상태",
                 "LIO 수신",
               ].map((x) => (
                 <th key={x}>{x}</th>
@@ -278,6 +328,9 @@ function Logger() {
                   <td>{n(a.speed, 3)}</td>
                   <td title={a.reason}>{n(a.error, 3)}</td>
                   <td>{a.localization?.label || "N/A"}</td>
+                  <td title={a.locomotion?.reason}>
+                    {a.locomotion?.label || "N/A"}
+                  </td>
                   <td>
                     <span className="table-status">● 수신 중</span>
                   </td>
@@ -319,6 +372,7 @@ function Settings({
     ["scan", "현재 PointCloud2 토픽"],
     ["status", "LocalizationStatus 토픽"],
     ["statusField", "상태 코드 필드 경로 (기본 status · 미확정)"],
+    ["locomotion", "보행 상태 토픽 (G-006 LocomotionStatus)"],
     ["prior", "Reference Map PointCloud2 토픽"],
   ];
   return (
@@ -410,7 +464,7 @@ export default function App() {
   const upload = useRef<HTMLInputElement>(null);
   const [mapShare, setMapShare] = useState(68),
     [logHeight, setLogHeight] = useState(140),
-    [stateHeight, setStateHeight] = useState(244);
+    [stateHeight, setStateHeight] = useState(312); // +68 px for the G-006 gait block
   // Remembers which source "수신 시작" resumes after "수신 중지".
   const lastSource = useRef<"demo" | "live">("live");
   const workspace = useRef<HTMLElement>(null),

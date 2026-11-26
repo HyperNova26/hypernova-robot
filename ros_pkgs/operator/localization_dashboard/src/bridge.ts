@@ -25,6 +25,7 @@ export function connect(store: Telemetry) {
     gt: store.config.gt,
     scan: store.config.scan,
     status: store.config.status,
+    locomotion: store.config.locomotion,
     prior: store.config.prior,
     clock: "/clock",
     tf: "/tf",
@@ -72,6 +73,7 @@ export function connect(store: Telemetry) {
           scan: "sensor_msgs/PointCloud2",
           prior: "sensor_msgs/PointCloud2",
           status: "hn_interfaces/LocalizationStatus",
+          locomotion: "hn_interfaces/LocomotionStatus",
           tf: "tf2_msgs/TFMessage",
           tf_static: "tf2_msgs/TFMessage",
           clock: "rosgraph_msgs/Clock",
@@ -98,7 +100,11 @@ export function connect(store: Telemetry) {
             schema: channel.schema,
             schemaEncoding: channel.schemaEncoding ?? "ros2msg",
             encoding: channel.encoding,
-            latched: role === "prior" || role === "tf_static",
+            // /locomotion/status is transient_local depth 1 (ADR-0004), like the map and static TF.
+            latched:
+              role === "prior" ||
+              role === "tf_static" ||
+              role === "locomotion",
           },
         });
         channelSubs.set(channel.id, id);

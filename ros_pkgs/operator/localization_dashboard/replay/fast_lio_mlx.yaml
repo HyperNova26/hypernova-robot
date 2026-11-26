@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: 2026 HYPERNOVA contributors
+# SPDX-License-Identifier: Apache-2.0
+# FAST-LIO2 (hku-mars/FAST_LIO ROS2 a4743b0) for hypernova-capture-v1 bags: SOSLAB ML-X 20 Hz + MPU-9250 200 Hz.
+# PROVISIONAL (2026-11-22): extrinsics are not calibrated. Values below come from data checks, see ../README.md.
+/**:
+    ros__parameters:
+        feature_extract_enable: false
+        point_filter_num: 2              # 10752 pts/frame at 20 Hz
+        max_iteration: 3
+        filter_size_surf: 0.3
+        filter_size_map: 0.3
+        cube_side_length: 1000.0
+        runtime_pos_log_enable: false
+        map_file_path: "/tmp/fast_lio_mlx.pcd"
+
+        common:
+            lid_topic: "/sensors/lidar/points"   # export_rosbag.py topic, frame lidar_native
+            imu_topic: "/sensors/imu"            # frame imu_native, m/s^2 and rad/s
+            time_sync_en: false
+            time_offset_lidar_to_imu: 0.0        # both stamped on the same PC receipt clock; yaw check found no offset beyond frame duration
+
+        preprocess:
+            lidar_type: 2        # Velodyne-style PointCloud2: float time + uint16 ring fields match the exporter
+            scan_line: 56        # ML-X rows
+            scan_rate: 20        # only used when point times are missing
+            timestamp_unit: 0    # exporter time field is seconds from the first row
+            blind: 0.3           # drops zero returns (0,0,0) and near clutter
+
+        mapping:
+            acc_cov: 0.1
+            gyr_cov: 0.1
+            b_acc_cov: 0.0001
+            b_gyr_cov: 0.0001
+            fov_degree: 120.0    # ML-X horizontal FoV; vertical FoV is narrow
+            det_range: 35.0
+            extrinsic_est_en: false
+            # p_imu = R * p_lidar + T. IMU z points down (rest accel z = -9.56) while LiDAR z points up:
+            # 180 deg about x: yaw sign (10-31) and ground-tilt tracking over 11-15 (2.4 vs 10.1 deg) pick Rx(pi). Translation unknown.
+            extrinsic_T: [0.0, 0.0, 0.0]
+            extrinsic_R: [1.,  0.,  0.,
+                          0., -1.,  0.,
+                          0.,  0., -1.]
+
+        publish:
+            path_en: true
+            scan_publish_en: true
+            dense_publish_en: true       # dashboard scan view; false sends only ~200 downsampled points
+            scan_bodyframe_pub_en: false
+
+        pcd_save:
+            pcd_save_en: false
+            interval: -1

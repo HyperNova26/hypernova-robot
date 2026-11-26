@@ -190,6 +190,7 @@ describe("collection and lifecycle", () => {
     expect(output).toContain('"event","2"');
     expect(output).not.toContain("undefined");
     const lines = output.trim().split("\r\n");
-    expect(lines.map((x) => x.split(",").length)).toEqual([27, 27, 27]);
+    // 27 localization columns + 13 G-006 locomotion columns
+    expect(lines.map((x) => x.split(",").length)).toEqual([40, 40, 40]);
   });
 });

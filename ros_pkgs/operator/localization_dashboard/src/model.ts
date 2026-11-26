@@ -87,6 +87,89 @@ export function localizationStatus(
     raw: message,
   };
 }
+// G-006 hn_interfaces/msg/LocomotionStatus (feat/sim-fault-injection, 2026-11-20, ADR-0004 Proposed).
+// header.stamp is wall time by default; sim_time_s carries SIM time (NaN on the real robot).
+export const locomotionStates = [
+  "INITIALIZING",
+  "STANDING",
+  "WALKING",
+  "TILTING",
+  "SLIPPING",
+  "FALLEN",
+  "STALE_INPUT",
+] as const;
+export const locomotionSeverities = ["OK", "WARN", "ERROR", "STALE"] as const;
+export type LocomotionStatus = {
+  code?: number;
+  label: string;
+  state?: string;
+  severity?: number;
+  severityLabel: string;
+  reason?: string;
+  sinceS?: number;
+  robotId?: string;
+  tilt?: number;
+  roll?: number;
+  pitch?: number;
+  speed?: number;
+  height?: number;
+  t?: number;
+  timeSource: "sim_time_s" | "header.stamp" | "없음";
+  received: number;
+  issue?: string;
+  raw: unknown;
+};
+const finite = (v: unknown) =>
+  typeof v === "number" && Number.isFinite(v) ? v : undefined;
+const integer = (v: unknown) =>
+  typeof v === "number" && Number.isInteger(v) ? v : undefined;
+export function locomotionStatus(
+  message: any,
+  received: number,
+): LocomotionStatus {
+  const code = integer(message.code),
+    severity = integer(message.severity);
+  const sim = finite(message.sim_time_s),
+    header = message.header?.stamp
+      ? finite(stamp(message.header.stamp))
+      : undefined;
+  const label =
+    code === undefined
+      ? "필드 확인 필요"
+      : (locomotionStates[code] ?? `UNKNOWN(${code})`);
+  const state = typeof message.state === "string" ? message.state : undefined;
+  return {
+    code,
+    label,
+    state,
+    severity,
+    severityLabel:
+      severity === undefined
+        ? "—"
+        : (locomotionSeverities[severity] ?? `UNKNOWN(${severity})`),
+    reason: typeof message.reason === "string" ? message.reason : undefined,
+    sinceS: finite(message.since_s),
+    robotId: typeof message.robot_id === "string" ? message.robot_id : undefined,
+    tilt: finite(message.tilt_deg),
+    roll: finite(message.roll_deg),
+    pitch: finite(message.pitch_deg),
+    speed: finite(message.speed_mps),
+    height: finite(message.height_m),
+    t: sim ?? header,
+    timeSource:
+      sim !== undefined ? "sim_time_s" : header !== undefined ? "header.stamp" : "없음",
+    received,
+    issue:
+      code === undefined
+        ? "정수 code 필드가 없습니다."
+        : locomotionStates[code] === undefined
+          ? "명세에 없는 상태 코드입니다."
+          : state !== undefined && state !== label
+            ? `code ${code}와 state '${state}'가 다릅니다.`
+            : undefined,
+    raw: message,
+  };
+}
 export type Sample = {
   t: number;
   frame: string;
@@ -101,6 +184,7 @@ export type Sample = {
   reason: string;
   received: number;
   localization?: LocalizationStatus;
+  locomotion?: LocomotionStatus;
 };
 export type Config = {
   url: string;
@@ -111,6 +195,7 @@ export type Config = {
   scan: string;
   status: string;
   statusField: string;
+  locomotion: string;
   prior: string;
   twistValid: boolean;
   tolerance: number;
@@ -126,6 +211,7 @@ export const defaults: Config = {
   scan: "/lidar/points",
   status: "/localization/status",
   statusField: "status",
+  locomotion: "/locomotion/status",
   prior: "/localization/reference_map",
   twistValid: true,
   tolerance: 0.05,
@@ -319,6 +405,7 @@ export const csv = (
   rows: Sample[],
   events: { t: number; event: string }[],
   statuses: LocalizationStatus[] = [],
+  locomotion: LocomotionStatus[] = [],
 ) => {
   const header = [
     "kind",
@@ -348,7 +435,36 @@ export const csv = (
     "localization_field",
     "localization_issue",
     "localization_payload_json",
+    "locomotion_code",
+    "locomotion_state",
+    "locomotion_severity",
+    "locomotion_reason",
+    "locomotion_time_s",
+    "locomotion_time_source",
+    "locomotion_tilt_deg",
+    "locomotion_roll_deg",
+    "locomotion_pitch_deg",
+    "locomotion_speed_m_s",
+    "locomotion_height_m",
+    "locomotion_issue",
+    "locomotion_payload_json",
   ];
+  const locomotionColumns = (s?: LocomotionStatus) => ({
+    locomotion_code: s?.code,
+    locomotion_state: s?.label,
+    locomotion_severity: s?.severity,
+    locomotion_reason: s?.reason,
+    locomotion_time_s: s?.t,
+    locomotion_time_source: s?.timeSource,
+    locomotion_tilt_deg: s?.tilt,
+    locomotion_roll_deg: s?.roll,
+    locomotion_pitch_deg: s?.pitch,
+    locomotion_speed_m_s: s?.speed,
+    locomotion_height_m: s?.height,
+    locomotion_issue: s?.issue,
+  });
+  const json = (raw: unknown) =>
+    JSON.stringify(raw, (_, v) => (typeof v === "bigint" ? String(v) : v));
   const statusColumns = (s?: LocalizationStatus) => ({
     localization_code: s?.code,
     localization_state: s?.label,
@@ -380,6 +496,7 @@ export const csv = (
       status: "수신 중",
       reason: s.reason,
       ...statusColumns(s.localization),
+      ...locomotionColumns(s.locomotion),
     })),
     ...events.map((e) => ({ kind: "event", sim_time_s: e.t, status: e.event })),
     ...statuses.map((s) => ({
@@ -387,9 +504,14 @@ export const csv = (
       sim_time_s: s.t,
       received_wall_ms: s.received,
       ...statusColumns(s),
-      localization_payload_json: JSON.stringify(s.raw, (_, v) =>
-        typeof v === "bigint" ? String(v) : v,
-      ),
+      localization_payload_json: json(s.raw),
+    })),
+    ...locomotion.map((s) => ({
+      kind: "locomotion_status",
+      sim_time_s: s.t,
+      received_wall_ms: s.received,
+      ...locomotionColumns(s),
+      locomotion_payload_json: json(s.raw),
     })),
   ];
   const escape = (value: unknown) =>
