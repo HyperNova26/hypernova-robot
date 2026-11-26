@@ -1,0 +1,188 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# 정책 입출력 계약(Policy IO), v1 HYPER Rough-Lidar 정책(배포용 기준). schema 2 초안(ADR-0005, Proposed).
+# 관측 순서, 행동 해석, 제어 주기, PD, 조인트 순서, actor height map을 만드는 방법을 여기에서만 정합니다.
+#
+# 2026-11-24 기준. 이 값을 바꾸면 이미 학습된 정책은 다시 학습해야 쓸 수 있습니다.
+# 단위: 길이 m, 각도 rad(LiDAR 시야는 deg), 시간 s, 토크 N·m. 좌표: base(trunk) 프레임은 +X 전방, +Y 좌, +Z 상.
+#
+# 근거: "확인함"은 이 체크포인트를 학습할 때 Isaac Lab이 저장한 설정(params/env.yaml, agent.yaml)과
+#   체크포인트 텐서 모양에서 직접 읽은 값입니다.
+# 출처: hn:sim(Isaac Lab 3.0.0, PhysX), task HN-Velocity-Rough-HYPERv1-Lidar, 4096 env, 5000 iteration.
+#   학습 코드 기준 커밋 07ec3cd.
+# 성능(일자 코스 level 9: 경사 20.8°, 계단 11.5 cm, 로봇 8대, 0.6 m/s 직진): 넘어짐 0, 내리막 몸통 높이 0.281 m.
+# 알려진 제한: 계단 오를 때 발끝이 계단 앞면에 걸리는 step 3.1%. 내려가는 계단의 가려진 아랫단을 평지로 봄.
+#   LiDAR 장착 위치·각도는 가정값이고 센서 질량은 0.01 kg 자리표시(실제 0.86 kg).
+#
+# schema 1(policies/urdf_v0/policy_io.yaml)과의 차이
+#   - observations에 base_lin_vel(맨 앞, 3) 추가 → actor 입력 235
+#   - height_scan.method 추가. 이 정책은 lidar_memory(아래 height_scan.lidar_memory)
+#   - height_scan.grid.center_offset_m 추가(grid 중심이 base보다 앞으로 0.45 m)
+# 로더 메모(2026-11-24): policies/route_walk/policy_io.py는 schema 1만 읽습니다. isaaclab_policy_io.apply_policy_io는
+#   height scanner offset을 (0, 0, start_height)로 덮어써서 center_offset_m(0.45 m)이 사라집니다. 로더는 따로 맞춥니다.
+
+schema_version: 2
+
+policy:
+  name: hn_hyperv1_rough_lidar
+  # 체크포인트는 policies/urdf_v1/pretrained/에 있습니다. 내보낸 actor 가중치(.npz)는 저장소에 두지 않습니다.
+  checkpoint:
+    file: hn_hyperv1_rough_lidar_model_4999.pt
+    sha256: 99fd3de8835d0b8fb3d5fceaaec9e6d327abdb6e56e87ab9cc8f9a1b7cb58389
+    iteration: 4999
+    format: rsl_rl actor_state_dict   # mlp.0/2/4/6 + distribution.std_param (확인함)
+    origin: 2026-11-23 hn_hyperv1_rough_lidar/2026-11-23_04-05-48_v1_noise_underbody/model_4999.pt (위 출처)
+  network:
+    type: mlp
+    input_dim: 235          # 확인함: 체크포인트 mlp.0.weight (512, 235)
+    hidden_dims: [512, 256, 128]
+    activation: elu
+    output_dim: 12          # 확인함: mlp.6.weight (12, 128)
+    obs_normalization: false   # 확인함: agent.yaml actor.obs_normalization
+    deterministic_action: mean  # 배포는 분포의 평균만 씁니다(distribution.std_param은 학습용)
+
+robot:
+  # 조인트 이름·기구는 description/에서만 정의합니다. 여기는 정책 텐서의 순서만 정합니다.
+  urdf: description/hn_v1_hyper/hypernova_hyper.urdf
+  urdf_revision: 67b4bb1 (front_lidar_joint 아래로 15°)
+  hardware_revision: v1   # HYPERNOVA v1 기체 CAD에서 만든 모델(description/hn_v1_hyper/README.md). 실기 확인 전
+  links:
+    root: trunk
+    feet: [FL_foot, FR_foot, RL_foot, RR_foot]
+    lidar: front_lidar     # height_scan.lidar_memory의 센서 frame
+
+rate:
+  sim_dt_s: 0.005           # 확인함
+  decimation: 4             # 확인함
+  policy_dt_s: 0.02         # = sim_dt_s * decimation, 50 Hz
+
+simulation:
+  physics_backend: physx       # 확인함: 학습 CLI의 physics=isaacsim_physx
+  use_newton_actuators: true   # 확인함: env.yaml
+
+joints:
+  # 정책의 관측·행동 텐서 순서(확인함: action·관측 모두 preserve_order=True로 이 순서를 고정, 종류별).
+  order:
+    - FL_hip_joint
+    - FR_hip_joint
+    - RL_hip_joint
+    - RR_hip_joint
+    - FL_thigh_joint
+    - FR_thigh_joint
+    - RL_thigh_joint
+    - RR_thigh_joint
+    - FL_calf_joint
+    - FR_calf_joint
+    - RL_calf_joint
+    - RR_calf_joint
+  default_pos_rad:          # 확인함: 서 있는 기본 자세. 행동의 기준점이고 joint_pos 관측의 0점
+    FL_hip_joint: 0.1
+    FR_hip_joint: -0.1
+    RL_hip_joint: 0.1
+    RR_hip_joint: -0.1
+    FL_thigh_joint: 0.8
+    FR_thigh_joint: 0.8
+    RL_thigh_joint: 1.0
+    RR_thigh_joint: 1.0
+    FL_calf_joint: -1.5
+    FR_calf_joint: -1.5
+    RL_calf_joint: -1.5
+    RR_calf_joint: -1.5
+
+action:
+  type: joint_position_target
+  dim: 12
+  # q_target[i] = default_pos[i] + scale * action[i]   (확인함: scale 0.25, use_default_offset)
+  scale: 0.25
+  clip: null                # 확인함: 행동 clip 없음
+
+pd:
+  # 확인함: Isaac Lab DCMotor(actuators.base_legs). tau = kp * (q_target - q) - kd * qd, 그 뒤 토크·속도 제한.
+  # 제한은 실제 모터 Unitree GO-M8010-6 출력축 값(모든 관절, calf는 thigh의 모터가 벨트 1:1 구동).
+  # kp 25.0, kd 0.5는 표준 Go2 값을 그대로 둔 것이고 실제 모터 게인이 아닙니다(실기 적용 전 확인 필요).
+  kp: 25.0                  # N·m/rad
+  kd: 0.5                   # N·m·s/rad
+  friction: 0.0
+  groups:
+    - match: ".*_hip_joint"
+      effort_limit_nm: 23.7
+      velocity_limit_rad_s: 30.0
+    - match: ".*_thigh_joint"
+      effort_limit_nm: 23.7
+      velocity_limit_rad_s: 30.0
+    - match: ".*_calf_joint"
+      effort_limit_nm: 23.7
+      velocity_limit_rad_s: 30.0
+
+observations:
+  # 이 순서대로 이어 붙인 벡터가 actor 입력입니다(확인함). 값의 정의는 Isaac Lab mdp와 같습니다.
+  concatenate: true
+  dim: 235
+  terms:
+    - {name: base_lin_vel,      dim: 3,  source: base_lin_vel_b,      unit: m/s,   frame: base}   # 실기: IMU 기반 추정, trunk 질량중심(원점 아래 0.64 mm)
+    - {name: base_ang_vel,      dim: 3,  source: base_ang_vel_b,      unit: rad/s, frame: base}
+    - {name: projected_gravity, dim: 3,  source: projected_gravity_b, unit: "1 (단위벡터, 정지 시 [0,0,-1])", frame: base}
+    - {name: velocity_commands, dim: 3,  source: command,             unit: "[vx m/s, vy m/s, wz rad/s]", frame: base}
+    - {name: joint_pos,         dim: 12, source: joint_pos,           unit: rad,   rel_to: default_pos}   # q - default_pos
+    - {name: joint_vel,         dim: 12, source: joint_vel,           unit: rad/s, rel_to: zero}          # qd - 0
+    - {name: actions,           dim: 12, source: last_action,         unit: "1 (정규화된 행동)"}           # 직전 act()의 출력
+    - {name: height_scan,       dim: 187, source: height_scan,        unit: m,     clip: [-1.0, 1.0]}    # 아래 height_scan
+
+height_scan:
+  # 값 = base_z - ground_z - offset_m, 그 뒤 clip. 칸 순서·값 규칙은 Isaac Lab mdp.height_scan과 같습니다(확인함).
+  method: lidar_memory      # 확인함: policies/common/heightmap.py lidar_memory_height_scan. gt_raycast가 아님
+  value: base_z_minus_hit_z_minus_offset
+  offset_m: 0.5
+  clip: [-1.0, 1.0]
+  grid:
+    size_m: [1.6, 1.0]      # [x(전방) 길이, y(좌) 폭]
+    center_offset_m: [0.45, 0.0]   # 확인함: grid 중심이 base보다 앞으로 0.45 m → x -0.35..+1.25, y -0.5..+0.5
+    resolution_m: 0.1
+    shape: [17, 11]         # [nx, ny]
+    ordering: x_fastest     # index = iy * nx + ix
+  alignment: yaw            # 확인함: grid는 base 위치 + yaw만 따름(roll·pitch 무시)
+  lidar_memory:
+    # actor 입력을 실제 센서로 만드는 방법. 실기에서도 이 순서로 만듭니다.
+    #   1. scan_period_s마다 LiDAR 점(world 좌표)을 grid 칸으로 줄임: 칸마다 가장 높은 점
+    #   2. 최근 memory_s 동안의 scan을 기억하고, 매 step 지금 base 기준 grid로 옮김. 칸마다 가장 최근 scan 값
+    #   3. 기억에 없는 칸은 발끝 평면으로 채움
+    sensor:
+      model: SOSLAB ML-X 120
+      frame: front_lidar    # URDF front_lidar_joint: trunk 기준 (0.16, 0, 0.10) m, pitch 아래로 15° (가정값)
+      ray_alignment: base   # 확인함: 광선은 몸통 자세(roll·pitch·yaw)를 그대로 따름
+      horizontal_fov_deg: [-60.0, 60.0]   # 확인함
+      vertical_fov_deg: [-17.5, 17.5]     # 확인함
+      horizontal_res_deg: 2.0             # 확인함. 실제 0.209°(학습 속도 때문에 줄임)
+      channels: 15                        # 확인함: 세로 2.5° 간격. 실제 0.625°
+      max_distance_m: 6.0                 # 확인함
+      hit_targets: terrain                # 확인함: 시뮬레이터는 지형만 맞음(자기 몸 가림 없음)
+    scan_period_s: 0.05     # 확인함: 20 Hz
+    memory_s: 3.0           # 확인함
+    cell_value: max_z       # 칸 안에서 가장 높은 점
+    unseen_fill:
+      type: foot_plane      # 발마다 최근 window_s 동안 가장 낮았던 발 중심 높이 - foot_radius, 네 점에 평면 z = a + b·x + c·y
+      foot_radius_m: 0.025  # 확인함
+      window_s: 0.5         # 확인함
+    base_z_source: trunk    # 값의 base_z = trunk 원점 z. 학습은 trunk에 붙은 GT height scanner의 pos_w z(평지 선 자세에서 칸 값 약 -0.2 m)
+
+training:
+  # 배포에서는 읽지 않는 항목(학습·평가 환경 재현용). 모두 확인함(env.yaml, agent.yaml).
+  reference_task: HN-Velocity-Rough-HYPERv1-Lidar   # Isaac Lab 3.0.0 Go2 rough 상속, policies/urdf_v1/env.py
+  algorithm: PPO            # rsl_rl, lr 1.0e-3, entropy 0.01, 5 epochs × 4 mini-batches, gamma 0.99, lambda 0.95
+  command_ranges:
+    lin_vel_x: [-1.0, 1.0]
+    lin_vel_y: [-1.0, 1.0]
+    ang_vel_z: [-1.0, 1.0]
+  command_mix:              # 참고: heading 제어 env 50%, 정지 명령 env 15%
+    rel_heading_envs: 0.5
+    rel_standing_envs: 0.15
+  obs_noise_uniform:
+    base_lin_vel: [-0.1, 0.1]
+    base_ang_vel: [-0.2, 0.2]
+    projected_gravity: [-0.05, 0.05]
+    joint_pos: [-0.01, 0.01]
+    joint_vel: [-1.5, 1.5]
+    height_scan: [-0.1, 0.1]
+  lidar_range_noise_m: 0.03   # 맞은 점마다 광선 방향 균일 ±0.03 m(ML-X 사양 오차 < 30 mm)
+  critic_obs_dim: 235       # 참고: actor와 같은 항목, height_scan만 같은 grid의 GT(gt_raycast, 잡음 없음). 비대칭 actor-critic
+  symmetry: left_right_data_augmentation   # 참고: PPO 좌우 대칭 증강(mirror loss 끔)
