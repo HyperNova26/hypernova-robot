@@ -35,7 +35,7 @@
 | 11-16 | `map/1116_pair360_v2/` | 지도 v2: `pc_v1` 우선 병합 map_v2·mesh_v2(기록용)([안내](map/1116_pair360_v2/README.md)) |
 | 11-24 | `map/1124_pair360_v3/` | 지도 v3: map_v3, mesh_v3, Nav2 지도(1~11단계, 실행기 `build_pair360_v3.sh`), Nav2 금지 구역 검사 `check_nav2_keepout.sh` |
 
-시험은 `tests/map/1030_test_demo_sim_scripts.py`(변환기), `tests/map/1109_test_*.py`(데모 자르기, S-004 지면·장면, 점군 입출력)입니다.
+시험은 `tests/map/1030_test_demo_sim_scripts.py`(변환기), `tests/map/1109_test_extract_pair360_demo.py`(데모 자르기), `tests/map/1109_pair360_v1/test_*.py`(v1의 S-004 지면·장면, 점군 입출력)입니다.
 
 ### 지운 코드 (2026-11-26)
 
@@ -73,7 +73,7 @@ main에 있던 아래 경로가 바뀌었습니다. 이 정리 전에 갈라진 
 | `tools/map/demo_sim_disassembler.{sh,py}` | 지움 |
 | `tools/map/extract_pair360_demo.py` | `tools/map/1109_extract_pair360_demo.py` |
 | `tools/map/{build_continuous_ground_v5,smooth_local_ground_v8,export_s004_layers,export_final_sim,reproduce_s004_final,review_cloud_io}.py`, `continuous_ground_20261104_v7.json` | `tools/map/1109_pair360_v1/` 안, 이름 그대로 |
-| `tests/map/test_<이름>.py` | `tests/map/1030_test_demo_sim_scripts.py`, `tests/map/1109_test_<이름>.py` |
+| `tests/map/test_<이름>.py` | `tests/map/1030_test_demo_sim_scripts.py`, `tests/map/1109_test_extract_pair360_demo.py`, v1 코드의 시험은 `tests/map/1109_pair360_v1/test_<이름>.py` |
 | `sim_scenes/S004_ground_final/` | `sim_scenes/pair360_v1/`(로컬 `input/`, `review/*.npz`, `result/`도 옮깁니다) |
 
 옮기는 순서입니다.
