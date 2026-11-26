@@ -22,4 +22,4 @@ fi
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
 export UV_PYTHON_DOWNLOADS=never
 
-exec "${python_command[@]}" "$ROOT/tools/map/build_pair360_v3.py" "$@"
+exec "${python_command[@]}" "$ROOT/tools/map/1030_demo_sim_converter.py" "$@"

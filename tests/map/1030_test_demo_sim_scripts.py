@@ -5,7 +5,6 @@ import hashlib
 import itertools
 import json
 import os
-import shlex
 import subprocess
 import sys
 from datetime import datetime
@@ -17,8 +16,7 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[2]
-CONVERTER = ROOT / "tools/map/demo_sim_converter.sh"
-DISASSEMBLER = ROOT / "tools/map/demo_sim_disassembler.sh"
+CONVERTER = ROOT / "tools/map/1030_demo_sim_converter.sh"
 DAY = "1030"
 
 
@@ -285,7 +283,7 @@ def test_converter_rejects_invalid_options_without_final_output(tmp_path, option
     assert not (output / f"{DAY}_demo_whole").exists()
 
 
-@pytest.mark.parametrize("script,suffix", [(CONVERTER, "whole"), (DISASSEMBLER, "disassembled")])
+@pytest.mark.parametrize("script,suffix", [(CONVERTER, "whole")])
 @pytest.mark.parametrize("day", ["230", "0230", "0431", "1301", "abcd"])
 def test_invalid_dates_do_not_publish_output(tmp_path, script, suffix, day):
     source = write_cloud(tmp_path / "cloud.ply", [[0, 0, 0]])
@@ -295,7 +293,7 @@ def test_invalid_dates_do_not_publish_output(tmp_path, script, suffix, day):
     assert not (output / f"{day}_demo_{suffix}").exists()
 
 
-@pytest.mark.parametrize("script,suffix", [(CONVERTER, "whole"), (DISASSEMBLER, "disassembled")])
+@pytest.mark.parametrize("script,suffix", [(CONVERTER, "whole")])
 def test_missing_input_is_rejected(tmp_path, script, suffix):
     output = tmp_path / "results"
     result = run_script(script, tmp_path / "missing.ply", "--date", DAY, "--output-root", output)
@@ -303,7 +301,7 @@ def test_missing_input_is_rejected(tmp_path, script, suffix):
     assert not (output / f"{DAY}_demo_{suffix}").exists()
 
 
-@pytest.mark.parametrize("script,suffix", [(CONVERTER, "whole"), (DISASSEMBLER, "disassembled")])
+@pytest.mark.parametrize("script,suffix", [(CONVERTER, "whole")])
 @pytest.mark.parametrize("populated", [False, True])
 def test_existing_output_is_never_overwritten(tmp_path, script, suffix, populated):
     source = write_cloud(tmp_path / "cloud.ply", [[0, 0, 0]])
@@ -397,26 +395,7 @@ def test_bin_copy_only_handoff_and_cloudcompare_failures(tmp_path, mode):
         assert not directory.exists()
 
 
-def test_disassembler_creates_only_empty_folder_with_stdlib_python(tmp_path):
-    source = tmp_path / "cloud.bin"
-    original = b"opaque input is valid for the unimplemented disassembler\n"
-    source.write_bytes(original)
-    stdlib_python = tmp_path / "stdlib-python"
-    stdlib_python.write_text(f'#!/bin/sh\nexec {shlex.quote(sys.executable)} -S "$@"\n')
-    stdlib_python.chmod(0o755)
-    output = tmp_path / "results"
-    result = run_script(
-        DISASSEMBLER, source, "--date", "0229", "--output-root", output,
-        env={"HN_MAP_PYTHON": str(stdlib_python)},
-    )
-    assert result.returncode == 0, result.stdout + result.stderr
-    directory = output / "0229_demo_disassembled"
-    assert directory.is_dir() and list(directory.iterdir()) == []
-    assert "not implemented" in (result.stdout + result.stderr).lower()
-    assert source.read_bytes() == original
-
-
-@pytest.mark.parametrize("script", [CONVERTER.with_suffix(".py"), DISASSEMBLER.with_suffix(".py")])
+@pytest.mark.parametrize("script", [CONVERTER.with_suffix(".py")])
 def test_python_help_needs_no_third_party_packages(tmp_path, script):
     result = subprocess.run(
         [sys.executable, "-B", "-S", str(script), "--help"],
@@ -438,27 +417,14 @@ def test_python_converter_runs_directly_from_another_directory(tmp_path):
     assert_occupied_union(output_root / f"{DAY}_demo_whole", [(0, 0, 0), (0, 0, 3)])
 
 
-def test_python_disassembler_runs_directly_from_another_directory(tmp_path):
-    source = tmp_path / "cloud.bin"
-    source.write_bytes(b"synthetic")
-    output_root = tmp_path / "results"
-    result = run_script(
-        DISASSEMBLER.with_suffix(".py"), source, "--date", DAY,
-        "--output-root", output_root, cwd=tmp_path,
-    )
-    assert result.returncode == 0, result.stdout + result.stderr
-    assert list((output_root / f"{DAY}_demo_disassembled").iterdir()) == []
-
-
 def test_default_date_is_asia_seoul_even_with_other_process_timezone(tmp_path):
-    source = tmp_path / "cloud.bin"
-    source.write_bytes(b"synthetic")
+    source = write_cloud(tmp_path / "cloud.ply", [[.1, .1, .1]])
     output = tmp_path / "results"
     before = datetime.now(ZoneInfo("Asia/Seoul")).strftime("%m%d")
     result = run_script(
-        DISASSEMBLER, source, "--output-root", output, env={"TZ": "Pacific/Honolulu"},
+        CONVERTER, source, "--voxel-size", "1", "--output-root", output, env={"TZ": "Pacific/Honolulu"},
     )
     after = datetime.now(ZoneInfo("Asia/Seoul")).strftime("%m%d")
     assert result.returncode == 0, result.stdout + result.stderr
     assert len(list(output.iterdir())) == 1
-    assert next(output.iterdir()).name in {f"{day}_demo_disassembled" for day in [before, after]}
+    assert next(output.iterdir()).name in {f"{day}_demo_whole" for day in [before, after]}

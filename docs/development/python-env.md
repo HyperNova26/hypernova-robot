@@ -4,7 +4,7 @@
 
 - 패키지 목록: 저장소 최상위 [`pyproject.toml`](../../pyproject.toml)
 - 정확한 버전: [`uv.lock`](../../uv.lock) (직접 고치지 않음)
-- 만들고 갱신하는 스크립트: [`tools/setup-venv.sh`](../../tools/setup-venv.sh)
+- 만들고 갱신하는 스크립트: [`tools/1022_setup-venv.sh`](../../tools/1022_setup-venv.sh)
 - venv 위치: `<저장소>/.venv` (`.gitignore`에 들어 있음)
 
 ## 왜 시스템 Python에 바로 `pip install`하지 않나
@@ -26,7 +26,7 @@ Ubuntu 24.04에서 `pip install`을 치면 `error: externally-managed-environmen
 2. 저장소 최상위에서 환경을 만듭니다.
 
    ```bash
-   ./tools/setup-venv.sh
+   ./tools/1022_setup-venv.sh
    ```
 
    처음에는 Open3D 등을 받느라 1분 안팎 걸립니다. Python을 따로 설치할 필요는 없습니다. Ubuntu 24.04의 `/usr/bin/python3.12`를 씁니다.
@@ -40,16 +40,16 @@ uv run python <스크립트.py>
 
 - `uv run`은 activate 없이 `.venv`로 실행합니다. 셸에서 계속 쓰려면 `source .venv/bin/activate`도 됩니다.
 - VS Code: `Python: Select Interpreter` → `./.venv/bin/python`
-- `git pull` 뒤에 `uv.lock`이 바뀌었으면 `./tools/setup-venv.sh`를 다시 실행합니다. 몇 초면 끝납니다.
+- `git pull` 뒤에 `uv.lock`이 바뀌었으면 `./tools/1022_setup-venv.sh`를 다시 실행합니다. 몇 초면 끝납니다.
 
 ## 패키지를 추가할 때
 
 ```bash
 uv add <패키지>          # pyproject.toml과 uv.lock이 같이 바뀜
-./tools/setup-venv.sh    # 확인
+./tools/1022_setup-venv.sh    # 확인
 ```
 
-- `pyproject.toml`과 `uv.lock`을 **같은 커밋**에 넣습니다. lock이 안 맞으면 다른 사람의 `setup-venv.sh`가 멈춥니다.
+- `pyproject.toml`과 `uv.lock`을 **같은 커밋**에 넣습니다. lock이 안 맞으면 다른 사람의 `1022_setup-venv.sh`가 멈춥니다.
 - `pip install`이나 `uv pip install`로 venv에 직접 넣지 않습니다. 내 PC에서만 되는 환경이 됩니다.
 - ADR-0002 §4에 버전이 고정된 패키지(MuJoCo, onnx, onnxruntime, Open3D)는 ADR을 고치는 PR로만 올립니다. Isaac Lab lock과 같은 버전을 쓰기 위해서입니다.
 

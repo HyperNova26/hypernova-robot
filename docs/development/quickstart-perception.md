@@ -35,7 +35,7 @@
 작은 공개 LiDAR+IMU ROS 2 bag을 찾지 못했습니다. NVIDIA r2b 데이터셋(CC-BY-4.0)은 LiDAR가 든 sequence가 1.2~3.9 GB이고 IMU–LiDAR 변환(TF)이 없습니다. 그래서 같은 환경에서 몇 초 만에 만드는 합성 bag 생성기를 저장소에 두었습니다. 방 하나를 8자 경로로 도는 로봇의 LiDAR(16채널, 점마다 측정 시각 포함)와 IMU, 정적 TF, 정답 경로를 담은 MCAP입니다.
 
 ```bash
-/opt/hn-venv/bin/python tools/make_demo_bag.py
+/opt/hn-venv/bin/python tools/1022_make_demo_bag.py
 ```
 
 ```text
@@ -74,7 +74,7 @@ bag은 Git에 넣지 않습니다([저장소 정책](./repository-policy.md)).
 터미널 1 — 결과를 정답과 비교할 스크립트를 먼저 켜 둡니다(`/rko_lio/odom`을 기다림).
 
 ```bash
-./docker/hn ros /opt/hn-venv/bin/python tools/check_demo_lio.py /data/bags/demo-room
+./docker/hn ros /opt/hn-venv/bin/python tools/1022_check_demo_lio.py /data/bags/demo-room
 ```
 
 터미널 2 — LIO를 돌립니다.
@@ -163,7 +163,7 @@ Isaac Sim ROS 2 bridge가 시뮬레이션 시각을 `/clock`으로 내보내게 
 터미널 1 (`sim`, 90초 동안 발행):
 
 ```bash
-./docker/hn sim ./isaaclab.sh -p /workspace/hypernova/tools/isaac_clock_pub.py --seconds 90
+./docker/hn sim ./isaaclab.sh -p /workspace/hypernova/tools/1022_isaac_clock_pub.py --seconds 90
 ```
 
 터미널 2 (`ros`, 토픽이 생길 때까지 기다렸다가 한 개 받음):
@@ -205,7 +205,7 @@ FAST-LIO2(`fast_lio`)와 `livox_ros_driver2` 메시지도 `hn:ros`에 들어 있
 | `Could not determine the type for the passed topic`, `echo`가 바로 끝남 | 토픽이 아직 없음. 타입을 같이 적습니다(`ros2 topic echo /clock rosgraph_msgs/msg/Clock`) |
 | 다른 컨테이너 토픽 이름은 보이는데 데이터가 없음 | 한쪽이 `docker run`으로 직접 띄워져 UDP 전용 프로파일이 빠졌는지([문제 해결](../../docker/README.md#문제-해결)) |
 | 남의 토픽이 보임 | `docker/.env.local`의 `ROS_DOMAIN_ID`가 다른 사람과 겹침. 고친 뒤 `./docker/hn reset` |
-| `make_demo_bag.py`가 `이미 있습니다` | 이미 만든 bag. 그대로 쓰거나 `--force` |
+| `1022_make_demo_bag.py`가 `이미 있습니다` | 이미 만든 bag. 그대로 쓰거나 `--force` |
 | LIO 결과가 `odom`을 못 받음 | 터미널 1을 먼저 켰는지, bag 경로가 맞는지. 처리 중 로그의 `Skipping IMU, waiting for first LiDAR message`는 정상 |
 | `transform lookup` 경고 | online 모드 시작 직후 `/tf_static`이 도착하기 전의 경고. 곧 사라집니다 |
 | rviz2 창이 안 뜸 | 호스트 데스크톱 세션에서 실행했는지, `echo $DISPLAY` |

@@ -5,7 +5,7 @@ import numpy as np
 from pxr import Usd, UsdGeom
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "tools" / "map"))
+sys.path.insert(0, str(ROOT / "tools" / "map" / "1109_s004_ground"))
 from export_final_sim import export_isaac_scene, export_usd, rectangles
 
 

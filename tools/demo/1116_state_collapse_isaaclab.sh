@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# G-006 시나리오 2/3 (MuJoCo): 걷다가 주저앉기. AT초에 정책 출력을 주저앉는 자세(thigh/calf 접기)로 바꿔 로봇이 그 자리에 주저앉고, 판정기가 FALLEN을 내는지 봅니다.
-# 사용: ./tools/demo/state_collapse_mujoco.sh   (저장소 최상위의 데스크톱 터미널에서, 인자 없음. 값을 바꾸려면 아래 하이퍼파라미터 블록만 고치십시오. 컨테이너 hn:sim을 자동으로 씁니다)
-# 시뮬레이터 창이 뜨고 실시간 속도로 진행합니다. 판정 상태는 MuJoCo 창 왼쪽 위 글자(색은 상태별: 회색 INIT, 파랑 STANDING, 초록 WALKING, 빨강 FALLEN)로 표시됩니다.
+# G-006 시나리오 2/3 (Isaac Lab): 걷다가 주저앉기. AT초에 정책 출력을 주저앉는 자세(thigh/calf 접기)로 바꿔 로봇이 그 자리에 주저앉고, 판정기가 FALLEN을 내는지 봅니다.
+# 사용: ./tools/demo/1116_state_collapse_isaaclab.sh   (저장소 최상위의 데스크톱 터미널에서, 인자 없음. 값을 바꾸려면 아래 하이퍼파라미터 블록만 고치십시오. 컨테이너 hn:sim을 자동으로 씁니다)
+# 시뮬레이터 창이 뜨고 실시간 속도로 진행합니다. 판정 상태는 별도의 작은 창 'Locomotion state (G-006)'에 표시됩니다.
 # 요약에 FALLEN 판정, 고장 후 판정까지 시간, FALLEN 유지 시간 검사가 나옵니다.
 # 판정 기록은 JSONL로 컨테이너 /data/state_logger/(호스트 ~/hypernova-data/state_logger/)에 남습니다.
 set -euo pipefail
@@ -25,4 +25,4 @@ if [ -n "$ROS_TOPIC" ]; then
   export ROS_LOCAL
 fi
 export ROUTE HEADLESS=$((1 - WINDOW))
-exec "$(dirname "${BASH_SOURCE[0]}")/_state_run.sh" mujoco collapse --label collapse "${ARGS[@]}"
+exec "$(dirname "${BASH_SOURCE[0]}")/1116_state_run.sh" isaaclab collapse --label collapse "${ARGS[@]}"

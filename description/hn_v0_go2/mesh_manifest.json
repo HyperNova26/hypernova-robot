@@ -12,7 +12,7 @@
     "thigh_mirror.dae": "c7bae0b0565c2aa4b7cc15a538d795e9153e0f10c821cc18429e92693172bdc6"
   },
   "conversion": {
-    "command": "python3 tools/description/fetch_go2_meshes.py --convert",
+    "command": "python3 tools/description/1030_fetch_go2_meshes.py --convert",
     "python": "3.12",
     "trimesh": "4.11.1",
     "pycollada": "0.9.3",

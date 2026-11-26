@@ -1,6 +1,6 @@
 """Paths, versions and shared parameters of the PAIR360 map pipeline (pair360_map frame: pc_v1 raw XYZ, m, Z-up).
 
-Paths come from environment variables set by tools/map/build_pair360_v3.py:
+Paths come from environment variables set by tools/map/1124_build_pair360_v3.py:
 HN_PAIR360_DATA (point clouds, reviewed S-004 ground, Go2 model; not in Git), HN_PAIR360_DECISIONS
 (hand-made decisions, sim_scenes/pair360_v3_decisions), HN_PAIR360_ROAD (S-009 road mask PNG) and
 HN_PAIR360_OUT (all results).
@@ -28,7 +28,7 @@ SOURCE_ID = {"pc_v1": 1, "pc_v2": 2}
 # (S-004, 2026-11-02..09; called "v9" in the S-004 history).
 GROUND_V1_SURFACE = REVIEWED/"pc_v1_ground_v1/ground_surface.npz"     # 0.1 m grid: height, permitted, observed_coarse
 GROUND_V1_PARTITION = REVIEWED/"pc_v1_ground_v1_partition"            # raw rows within 0.15 m of the surface: ground.ply / non_ground.ply
-GROUND_V1_DECISIONS = REPO/"tools/map/continuous_ground_20261109_v9.json"  # vehicle polygons, tree exclusions
+GROUND_V1_DECISIONS = REPO/"tools/map/1109_s004_ground/continuous_ground_20261109_v9.json"  # vehicle polygons, tree exclusions
 GO2_XML = DATA/"models/unitree_go2/go2.xml"                      # MuJoCo Menagerie Go2
 ROUTE = DECISIONS/"demo_route.json"                             # start, goal, via points
 ROUTE_REVIEW = DECISIONS/"route_review.json"                   # demo-corridor objects removed by hand review

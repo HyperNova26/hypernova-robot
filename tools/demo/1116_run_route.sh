@@ -3,17 +3,17 @@
 # PAIR360 데모 지형에서 팀원 정책(model_3849)으로 로봇이 경로를 걷는 것을 Isaac Lab, MuJoCo, Isaac Sim에서 재생합니다.
 #
 # 사용법 (저장소 최상위에서)
-#   ./tools/demo/run_route.sh check               # 필요한 파일이 있는지 점검
-#   ./tools/demo/run_route.sh export              # 저장소 체크포인트에서 actor 가중치(.npz)를 만듭니다(컨테이너 hn:sim, 처음 한 번)
-#   ./tools/demo/run_route.sh mujoco              # MuJoCo 창(컨테이너 hn:sim의 robot venv)
-#   ./tools/demo/run_route.sh isaaclab            # Isaac Lab 창(컨테이너 hn:sim). 카메라가 로봇을 따라가며 줌 가능
-#   ./tools/demo/run_route.sh isaacsim            # Isaac Sim 단독 창(컨테이너 hn:sim). 장면 USD는 아래 설명 참고
-#   ROUTE=B ./tools/demo/run_route.sh mujoco      # 다른 경로(A: 스크린샷 그대로, B: 좁은 목을 피해 우회)
-#   ./tools/demo/run_route.sh isaaclab --hn-vmax=0.4        # 뒤에 붙인 옵션은 그대로 해당 스크립트로 전달
-#   HEADLESS=1 ./tools/demo/run_route.sh mujoco             # 창 없이 끝까지 걷고 결과만 출력(시험용)
+#   ./tools/demo/1116_run_route.sh check               # 필요한 파일이 있는지 점검
+#   ./tools/demo/1116_run_route.sh export              # 저장소 체크포인트에서 actor 가중치(.npz)를 만듭니다(컨테이너 hn:sim, 처음 한 번)
+#   ./tools/demo/1116_run_route.sh mujoco              # MuJoCo 창(컨테이너 hn:sim의 robot venv)
+#   ./tools/demo/1116_run_route.sh isaaclab            # Isaac Lab 창(컨테이너 hn:sim). 카메라가 로봇을 따라가며 줌 가능
+#   ./tools/demo/1116_run_route.sh isaacsim            # Isaac Sim 단독 창(컨테이너 hn:sim). 장면 USD는 아래 설명 참고
+#   ROUTE=B ./tools/demo/1116_run_route.sh mujoco      # 다른 경로(A: 스크린샷 그대로, B: 좁은 목을 피해 우회)
+#   ./tools/demo/1116_run_route.sh isaaclab --hn-vmax=0.4        # 뒤에 붙인 옵션은 그대로 해당 스크립트로 전달
+#   HEADLESS=1 ./tools/demo/1116_run_route.sh mujoco             # 창 없이 끝까지 걷고 결과만 출력(시험용)
 #
 # 필요한 것
-#   - 로봇 mesh(Git 밖): python3 tools/description/fetch_go2_meshes.py --convert  (description/hn_v0_go2/meshes/)
+#   - 로봇 mesh(Git 밖): python3 tools/description/1030_fetch_go2_meshes.py --convert  (description/hn_v0_go2/meshes/)
 #   - 데이터 폴더(HN_DATA_DIR, docker/.env.local) 안의 PAIR360 데모 자료(Git 밖): pair360_demo_frame/ 아래
 #       ground_grid_demo.npz, mujoco/(scene.xml, hfields/), isaac/ground_collision_demo.usdc, policy/actor_model_3849.npz(export로 생성)
 #   - ./docker/hn (hn:sim 이미지). 세 시뮬레이터 모두 컨테이너 안에서 실행합니다(MuJoCo는 /opt/hn-venv의 mujoco 3.12.0).
@@ -67,7 +67,7 @@ check_data() {
   need "정책 yaml / 경로 yaml"                        "$YAML_HOST"
   need "경로 yaml"                                    "$ROUTES_HOST"
   need "로봇 URDF"                                    "$URDF_HOST"
-  need "로봇 mesh base.stl (fetch_go2_meshes.py --convert)" "$REPO/description/hn_v0_go2/meshes/base.stl"
+  need "로봇 mesh base.stl (1030_fetch_go2_meshes.py --convert)" "$REPO/description/hn_v0_go2/meshes/base.stl"
   case "$1" in
     export|all)
       need "체크포인트 hn_go2v0_rough_model_3849.pt"   "$VER_HOST/pretrained/hn_go2v0_rough_model_3849.pt" ;;

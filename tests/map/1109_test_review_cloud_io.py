@@ -1,12 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 """Synthetic exactness checks for review-cloud I/O."""
 
+import sys
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-from tools.map.review_cloud_io import load_xyzi_ply, subset_mask, write_review_ply
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tools" / "map" / "1109_s004_ground"))
+from review_cloud_io import load_xyzi_ply, subset_mask, write_review_ply  # noqa: E402
 
 
 def _xyzi(rows):

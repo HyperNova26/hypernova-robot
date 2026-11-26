@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# G-006 시나리오 1/3 (Isaac Lab): 출발지에서 목적지까지 정상 보행. 판정기만 붙여 상태(INITIALIZING -> STANDING -> WALKING)를 기록하고 고장은 넣지 않습니다.
-# 사용: ./tools/demo/state_walk_isaaclab.sh   (저장소 최상위의 데스크톱 터미널에서, 인자 없음. 값을 바꾸려면 아래 하이퍼파라미터 블록만 고치십시오. 컨테이너 hn:sim을 자동으로 씁니다)
+# G-006 시나리오 1/3 (Isaac Sim): 출발지에서 목적지까지 정상 보행. 판정기만 붙여 상태(INITIALIZING -> STANDING -> WALKING)를 기록하고 고장은 넣지 않습니다.
+# 사용: ./tools/demo/1116_state_walk_isaacsim.sh   (저장소 최상위의 데스크톱 터미널에서, 인자 없음. 값을 바꾸려면 아래 하이퍼파라미터 블록만 고치십시오. 컨테이너 hn:sim을 자동으로 씁니다)
 # 시뮬레이터 창이 뜨고 실시간 속도로 진행합니다. 판정 상태는 별도의 작은 창 'Locomotion state (G-006)'에 표시됩니다.
 # 경로를 끝까지 걷는 데 시뮬레이션 시간으로 약 6~7분이 걸립니다(창 모드는 실시간이라 같은 시간이 걸리고, 창 없는 모드로 바꾸면 MuJoCo 약 1분, Isaac 약 5분). 요약에 FALLEN/STALE 오탐 0프레임 검사가 나옵니다.
 # 판정 기록은 JSONL로 컨테이너 /data/state_logger/(호스트 ~/hypernova-data/state_logger/)에 남습니다.
@@ -27,4 +27,4 @@ if [ -n "$ROS_TOPIC" ]; then
   export ROS_LOCAL
 fi
 export ROUTE HEADLESS=$((1 - WINDOW))
-exec "$(dirname "${BASH_SOURCE[0]}")/_state_run.sh" isaaclab baseline --label walk "${ARGS[@]}"
+exec "$(dirname "${BASH_SOURCE[0]}")/1116_state_run.sh" isaacsim baseline --label walk "${ARGS[@]}"

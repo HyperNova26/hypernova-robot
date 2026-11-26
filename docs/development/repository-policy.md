@@ -27,7 +27,7 @@ Git 기록을 가볍게 두고, 파일을 어디에 둘지 매번 고민하지 �
 - `data/PAIR360_data/`: 원본 `Calibration/`, `T1_Parking_and_OpenTheater/`, `T3_Parking_and_OpenTheater/`입니다. 원본은 읽기만 합니다.
 - `data/PAIR360_demo/`: 이전 날짜·버전별 변환 결과입니다. `261026_1200_v0/`, `261026_1800_v1/` 등 기존 결과는 보존합니다.
 - `sim_scenes/MMDD_demo_whole/`: 현재 전체 점군 변환기의 `terrain.usd`, `terrain.xml`, `scene.json` 생성 위치입니다.
-- `sim_scenes/MMDD_demo_disassembled/`: 미구현 분해 스크립트가 준비하는 빈 출력 폴더입니다. 파일이나 하위 폴더를 만들지 않습니다.
+- `sim_scenes/MMDD_demo_disassembled/`: 2026-11-26에 지운 분해 스크립트(미구현)가 만들던 빈 폴더입니다. 남아 있는 로컬 폴더를 위해 무시 규칙만 둡니다.
 
 현재 `tools/map/`의 `.sh` 실행기는 같은 이름의 `.py` 구현을 호출합니다. 변환기는 유한한 XYZ 전체를 기본 0.5 m voxel 점유로 내보내며, 정적 USD 삼각형 Mesh와 MuJoCo box geom을 만듭니다. 지면 추출·heightfield 생성·simulator 실행은 수행하지 않습니다. 지면 분리와 후속 차량·기타 객체 분류·분리는 미완료이며, 구현·개선과 실제 PAIR360 데이터 검증은 S-004 후속 작업에서 다룹니다. 기존 quick 산출물은 두 과정의 정확도를 입증하지 않습니다.
 

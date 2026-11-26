@@ -4,7 +4,7 @@
 
 원본의 작업 사본을 CloudCompare 2.13.2에서 열어 7,751,328점을 확인하고 binary little-endian PLY로 저장했습니다. 작업 파일과 변환 로그는 `data/PAIR360_demo/20261102_original_bin_conversion/`에 있습니다. 다운로드 원본과 저장소에 배치한 BIN은 보존했습니다. S-004 요구사항의 출처는 사용자가 대화에 붙여 준 노션 본문입니다.
 
-기존 `tools/map/demo_sim_converter.py`로 `sim_scenes/1102_demo_whole/`에 `terrain.usd`, `terrain.xml`, `scene.json`을 생성했습니다. 0.5 m voxel 350,693개를 MuJoCo box 75,832개와 USD 삼각형 714,730개로 내보냈습니다. origin은 `[0, 0, 0]`, scale은 `1`이며 과거 frame의 회전·수평화는 적용하지 않았습니다. 전체 점군 변환이므로 ground 분리나 S-004 완료를 의미하지 않습니다.
+기존 `tools/map/1030_demo_sim_converter.py`로 `sim_scenes/1102_demo_whole/`에 `terrain.usd`, `terrain.xml`, `scene.json`을 생성했습니다. 0.5 m voxel 350,693개를 MuJoCo box 75,832개와 USD 삼각형 714,730개로 내보냈습니다. origin은 `[0, 0, 0]`, scale은 `1`이며 과거 frame의 회전·수평화는 적용하지 않았습니다. 전체 점군 변환이므로 ground 분리나 S-004 완료를 의미하지 않습니다.
 
 WSL의 Windows mount에 직접 저장하면 마지막 `renameat2` 호출이 `EINVAL`로 실패했습니다. Linux 임시 경로에서 생성한 뒤 같은 실행 안에서 저장소로 복사했습니다. 재현용 실행·검사 스크립트는 위 작업 디렉터리의 `run_whole.py`, `verify_scene.py`이며 기존 변환기 코드는 수정하지 않았습니다. 검증 결과는 산출물 폴더의 `validation.json`을 기준으로 확인합니다.
 
@@ -58,7 +58,7 @@ max = [ 64.14539337158203, 223.58726501464844, 38.09461975097656]
 재현 명령은 다음과 같다.
 
 ```bash
-uv run --no-sync python tools/map/extract_pair360_demo.py \
+uv run --no-sync python tools/map/1109_extract_pair360_demo.py \
   data/PAIR360_data/T1_Parking_and_OpenTheater/extra/T1_parking_Seq0.pcd \
   --output data/PAIR360_demo/T1_parking_Seq0_demo_binary.ply
 ```

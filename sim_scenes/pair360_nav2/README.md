@@ -33,7 +33,7 @@ S-009 Notion 페이지의 기준을 따랐습니다.
 
 - **장애물**: map_v3 정적 점 중 7단계 지면보다 0.25~1.0 m 높은 점이 하나라도 있는 0.1 m 칸입니다. 연석·화단 같은 사람이 그린 수정은 넣지 않았습니다.
 - **도로 밖(keepout)**: S-009 그림 "통행 도로와 통행불가 구역(실기용)"(김완준, 2026-11-23)에서 칠한 도로만 남기고 나머지를 막았습니다. 그 그림에는 도로 가장자리 여유 0.4 m가 이미 통행불가로 칠해져 있습니다.
-- `road_s009.png`는 그 그림(1200 × 1320 px)을 `tools/map/pair360_v3/road_from_figure.py`로 지도 격자에 옮긴 것입니다.
+- `road_s009.png`는 그 그림(1200 × 1320 px)을 `tools/map/1124_pair360_v3/road_from_figure.py`로 지도 격자에 옮긴 것입니다.
 
 11-15 녹화 경로 6,170점은 모두 도로 안에 있습니다. 0.5%(29점)는 도로 가장자리 장애물 칸(화단 가지, 경사로 연석 모서리)에 걸칩니다.
 
@@ -51,7 +51,7 @@ S-009 Notion 페이지의 기준을 따랐습니다.
 
 ```bash
 sudo apt-get update && sudo apt-get install -y ros-jazzy-nav2-map-server ros-jazzy-nav2-costmap-2d ros-jazzy-nav2-lifecycle-manager
-tools/map/check_nav2_keepout.sh sim_scenes/pair360_nav2
+tools/map/1124_check_nav2_keepout.sh sim_scenes/pair360_nav2
 ```
 
 팀 ROS 이미지에는 아직 Nav2가 없어 첫 줄로 한 번 설치합니다. 없으면 스크립트가 이 설치 명령을 알려 주고 끝납니다. 스크립트는 위 순서대로 노드를 띄우고, 각 노드가 lifecycle `active`가 된 것을 확인한 뒤 다음 노드로 넘어갑니다. 그다음 비용지도에서 도로 밖과 지도 밖이 모두 통행 불가인지 검사합니다. `--save <폴더>`를 주면 세 격자를 `nav2_grids.npz`로 저장합니다.
@@ -66,10 +66,10 @@ tools/map/check_nav2_keepout.sh sim_scenes/pair360_nav2
 ## 출처와 생성
 
 - **입력**: PAIR360 T1 주차장 점군(v1, Kim et al., *PAIR360*, IEEE RA-L 2024, ODbL 1.0), 팀 FAST-LIO 촬영 점군(v2, 2026-11-15), 둘을 합친 map_v3와 지면 격자(mesh_v3 7단계), S-009 그림의 통행 도로입니다.
-- **생성**: [`tools/map/build_pair360_v3.sh`](../../tools/map/build_pair360_v3.sh)의 11단계(`tools/map/pair360_v3/s11_nav2.py`)입니다. 입력과 단계 설명은 [`../pair360_v3_decisions/README.md`](../pair360_v3_decisions/README.md)에 있습니다.
+- **생성**: [`tools/map/1124_build_pair360_v3.sh`](../../tools/map/1124_build_pair360_v3.sh)의 11단계(`tools/map/1124_pair360_v3/s11_nav2.py`)입니다. 입력과 단계 설명은 [`../pair360_v3_decisions/README.md`](../pair360_v3_decisions/README.md)에 있습니다.
 
   ```bash
-  tools/map/build_pair360_v3.sh --data <입력 폴더> --out <결과 폴더>   # 결과: <결과 폴더>/nav2_v3/
+  tools/map/1124_build_pair360_v3.sh --data <입력 폴더> --out <결과 폴더>   # 결과: <결과 폴더>/nav2_v3/
   ```
 
 - **라이선스**: 지도 이미지는 PAIR360(ODbL 1.0)에서 파생한 데이터입니다. 공유할 때 원저자·논문·변경 내용을 함께 밝힙니다. 설정 파일과 도구는 Apache-2.0, 이 문서는 CC BY 4.0입니다.

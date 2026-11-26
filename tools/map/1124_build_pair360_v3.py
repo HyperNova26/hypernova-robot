@@ -3,7 +3,7 @@
 # Copyright 2026 HYPERNOVA contributors.
 """Build PAIR360 map_v3 (merged point cloud), mesh_v3 (MuJoCo terrain) and the Nav2 map from two captures.
 
-Steps live in tools/map/pair360_v3/ (s01..s11); see sim_scenes/pair360_v3_decisions/README.md.
+Steps live in tools/map/1124_pair360_v3/ (s01..s11); see sim_scenes/pair360_v3_decisions/README.md.
 Inputs: --data (point clouds, reviewed S-004 ground, Go2 model; not in Git), --decisions (hand-made
 decisions in Git), --road (S-009 road mask for the Nav2 keep-out). Every result goes under --out.
 """
@@ -15,7 +15,7 @@ import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-PACKAGE = Path(__file__).resolve().with_name("pair360_v3")
+PACKAGE = Path(__file__).resolve().with_name("1124_pair360_v3")
 STEPS = ["s01_inputs", "s02_dynamic", "s03_register", "check_vehicles", "s04_local_fit", "s05_change",
          "s06_merge", "s07_ground", "s08_mesh", "s09_verify", "s10_bundle", "s11_nav2"]
 REQUIRED = ["raw/pc_v1_pair360_t1_parking_demo.ply", "raw/pc_v2_20261115.pcd",

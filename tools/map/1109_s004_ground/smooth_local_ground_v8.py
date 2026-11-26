@@ -7,7 +7,7 @@ import numpy as np
 from scipy.ndimage import median_filter, distance_transform_edt, label, binary_dilation
 from build_continuous_ground_v5 import fine_surface, build_mesh, write_mesh_ply, harmonic_fill
 
-root = Path(__file__).resolve().parents[2]
+root = Path(__file__).resolve().parents[3]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--source', type=Path, default=root / 'data/PAIR360_demo/20261104_continuous_ground_v7/ground_surface.npz')
 parser.add_argument('--out', type=Path, default=root / 'data/PAIR360_demo/20261105_local_smoothing_v8')

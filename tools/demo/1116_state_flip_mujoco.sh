@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 # G-006 시나리오 3/3 (MuJoCo): 걷다가 옆으로 돌아서 넘어지기. AT초에 몸통 roll(로봇 기준 좌우 회전) 각속도를 한 번 더해 옆으로 뒤집고, 판정기가 FALLEN을 내는지 봅니다.
-# 사용: ./tools/demo/state_flip_mujoco.sh   (저장소 최상위의 데스크톱 터미널에서, 인자 없음. 값을 바꾸려면 아래 하이퍼파라미터 블록만 고치십시오. 컨테이너 hn:sim을 자동으로 씁니다)
+# 사용: ./tools/demo/1116_state_flip_mujoco.sh   (저장소 최상위의 데스크톱 터미널에서, 인자 없음. 값을 바꾸려면 아래 하이퍼파라미터 블록만 고치십시오. 컨테이너 hn:sim을 자동으로 씁니다)
 # 시뮬레이터 창이 뜨고 실시간 속도로 진행합니다. 판정 상태는 MuJoCo 창 왼쪽 위 글자(색은 상태별: 회색 INIT, 파랑 STANDING, 초록 WALKING, 빨강 FALLEN)로 표시됩니다.
 # 충격 크기 FLIP_RATE: 너무 작으면 로봇이 버티고 일어나고, 너무 크면 한 바퀴 돌아 다시 발로 섭니다(그러면 FALLEN이 풀림).
 #   경로 A, AT=8에서 직접 돌려 본 값: 26~28은 세 시뮬레이터 모두 누운 채 FALLEN 유지 / 24는 Isaac Lab에서 버텨 일어남 / 30은 MuJoCo에서 한 바퀴 돌아 일어남.
@@ -26,4 +26,4 @@ if [ -n "$ROS_TOPIC" ]; then
   export ROS_LOCAL
 fi
 export ROUTE HEADLESS=$((1 - WINDOW))
-exec "$(dirname "${BASH_SOURCE[0]}")/_state_run.sh" mujoco flip --label flip "${ARGS[@]}"
+exec "$(dirname "${BASH_SOURCE[0]}")/1116_state_run.sh" mujoco flip --label flip "${ARGS[@]}"

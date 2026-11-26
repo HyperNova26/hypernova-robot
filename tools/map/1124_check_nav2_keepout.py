@@ -3,7 +3,7 @@
 # Copyright 2026 HYPERNOVA contributors.
 """Load a Nav2 static map and keep-out mask into a real Nav2 global costmap, then report keep-out coverage.
 
-Run inside the team ROS container (./docker/hn ros) through check_nav2_keepout.sh. Nodes come up in the order
+Run inside the team ROS container (./docker/hn ros) through 1124_check_nav2_keepout.sh. Nodes come up in the order
 that makes the keep-out filter apply fully: filter_mask_server and costmap_filter_info_server, then the
 costmap, then map_server; each step waits until the previous nodes report lifecycle state "active".
 Exits 1 if any keep-out or outside-map cell is not lethal, 2 if Nav2 packages are missing.

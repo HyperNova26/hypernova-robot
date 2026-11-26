@@ -30,8 +30,8 @@ def main() -> None:
                         help="v8: accepted S-004 release with simulator scenes (default); "
                              "v9: pc_v1 ground v1, the input of PAIR360 maps v1 and v3 (mesh and point layers only)")
     args = parser.parse_args()
-    root = Path(__file__).resolve().parents[2]
-    tools = root / "tools/map"
+    root = Path(__file__).resolve().parents[3]
+    tools = root / "tools/map/1109_s004_ground"
     release = root / "sim_scenes/S004_ground_final"
     manifest = json.loads((release / "checksums.json").read_text(encoding="utf-8"))
     inputs = dict(manifest["rebuild_inputs"])

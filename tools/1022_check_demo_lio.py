@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""LIO가 데모 bag에서 정답 경로를 따라가는지 확인합니다 (tools/make_demo_bag.py로 만든 bag 전용).
+"""LIO가 데모 bag에서 정답 경로를 따라가는지 확인합니다 (tools/1022_make_demo_bag.py로 만든 bag 전용).
 
 /rko_lio/odom을 받아 bag의 /ground_truth/odom과 비교합니다. 둘 다 "시작 자세를 원점으로 본" 값이라서
 LIO의 odom 원점과 정답의 절대 좌표가 달라도 됩니다. 오차 평균이 --max-mean-error보다 크면 종료 코드 1입니다.
@@ -9,7 +9,7 @@ LIO의 odom 원점과 정답의 절대 좌표가 달라도 됩니다. 오차 평
   환경   hn:ros 컨테이너의 robot venv(numpy)와 ROS Python(rclpy, rosbag2_py)
 
   사용   먼저 이 스크립트를 켜 두고(odom을 기다림), 다른 터미널에서 LIO를 돌립니다. odom이 8초 동안 멈추면 결과를 냅니다.
-         터미널 1:  ./docker/hn ros /opt/hn-venv/bin/python tools/check_demo_lio.py /data/bags/demo-room
+         터미널 1:  ./docker/hn ros /opt/hn-venv/bin/python tools/1022_check_demo_lio.py /data/bags/demo-room
          터미널 2:  ./docker/hn ros ros2 launch rko_lio odometry.launch.py mode:=offline \\
                       bag_path:=/data/bags/demo-room initialization_phase:=true rviz:=false
   기대   (2026-10-22, hn:ros, 기본 seed 0) 평균 오차 약 6 cm, 최대 약 19 cm, yaw 오차 1도 안쪽
@@ -62,13 +62,13 @@ def read_ground_truth(bag_dir):
         if topic == "/ground_truth/odom":
             poses.append(pose_of(deserialize_message(data, Odometry)))
     if not poses:
-        sys.exit(f"{bag_dir} 에 /ground_truth/odom이 없습니다. tools/make_demo_bag.py로 만든 bag인지 확인하세요.")
+        sys.exit(f"{bag_dir} 에 /ground_truth/odom이 없습니다. tools/1022_make_demo_bag.py로 만든 bag인지 확인하세요.")
     return poses
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("bag", help="tools/make_demo_bag.py가 만든 bag 폴더")
+    ap.add_argument("bag", help="tools/1022_make_demo_bag.py가 만든 bag 폴더")
     ap.add_argument("--idle", type=float, default=8.0, help="odom이 이 시간(초) 동안 안 오면 끝난 것으로 봅니다. 기본 8")
     ap.add_argument("--max-mean-error", type=float, default=0.25, help="합격 기준: 위치 오차 평균(m). 기본 0.25")
     args = ap.parse_args()

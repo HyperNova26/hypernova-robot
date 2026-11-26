@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # Nav2 (Jazzy) example: static map + keep-out filter on pair360_map. Paths are the team container's
-# (/workspace/hypernova = repository root); tools/map/check_nav2_keepout.py overrides yaml_filename.
+# (/workspace/hypernova = repository root); tools/map/1124_check_nav2_keepout.py overrides yaml_filename.
 # Bring-up order matters: filter_mask_server and costmap_filter_info_server before the costmap, map_server last
-# (see README). Checked with tools/map/check_nav2_keepout.sh on 2026-11-24.
+# (see README). Checked with tools/map/1124_check_nav2_keepout.sh on 2026-11-24.
 map_server:
   ros__parameters:
     yaml_filename: /workspace/hypernova/sim_scenes/pair360_nav2/map.yaml

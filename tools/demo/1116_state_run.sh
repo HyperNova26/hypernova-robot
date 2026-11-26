@@ -5,21 +5,21 @@
 # 이 엔진을 직접 부르면 stale 시나리오와 모든 하네스 옵션을 쓸 수 있습니다.
 #
 # 사용법 (저장소 최상위에서)
-#   ./tools/demo/_state_run.sh <mujoco|isaaclab|isaacsim> <시나리오> [하네스 옵션...] [-- 재생기 옵션...]
+#   ./tools/demo/1116_state_run.sh <mujoco|isaaclab|isaacsim> <시나리오> [하네스 옵션...] [-- 재생기 옵션...]
 #   시나리오: baseline | stale | collapse | flip   (설명은 policies/route_walk/state_scenarios.py, 세 시뮬레이터 모두 지원)
 # 예
-#   ROUTE=none ./tools/demo/_state_run.sh mujoco baseline --until 20 --expect stand -- --vmax 0   # 정지 20초
-#   ./tools/demo/_state_run.sh mujoco baseline                                                  # 경로 A 전 구간(오탐 확인)
-#   ./tools/demo/_state_run.sh isaaclab collapse --at 20                                        # Isaac Lab, 20초에 주저앉힘
-#   ./tools/demo/_state_run.sh isaacsim stale --at 20 --gap 3                                   # Isaac Sim, 20초부터 3초 입력 끊김
+#   ROUTE=none ./tools/demo/1116_state_run.sh mujoco baseline --until 20 --expect stand -- --vmax 0   # 정지 20초
+#   ./tools/demo/1116_state_run.sh mujoco baseline                                                  # 경로 A 전 구간(오탐 확인)
+#   ./tools/demo/1116_state_run.sh isaaclab collapse --at 20                                        # Isaac Lab, 20초에 주저앉힘
+#   ./tools/demo/1116_state_run.sh isaacsim stale --at 20 --gap 3                                   # Isaac Sim, 20초부터 3초 입력 끊김
 # 환경 변수: ROUTE(기본 A, none이면 경로 없이 고정 명령), HEADLESS(기본 1), EXIT_ON_ARRIVAL(기본 1: baseline 경로 보행은 도착하면 끝냄), LOG(기록 파일, 기본 /data/state_logger/<시각>_<sim>_<시나리오>.jsonl),
 #   ROS_LOCAL(1이면 ROS 탐색을 이 PC로 제한: 같은 ROS_DOMAIN_ID를 쓰는 다른 PC에 시험 토픽이 보이지 않게)
 # 눈으로 확인하기(창 모드는 데스크톱 터미널에서, 실시간 속도)
-#   HEADLESS=0 ./tools/demo/_state_run.sh isaacsim collapse --at 10 --until 20   # Isaac Sim 창 + 판정 상태 작은 창
-#   HEADLESS=0 ./tools/demo/_state_run.sh isaaclab collapse --at 10 --until 20   # Isaac Lab 창 + 판정 상태 작은 창
-#   HEADLESS=0 ./tools/demo/_state_run.sh mujoco collapse --at 8 --until 16   # MuJoCo 창 왼쪽 위에 판정 상태가 실시간 표시됨(실시간 속도, 데스크톱 터미널에서)
-#   ./tools/demo/_state_run.sh mujoco collapse --at 6 --until 14 --ros-topic /locomotion/status --realtime   # 상태를 ROS 토픽으로 발행(다른 터미널: ./docker/hn sim ros2 topic echo /locomotion/status)
-# 필요한 파일은 tools/demo/run_route.sh와 같습니다(./tools/demo/run_route.sh check). Isaac 모드의 창(HEADLESS=0)에는 재생기의 기존 창과 함께 판정 상태를 보여 주는 작은 창('Locomotion state')이 뜹니다.
+#   HEADLESS=0 ./tools/demo/1116_state_run.sh isaacsim collapse --at 10 --until 20   # Isaac Sim 창 + 판정 상태 작은 창
+#   HEADLESS=0 ./tools/demo/1116_state_run.sh isaaclab collapse --at 10 --until 20   # Isaac Lab 창 + 판정 상태 작은 창
+#   HEADLESS=0 ./tools/demo/1116_state_run.sh mujoco collapse --at 8 --until 16   # MuJoCo 창 왼쪽 위에 판정 상태가 실시간 표시됨(실시간 속도, 데스크톱 터미널에서)
+#   ./tools/demo/1116_state_run.sh mujoco collapse --at 6 --until 14 --ros-topic /locomotion/status --realtime   # 상태를 ROS 토픽으로 발행(다른 터미널: ./docker/hn sim ros2 topic echo /locomotion/status)
+# 필요한 파일은 tools/demo/1116_run_route.sh와 같습니다(./tools/demo/1116_run_route.sh check). Isaac 모드의 창(HEADLESS=0)에는 재생기의 기존 창과 함께 판정 상태를 보여 주는 작은 창('Locomotion state')이 뜹니다.
 set -euo pipefail
 
 SIM="${1:-}"
@@ -71,7 +71,7 @@ MISSING=0
 for f in "${NEED[@]}"; do
   [ -e "$f" ] || { echo "[_state_run] 없음: $f" >&2; MISSING=1; }
 done
-[ "$MISSING" = 0 ] || { echo "[_state_run] 필요한 파일이 없습니다. ./tools/demo/run_route.sh check 로 준비 상태를 확인하십시오." >&2; exit 2; }
+[ "$MISSING" = 0 ] || { echo "[_state_run] 필요한 파일이 없습니다. ./tools/demo/1116_run_route.sh check 로 준비 상태를 확인하십시오." >&2; exit 2; }
 
 mkdir -p "$DATA_HOST/state_logger"
 LOG_CTR="${LOG:-/data/state_logger/$(date +%Y%m%d_%H%M%S)_${SIM}_${SCEN}.jsonl}"

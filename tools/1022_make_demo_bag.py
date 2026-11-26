@@ -13,8 +13,8 @@ LiDAR는 점마다 측정 시각(`t`)이 달라서 움직이는 동안의 왜곡
            /ground_truth/odom nav_msgs/Odometry        20 Hz   world 기준 정답 경로 (평가용, LIO는 쓰지 않음)
   환경   hn:ros 컨테이너의 robot venv(numpy)와 ROS Python(rclpy, rosbag2_py)
 
-  사용   ./docker/hn ros /opt/hn-venv/bin/python tools/make_demo_bag.py
-         ./docker/hn ros /opt/hn-venv/bin/python tools/make_demo_bag.py --out /data/bags/demo-room --duration 30
+  사용   ./docker/hn ros /opt/hn-venv/bin/python tools/1022_make_demo_bag.py
+         ./docker/hn ros /opt/hn-venv/bin/python tools/1022_make_demo_bag.py --out /data/bags/demo-room --duration 30
   되돌리기  출력 폴더를 지우면 끝입니다(--force로 덮어쓸 수도 있습니다).
 
 실제 센서 bag이 아니므로 LIO 성능을 평가하는 용도가 아니라, 환경이 제대로 깔렸는지와 LIO 실행 절차를

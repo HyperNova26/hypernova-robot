@@ -10,7 +10,7 @@ import numpy as np
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = ROOT / "tools/map/extract_pair360_demo.py"
+SCRIPT = ROOT / "tools/map/1109_extract_pair360_demo.py"
 
 
 def write_binary_pcd(path, points):

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 공용 Python 환경(.venv)을 만들거나 uv.lock에 맞춰 갱신합니다.
 #
-# 사용법:  ./tools/setup-venv.sh       (처음 한 번, 그리고 git pull로 uv.lock이 바뀌었을 때)
+# 사용법:  ./tools/1022_setup-venv.sh       (처음 한 번, 그리고 git pull로 uv.lock이 바뀌었을 때)
 # 필요:    Ubuntu 24.04 (/usr/bin/python3.12), uv
 # 문서:    docs/development/python-env.md
 #

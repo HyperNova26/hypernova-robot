@@ -3,7 +3,7 @@
 hn:sim 컨테이너에서 이 스크립트를 돌리고, 다른 컨테이너(hn:ros)에서 토픽을 받아 보면
 "컨테이너 사이 ROS 통신"이 되는지 확인할 수 있습니다. GPU가 있는 PC의 hn:sim에서만 돌아갑니다.
 
-  사용   터미널 1:  ./docker/hn sim ./isaaclab.sh -p /workspace/hypernova/tools/isaac_clock_pub.py --seconds 90
+  사용   터미널 1:  ./docker/hn sim ./isaaclab.sh -p /workspace/hypernova/tools/1022_isaac_clock_pub.py --seconds 90
          터미널 2:  ./docker/hn ros ros2 topic echo /clock rosgraph_msgs/msg/Clock
   주의   Isaac Sim이 뜨고 bridge가 켜질 때까지 20초쯤 걸립니다. 토픽 타입(rosgraph_msgs/msg/Clock)을 적어 주면
          echo가 토픽이 생길 때까지 기다리고, 안 적으면 토픽이 아직 없을 때 바로 끝납니다.
