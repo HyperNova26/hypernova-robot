@@ -82,5 +82,3 @@ main에 있던 아래 경로가 바뀌었습니다. 이 정리 전에 갈라진 
 2. 브랜치에서 새로 만든 도구에 처음 커밋한 날짜를 붙입니다. 예: `git mv tools/map/hfield_scene_import.py tools/map/1120_hfield_scene_import.py`. 시험은 `tests/<분야>/MMDD_test_<이름>.py`입니다.
 3. 문서·코드 속 옛 경로를 바꿉니다. `git grep -nE "tools/demo/(run_route|_state_run|state_)|tools/description/fetch_|tools/map/(demo_sim|extract_pair360|build_continuous|reproduce_s004)|S004_ground_final|tests/map/test_"`로 남은 곳을 찾습니다.
 4. `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run python -m pytest tests/map -q`와 바꾼 실행기의 `--help`로 확인합니다.
-
-2026-11-26에 열린 브랜치 `feat/sim-fault-injection`, `feat/localization-status-fields`를 시험 병합해 보면, main과 이미 충돌하는 파일이 29개이고 이 정리로 늘어나는 충돌은 3개입니다(`policies/route_walk/__init__.py`, `policies/urdf_v0/policy_io.yaml`의 경로 한 줄씩, `sim_scenes/README.md`). 그 밖에 두 브랜치는 새 도구 3개(`tools/demo/compare_traces.py`, `tools/map/hfield_scene_import.py`, `tools/map/synthetic_hfield_scene.py`, 모두 11-20)의 이름을 바꾸고, `sim_scenes/pair360_map_v3/`를 지도 v3 폴더(`sim_scenes/pair360_v3/` 아래)로 옮기면 됩니다.
