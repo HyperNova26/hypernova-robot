@@ -29,7 +29,7 @@ v9 지면은 지도 v3 2단계의 입력이기도 합니다(`continuous_ground_2
 
 ## 실행
 
-저장소 최상위에서 실행합니다. 입력은 `sim_scenes/pair360_v1/input/original.ply`와 `review/*.npz`(Git 밖)입니다.
+저장소 최상위에서 실행합니다. 입력은 `sim_scenes/pair360_v1/input/original.ply`와 `review/*.npz`(Git 밖)입니다. 팀 Drive `14. AI Team/data/raw/`의 `pc_v1_pair360_t1_parking_demo.ply`를 `sim_scenes/pair360_v1/input/original.ply`로, `classification.npz`와 `design_policy.npz`를 `sim_scenes/pair360_v1/review/`에 둡니다. 실행기가 `sim_scenes/pair360_v1/checksums.json`의 SHA-256으로 입력을 확인합니다.
 
 ```bash
 uv run python tools/map/1109_pair360_v1/reproduce_s004_final.py --ground v9 --out /tmp/pair360-v1

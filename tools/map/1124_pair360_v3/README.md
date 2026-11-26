@@ -8,8 +8,8 @@
 
 | 경로 | 내용 | 구하는 곳 |
 | --- | --- | --- |
-| `raw/pc_v1_pair360_t1_parking_demo.ply` | PAIR360 T1_parking_Seq0 데모 크롭, 7,751,328점, ODbL 1.0 | PAIR360 공개 데이터 데모 크롭. SHA-256 `d4304a35…34fbb3` |
-| `raw/pc_v2_20261115.pcd` | 팀 FAST-LIO 촬영본(2026-11-15), 2,119,206점 | 촬영 원본. SHA-256 `9b289e14…7fecf42` |
+| `raw/pc_v1_pair360_t1_parking_demo.ply` | PAIR360 T1_parking_Seq0 데모 크롭, 7,751,328점, ODbL 1.0 | 팀 Drive `14. AI Team/data/raw/`. SHA-256 `d4304a35…34fbb3` |
+| `raw/pc_v2_20261115.pcd` | 팀 FAST-LIO 촬영본(2026-11-15), 2,119,206점 | 팀 Drive `14. AI Team/data/raw/`. SHA-256 `9b289e14…7fecf42` |
 | `reviewed/pc_v1_ground_v1/ground_surface.npz` | pc_v1 지면 v1(S-004 v9) 0.1 m 격자 | [`1109_pair360_v1/reproduce_s004_final.py --ground v9 --out <폴더>`](../1109_pair360_v1/README.md)의 `<폴더>/v9/ground_surface.npz` |
 | `reviewed/pc_v1_ground_v1_partition/ground.ply` | 원본 점 중 위 격자에서 0.15 m 안(`original_index` 포함) | 같은 실행의 `<폴더>/pointcloud/ground.ply` |
 | `models/unitree_go2/go2.xml` | Go2 모델(9단계 기립 확인용) | [MuJoCo Menagerie](https://github.com/google-deepmind/mujoco_menagerie)의 `unitree_go2/` 폴더 |
@@ -59,4 +59,3 @@ tools/map/1124_pair360_v3/check_nav2_keepout.sh --help
 ## 한계
 
 - 2026-11-24에 1~9·11단계를 다시 돌려 결과가 같았습니다. 2026-11-26 폴더 이름을 바꾼 뒤에는 전체를 다시 돌리지 않았습니다.
-- 두 원시 점군(`raw/`)은 2026-11-26 기준 팀 Drive에 없습니다.
