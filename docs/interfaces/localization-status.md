@@ -75,5 +75,6 @@
 ## 알려진 한계
 
 - **지도 기준 판정이 아닙니다.** 누적 오차(drift)가 커져도 위치가 매끄럽게 나오면 `TRACKING`입니다. 지도 정합(relocalization) 모듈이 생기면 그 정합 점수로 `DEGRADED`·`LOST`를 다시 정의해야 합니다.
+- **SW팀 계약과 타입이 다릅니다.** SW팀 PR #28(`docs/interfaces/sw-contract.md`, 열림)은 이 토픽을 `hn_interfaces/LocalizationStatus`의 `status` 필드로 받고, `TRACKING`이 아니거나 300 ms 넘게 안 오면 위치를 무효로 봅니다. 코드 0~5의 뜻은 같고, 발행 간격(heartbeat 200 ms)도 300 ms 안입니다. 타입만 다르므로 `hn_interfaces`를 누가 언제 만들지 SW팀과 정해야 합니다.
 - **메시지 타입은 임시입니다.** `hn_interfaces`가 생기면 바꾸고, 대시보드는 두 형식을 모두 받습니다(`src/model.ts`의 `localizationFromDiagnostics`, `localizationStatus`).
 - 임계값은 11-15 기록 하나로만 확인했습니다.
