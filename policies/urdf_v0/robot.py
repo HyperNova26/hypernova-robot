@@ -20,6 +20,7 @@ from isaaclab.assets.articulation import ArticulationCfg
 
 # 저장소 루트 기준으로 찾으므로 호스트와 컨테이너(/workspace/hypernova) 모두 같은 경로를 씁니다.
 # 다른 URDF를 쓰려면 환경변수로 바꿉니다.
+# urdf_v0/ → policies/ → 저장소 루트
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 URDF_PATH = os.environ.get("HN_GO2_URDF", os.path.join(_REPO_ROOT, "description/hn_v0_go2/hypernova_go2.urdf"))
 # 변환된 USD를 캐시해 두는 폴더. 생성 파일이라 저장소 밖(/data = 호스트 ~/hypernova-data)에 둡니다.
@@ -30,6 +31,10 @@ USD_DIR = os.environ.get("HN_GO2_USD_DIR", "/data/usd/hn_v0_go2")
 # 발 접촉·속도를 쓰는 보상은 이 이름으로 발 body를 찾습니다.
 # merge_fixed_joints=False라서 *_foot(구 충돌체, calf에서 (0, 0, -0.213) m)이 별도 body입니다.
 FOOT_BODY_REGEX = ".*_foot"
+
+# 몸통(루트) 링크 이름. 팀 표준 강체명입니다(description/hn_v0_go2/hypernova_go2.urdf).
+# 표준 Go2 설정이 몸체 "base"를 하드코딩한 곳(이벤트, 종료, height scanner)은 이 이름으로 덮어씁니다.
+TRUNK_BODY = "trunk"
 
 HN_GO2_V0_CFG = ArticulationCfg(
     spawn=sim_utils.UrdfFileCfg(

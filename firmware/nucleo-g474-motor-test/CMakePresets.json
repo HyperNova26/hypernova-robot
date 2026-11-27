@@ -1,0 +1,42 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "nucleo",
+      "displayName": "NUCLEO-G474RE, SYSCLK 170 MHz (main board clock)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/nucleo",
+      "toolchainFile": "${sourceDir}/cmake/arm-none-eabi.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "FETCHCONTENT_BASE_DIR": "${sourceDir}/build/_deps",
+        "HN_SYSCLK_MHZ": "170"
+      }
+    },
+    {
+      "name": "nucleo-160mhz",
+      "inherits": "nucleo",
+      "displayName": "NUCLEO-G474RE, SYSCLK 160 MHz (exact 4 Mbps)",
+      "binaryDir": "${sourceDir}/build/nucleo-160mhz",
+      "cacheVariables": {
+        "HN_SYSCLK_MHZ": "160"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "nucleo",
+      "configurePreset": "nucleo"
+    },
+    {
+      "name": "nucleo-160mhz",
+      "configurePreset": "nucleo-160mhz"
+    }
+  ]
+}
