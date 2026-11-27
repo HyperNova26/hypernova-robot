@@ -432,7 +432,7 @@
       "area": "perc",
       "milestone": "S4",
       "title": "대시보드 실데이터 연결",
-      "status": "예정",
+      "status": "진행",
       "due": "2026-11-28",
       "url": "https://app.notion.com/p/40645bd871788157b2ccf23eb4561311"
     },
@@ -475,7 +475,7 @@
       "area": "perc",
       "milestone": "S4",
       "title": "tools·test 폴더 정리",
-      "status": "예정",
+      "status": "완료",
       "due": "2026-11-26",
       "url": "https://app.notion.com/p/42145bd871788188aefae9164b052cbd",
       "owners": [
@@ -499,7 +499,7 @@
       "area": "perc",
       "milestone": "S4",
       "title": "학기말발표회 영상 촬영 #2",
-      "status": "예정",
+      "status": "완료",
       "due": "2026-11-27",
       "url": "https://app.notion.com/p/41c45bd8717881bfb610fcedbceb7d3f",
       "owners": [
