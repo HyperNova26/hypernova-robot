@@ -36,7 +36,7 @@ from matplotlib.path import Path as Polygon
 from scipy.spatial import cKDTree
 
 from features import floor_model, vehicle_instances
-from config import (CLASS_RGB, GROUND, GROUND_V1_SURFACE, MAP_DIR, MAP_VERSION, NOISE, OBSTACLE, PC, ROUTE_REVIEW,
+from config import (CLASS_RGB, DECISIONS, GROUND, GROUND_V1_SURFACE, MAP_DIR, MAP_VERSION, NOISE, OBSTACLE, PC, ROUTE_REVIEW,
                     SOURCE_ID, TRANSIENT, VEHICLE, work)
 from frames import map_xyzi
 from pcio import load_json, read_xyzi, save_json, write_pcd
@@ -194,7 +194,7 @@ def main():
         "pc_v1_not_in_pc_v2": {"rows": int(len(only)), "of_left_out_rows": int(len(left_out)), "distance_m": .5,
                                "by_step2_label": {str(k): int(v) for k, v in zip(*np.unique(l1[only], return_counts=True))},
                                "sha256": only_sha},
-        "route_review": ROUTE_REVIEW.relative_to(MAP_DIR.parents[1]).as_posix(),
+        "route_review": ROUTE_REVIEW.relative_to(DECISIONS).as_posix(),
         "pc_v2_coverage_m2": float(cover.sum()*CELL**2), "files_sha256": files})
     print(report, second, "pc_v2 coverage m2", cover.sum()*CELL**2)
 
