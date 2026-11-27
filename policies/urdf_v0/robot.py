@@ -3,7 +3,7 @@
 """hypernova_go2 v0 URDF를 Isaac Lab ArticulationCfg로 정의합니다.
 
 - 형상·관성·관절 한계의 원본은 저장소의 description/hn_v0_go2/hypernova_go2.urdf입니다.
-  mesh는 git에 없으므로 처음 한 번 `python3 tools/description/fetch_go2_meshes.py --convert`로 받습니다.
+  mesh는 git에 없으므로 처음 한 번 `python3 tools/description/1030_fetch_go2_meshes.py --convert`로 받습니다.
 - 모터 한계(effort, velocity)는 URDF 값을 그대로 씁니다. Isaac Lab의 UNITREE_GO2_CFG(calf 45.43 N·m, 15.70 rad/s)와
   다르므로(URDF calf 35.55 N·m, 20 rad/s) Go2 설정을 그대로 가져오지 않습니다.
 - PD gain(stiffness 25, damping 0.5)과 초기 자세는 Isaac Lab UNITREE_GO2_CFG 값을 따릅니다. 실기 값이 정해지면 바꿉니다.

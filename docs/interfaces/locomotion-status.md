@@ -135,23 +135,23 @@ rclpy.spin(node)
 
 | 시나리오 | MuJoCo | Isaac Sim | Isaac Lab |
 | --- | --- | --- | --- |
-| 출발지에서 목적지까지 정상 보행 | `./tools/demo/state_walk_mujoco.sh` | `./tools/demo/state_walk_isaacsim.sh` | `./tools/demo/state_walk_isaaclab.sh` |
-| 걷다가 주저앉기 | `./tools/demo/state_collapse_mujoco.sh` | `./tools/demo/state_collapse_isaacsim.sh` | `./tools/demo/state_collapse_isaaclab.sh` |
-| 걷다가 옆으로 넘어지기 | `./tools/demo/state_flip_mujoco.sh` | `./tools/demo/state_flip_isaacsim.sh` | `./tools/demo/state_flip_isaaclab.sh` |
+| 출발지에서 목적지까지 정상 보행 | `./tools/demo/1116_state_walk_mujoco.sh` | `./tools/demo/1116_state_walk_isaacsim.sh` | `./tools/demo/1116_state_walk_isaaclab.sh` |
+| 걷다가 주저앉기 | `./tools/demo/1116_state_collapse_mujoco.sh` | `./tools/demo/1116_state_collapse_isaacsim.sh` | `./tools/demo/1116_state_collapse_isaaclab.sh` |
+| 걷다가 옆으로 넘어지기 | `./tools/demo/1116_state_flip_mujoco.sh` | `./tools/demo/1116_state_flip_isaacsim.sh` | `./tools/demo/1116_state_flip_isaaclab.sh` |
 
 - 값은 각 파일 위쪽 하이퍼파라미터 블록에서 고칩니다(`WINDOW`, `ROUTE`, `STAND_S`, `AT`, `UNTIL`, `EXIT_ON_ARRIVAL`, `FLIP_RATE`, `THIGH`, `CALF`, `ROS_TOPIC`, `ROS_LOCAL`, 스크립트마다 해당하는 것만 있습니다). 명령줄 인자는 없습니다.
 - 걷기 스크립트는 `STAND_S`(기본 5 s) 동안 속도 명령을 0으로 해서 서 있다가 걷기 시작합니다. 한 번 실행에서 `INITIALIZING → STANDING → WALKING`이 모두 나옵니다. 0으로 두면 바로 걷고, 0이 아니면 3 s 이상이어야 합니다. 도착 시간은 그만큼 늦어집니다.
 - 끝나면 요약에 판정 결과와 PASS/FAIL 검사가 나옵니다. walk의 PASS는 "FALLEN과 STALE 오탐이 없고, 대기 중 STANDING이며, 걷기 시작하면 WALKING이 된다"는 뜻이지 "도착했다"는 뜻이 아닙니다.
 - 판정 기록은 JSONL로 컨테이너 `/data/state_logger/`에 남습니다(호스트 `~/hypernova-data/state_logger/`). `header`, `transition`, `sample`, `fault_start`와 고장 이벤트, `summary` 줄로 이뤄집니다.
 - ROS로 내보려면 `ROS_TOPIC="/locomotion/status"`로 설정합니다. 같은 `ROS_DOMAIN_ID`를 쓰는 다른 PC에 시험용 `FALLEN`이 퍼지지 않도록 `ROS_LOCAL=1`이 기본입니다.
-- 필요한 데이터(정책 가중치, 지형, 장면, mesh)는 Git 밖에 있습니다. 준비 상태는 `./tools/demo/run_route.sh check`로 확인합니다.
-- 스크립트 9개에 없는 두 가지(입력 끊김, 오래 서 있기)는 내부 실행기 `tools/demo/_state_run.sh`를 직접 불러 확인합니다(저장소 최상위, 창 없는 모드, MuJoCo 기준. `mujoco` 자리에 `isaacsim`, `isaaclab`도 됩니다). 하네스의 모든 옵션도 이 실행기로 씁니다.
+- 필요한 데이터(정책 가중치, 지형, 장면, mesh)는 Git 밖에 있습니다. 준비 상태는 `./tools/demo/1116_run_route.sh check`로 확인합니다.
+- 스크립트 9개에 없는 두 가지(입력 끊김, 오래 서 있기)는 내부 실행기 `tools/demo/1116_state_run.sh`를 직접 불러 확인합니다(저장소 최상위, 창 없는 모드, MuJoCo 기준. `mujoco` 자리에 `isaacsim`, `isaaclab`도 됩니다). 하네스의 모든 옵션도 이 실행기로 씁니다.
 
   ```bash
   # 입력 끊김: 8 s부터 3 s 동안 판정기에 입력을 주지 않음(WALKING -> STALE_INPUT -> WALKING)
-  ./tools/demo/_state_run.sh mujoco stale --at 8 --gap 3
+  ./tools/demo/1116_state_run.sh mujoco stale --at 8 --gap 3
   # 정지: 명령 없이 20 s 서 있음(INITIALIZING -> STANDING, 서 있는 시간이 95% 이상인지 검사)
-  ROUTE=none ./tools/demo/_state_run.sh mujoco baseline --until 20 --expect stand -- --vmax 0
+  ROUTE=none ./tools/demo/1116_state_run.sh mujoco baseline --until 20 --expect stand -- --vmax 0
   ```
 
 단위 시험(75개)은 `hn:sim` 컨테이너에서 이렇게 돌립니다.
@@ -192,7 +192,7 @@ rclpy.spin(node)
 | 주저앉기 시작 → `FALLEN` | 0.42 s | 0.40 s | 0.40 s |
 | 옆으로 넘어짐 시작 → `FALLEN` | 0.28 s | 0.26 s | 0.30 s |
 
-- `STAND_S=5` 열은 걷기 스크립트가 내부 실행기에 넘기는 것과 같은 인자(`_state_run.sh <sim> baseline --label walk --stand-s 5`)로 창 없는 모드에서 직접 돌린 결과입니다. 스크립트가 `STAND_S`를 그 인자로 바꾸는 부분은 실행기를 스텁으로 바꿔 확인했고, 걷기 스크립트 자체를 창 모드로 돌려 보지는 않았습니다. 주저앉기와 넘어지기 행은 `STAND_S` 없이(걷다가 `AT`에서 고장) 돌린 결과입니다.
+- `STAND_S=5` 열은 걷기 스크립트가 내부 실행기에 넘기는 것과 같은 인자(`1116_state_run.sh <sim> baseline --label walk --stand-s 5`)로 창 없는 모드에서 직접 돌린 결과입니다. 스크립트가 `STAND_S`를 그 인자로 바꾸는 부분은 실행기를 스텁으로 바꿔 확인했고, 걷기 스크립트 자체를 창 모드로 돌려 보지는 않았습니다. 주저앉기와 넘어지기 행은 `STAND_S` 없이(걷다가 `AT`에서 고장) 돌린 결과입니다.
 - 위 시간은 시뮬레이션 시간이고, 고장 시작부터 판정기가 `FALLEN`을 내기까지입니다. 판정기의 지연은 항상 0.20 s(debounce)이고 나머지는 로봇이 실제로 쓰러지는 시간입니다.
 - 옆으로 넘어짐은 몸통 roll 각속도 27 rad/s를 한 번 더해서 만들었습니다. 이 크기가 맞는 구간은 좁습니다. 24는 Isaac Lab에서 버텨 일어났고 30은 MuJoCo에서 한 바퀴 돌아 다시 섰습니다. 26에서 28 사이는 세 시뮬레이터 모두 누운 채 `FALLEN`이 유지됐습니다.
 - ROS 전달(MuJoCo 주저앉기, 같은 컨테이너의 독립 프로세스): 발행 243건, 전달 지연 중앙값 0.5 ms(p95 1.3 ms), heartbeat 간격 중앙값 100 ms(최대 101 ms). `FALLEN` 첫 메시지의 `since_s`는 0.00으로 즉시 나갔습니다.
@@ -221,5 +221,5 @@ rclpy.spin(node)
 | `ros_pkgs/hn_robot_state/config/thresholds.yaml` | 임계값 |
 | `ros_pkgs/hn_robot_state/test/` | 단위 시험 |
 | `policies/route_walk/state_scenarios.py` | 시뮬레이터 시험 하네스(재생기를 수정하지 않고 감싸 고장을 넣음) |
-| `tools/demo/state_{walk,collapse,flip}_{mujoco,isaacsim,isaaclab}.sh` | 사용자용 실행 스크립트 9개 |
-| `tools/demo/_state_run.sh` | 내부 실행기 |
+| `tools/demo/1116_state_{walk,collapse,flip}_{mujoco,isaacsim,isaaclab}.sh` | 사용자용 실행 스크립트 9개 |
+| `tools/demo/1116_state_run.sh` | 내부 실행기 |

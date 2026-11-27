@@ -18,7 +18,7 @@ HYPERNOVA 실측 모델이 아닌 Go2 기반 시뮬레이션 근사 모델입니
 Git checkout에서 메시가 없으면 저장소 루트에서 실행합니다.
 
 ```bash
-python3 tools/description/fetch_go2_meshes.py --convert
+python3 tools/description/1030_fetch_go2_meshes.py --convert
 ```
 
 변환에는 실행 Python 환경의 `trimesh`와 `pycollada`가 필요합니다. 전달 ZIP에는 변환 결과가 포함되어 설치가 필요 없습니다.

@@ -35,7 +35,7 @@ ap.add_argument("--yaml", default=str(Path(__file__).resolve().parents[1] / "urd
 ap.add_argument("--actor", required=True, help="export_actor.py가 만든 .npz")
 ap.add_argument("--scene", required=True, help="지형 MJCF(높이맵 타일), 예: <데이터>/pair360_demo_frame/mujoco/scene.xml")
 ap.add_argument("--urdf", default=str(Path(__file__).resolve().parents[2] / "description" / "hn_v0_go2" / "hypernova_go2.urdf"),
-                help="로봇 URDF(기본: 저장소 description/hn_v0_go2, 루트 base). 같은 폴더의 meshes/를 씁니다(mesh는 Git 밖: tools/description/fetch_go2_meshes.py)")
+                help="로봇 URDF(기본: 저장소 description/hn_v0_go2, 루트 base). 같은 폴더의 meshes/를 씁니다(mesh는 Git 밖: tools/description/1030_fetch_go2_meshes.py)")
 ap.add_argument("--route-file")
 ap.add_argument("--route", default="A")
 ap.add_argument("--start", help="x,y (경로 파일 대신)")

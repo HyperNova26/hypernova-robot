@@ -21,7 +21,7 @@ HYPERNOVA v1 기체 CAD(Inventor 조립품 `trunk-hip-thigh-calf-foot.iam`)에�
 Git checkout에서 메시가 없으면 저장소 루트에서 한 번 실행합니다. 표준 라이브러리만 씁니다.
 
 ```bash
-python3 tools/description/fetch_hyper_v1_meshes.py
+python3 tools/description/1111_fetch_hyper_v1_meshes.py
 ```
 
 ## 구성

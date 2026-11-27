@@ -9,7 +9,7 @@
 # 근거 수준
 #   확인함  = Isaac Lab 3.0.0(hn:sim)의 소스와 실행 덤프에서 직접 읽은 값
 #   가정    = 학습 설정 파일(params/env.yaml)을 받지 못해 표준 Go2 rough 설정으로 맞춘 값.
-#             model_3849.pt가 이 설정으로 proxy 로봇에서 걷는 것까지만 확인했습니다(2026-11-08, /data의 루트 trunk 사본 로봇 기준). 저장소 URDF(루트 trunk)에서는 2026-11-15에 MuJoCo, Isaac Lab, Isaac Sim 창 없는 실행으로 경로 A 도착까지 확인했습니다(tools/demo/run_route.sh).
+#             model_3849.pt가 이 설정으로 proxy 로봇에서 걷는 것까지만 확인했습니다(2026-11-08, /data의 루트 trunk 사본 로봇 기준). 저장소 URDF(루트 trunk)에서는 2026-11-15에 MuJoCo, Isaac Lab, Isaac Sim 창 없는 실행으로 경로 A 도착까지 확인했습니다(tools/demo/1116_run_route.sh).
 
 schema_version: 1
 

@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.12.*"
 resolution-markers = [
     "sys_platform == 'win32'",
@@ -305,6 +305,7 @@ dependencies = [
     { name = "onnx" },
     { name = "onnxruntime" },
     { name = "open3d" },
+    { name = "pillow" },
     { name = "pyproj" },
     { name = "pyyaml" },
     { name = "scipy" },
@@ -325,6 +326,7 @@ requires-dist = [
     { name = "onnx", specifier = "==1.22.0" },
     { name = "onnxruntime", specifier = "==1.26.0" },
     { name = "open3d", specifier = "==0.19.0" },
+    { name = "pillow" },
     { name = "pyproj" },
     { name = "pyyaml" },
     { name = "scipy" },

@@ -7,9 +7,9 @@
 
 ## 배경
 
-2026-11-05에 팀원이 PAIR360 데모 패치의 바닥 메시(Isaac용 USD, MuJoCo 높이 타일, PLY)를 전달했습니다. 이 자료는 PAIR360 T1 Sequence0 LIO map을 CloudCompare로 내보낸 **raw 좌표**(이동·회전·수평화 없음)에 그대로 있습니다. `main`의 [`frame.json`](../../sim_scenes/S004_ground_final/frame.json)도 항등변환(`p_export = p_source`, `ground_leveling_applied: false`)으로 기록하고, 공통 frame(M-002)은 보행팀과 합의 전이라 변환을 추정하지 않았다고 적습니다. 전달 README도 공통 원점·회전·스케일은 보행팀이 확정해야 한다고 적었습니다.
+2026-11-05에 팀원이 PAIR360 데모 패치의 바닥 메시(Isaac용 USD, MuJoCo 높이 타일, PLY)를 전달했습니다. 이 자료는 PAIR360 T1 Sequence0 LIO map을 CloudCompare로 내보낸 **raw 좌표**(이동·회전·수평화 없음)에 그대로 있습니다. `main`의 [`frame.json`](../../sim_scenes/pair360_v1/frame.json)도 항등변환(`p_export = p_source`, `ground_leveling_applied: false`)으로 기록하고, 공통 frame(M-002)은 보행팀과 합의 전이라 변환을 추정하지 않았다고 적습니다. 전달 README도 공통 원점·회전·스케일은 보행팀이 확정해야 한다고 적었습니다.
 
-이 ADR이 근거로 본 전달본은 다음과 같습니다. 두 파일의 해시는 `main`의 [`checksums.json`](../../sim_scenes/S004_ground_final/checksums.json)과 같습니다(2026-11-16에 전달 zip에서 다시 계산해 확인했습니다).
+이 ADR이 근거로 본 전달본은 다음과 같습니다. 두 파일의 해시는 `main`의 [`checksums.json`](../../sim_scenes/pair360_v1/checksums.json)과 같습니다(2026-11-16에 전달 zip에서 다시 계산해 확인했습니다).
 
 | 파일 | SHA-256 |
 | --- | --- |

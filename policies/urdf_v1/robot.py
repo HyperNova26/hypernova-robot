@@ -3,7 +3,7 @@
 """HYPER v1 URDF를 Isaac Lab ArticulationCfg로 정의합니다.
 
 - 형상·관성·관절 한계의 원본은 저장소의 description/hn_v1_hyper/hypernova_hyper.urdf입니다.
-  mesh는 git에 없으므로 처음 한 번 `python3 tools/description/fetch_hyper_v1_meshes.py`로 받습니다.
+  mesh는 git에 없으므로 처음 한 번 `python3 tools/description/1111_fetch_hyper_v1_meshes.py`로 받습니다.
 - 충돌 설정은 HYPER 저장소(jaemin0319/HYPER @ e5f9ed5)의 isaacsim/convert_urdf.py, isaaclab/hyper_lab/robots.py와 같게 둡니다.
   - 부품별 충돌 STL 하나가 볼록 껍질(Convex Hull) 하나가 됩니다. 발은 반지름 0.025 m 구입니다.
   - 자기충돌을 켭니다. 관절 범위 안에서 허벅지가 몸체에 닿기 때문입니다(앞 허벅지 약 1.40 rad, hip 외전 약 0.85 rad).

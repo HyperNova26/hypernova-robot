@@ -225,7 +225,6 @@ cd hypernova-robot
 | `/data` | 호스트 `~/hypernova-data`. rosbag, 학습 결과, 지형 데이터 (`docker/.env.local`의 `HN_DATA_DIR`) |
 | `/workspace/hypernova/data/PAIR360_data`, `/workspace/hypernova/data/PAIR360_demo` | (2026-10-30 기준) PAIR360 원본과 기존 변환 결과. 코드 mount에 포함되며 Git 추적에서 제외합니다 |
 | `/workspace/hypernova/sim_scenes/MMDD_demo_whole` | 전체 점군 변환기의 USD, MuJoCo XML, metadata. 기본 출력 경로이며 Git 추적에서 제외합니다 |
-| `/workspace/hypernova/sim_scenes/MMDD_demo_disassembled` | 미구현 분해 스크립트가 준비하는 빈 폴더. 파일이나 하위 폴더를 만들지 않으며 Git 추적에서 제외합니다 |
 | `/workspace/isaaclab` | (sim) Isaac Lab. 안의 `logs/`는 `/data/isaaclab/logs`에 연결돼서 학습 결과가 호스트에 남습니다 |
 | `/opt/hn-venv` | robot venv. MuJoCo, onnxruntime, Open3D 등. 저장소 `uv.lock` 그대로 |
 | `/opt/isaaclab-venv` | (sim) Isaac Lab venv. 건드리지 않습니다 |
@@ -234,7 +233,7 @@ cd hypernova-robot
 
 PAIR360 폴더 이동으로 `/data` mount나 `HN_DATA_DIR` 기본값이 바뀌지는 않습니다. 저장소 최상위 `data/PAIR360_data/`, `data/PAIR360_demo/`는 위의 `/workspace/hypernova/data/` 경로로 읽습니다. 현재 [시뮬레이터 장면 변환 안내](../sim_scenes/README.md)의 전체 점군 변환기는 기본적으로 `sim_scenes/MMDD_demo_whole/`에 결과를 만들고 기존 출력 경로는 거부합니다. 다른 위치는 `--output-root`로 지정합니다. Python은 명시한 `HN_MAP_PYTHON`을 우선하고, 그 외에는 컨테이너의 `/opt/hn-venv/bin/python`을 사용합니다. CloudCompare native BIN 변환은 선택적인 CloudCompare 실행 파일이 필요하며, 컨테이너에 설치되어 있다고 가정하지 않습니다.
 
-`tools/map/`의 `.sh`는 같은 이름의 `.py` 구현을 호출하는 실행기입니다. `demo_sim_converter`는 유한한 XYZ 전체를 기본 0.5 m voxel 점유로 변환하여 정적 USD 삼각형 Mesh와 MuJoCo box geom을 내보내며, 지면 추출이나 heightfield 생성, simulator 실행은 수행하지 않습니다. `demo_sim_disassembler`는 입력 파일 확인 후 빈 폴더만 만듭니다. 지면 분리와 후속 차량·기타 객체 분류·분리는 미완료이며, 구현·개선과 실제 PAIR360 데이터 검증은 S-004 후속 작업에서 다룹니다.
+`tools/map/`의 `.sh`는 같은 이름의 `.py` 구현을 호출하는 실행기입니다. `1030_demo_sim_converter`는 유한한 XYZ 전체를 기본 0.5 m voxel 점유로 변환하여 정적 USD 삼각형 Mesh와 MuJoCo box geom을 내보내며, 지면 추출이나 heightfield 생성, simulator 실행은 수행하지 않습니다. 지면 분리와 차량·기타 객체 제거는 `tools/map/1109_pair360_v1/`(PAIR360 지면)와 `tools/map/1124_pair360_v3/`(두 점군 병합)가 맡습니다.
 
 - 컨테이너는 **호스트 UID/GID**로 실행됩니다. 그래서 `/workspace/hypernova`와 `/data`에 만든 파일의 주인이 내 계정입니다(root가 아님). 사용자 이름은 `ubuntu`로 보이거나 없을 수 있습니다.
 - Python이 둘입니다. ROS 노드와 같은 interpreter인 robot venv는 `/opt/hn-venv/bin/python`으로 부르고, **`activate`하지 않습니다**. `sim`에서 활성화하면 `isaaclab.sh`가 거부합니다. Isaac Lab은 `./isaaclab.sh -p ...`로 씁니다(`deprecated` 경고는 3.1에서 없어진다는 안내일 뿐 정상 동작).
@@ -315,7 +314,7 @@ shared memory를 끈 이유는 실험 결과입니다(2026-10-22, `hn:sim`이 2 
 - git은 호스트에서 씁니다. 컨테이너 안에서는 실행과 빌드만 합니다.
 - 코드나 설정에 개인 절대경로(`/home/이름/...`)를 넣지 않습니다. 저장소 상대경로나 `/data/...`를 씁니다.
 - 패키지가 더 필요하면 컨테이너 안에서 `apt`나 `pip`로 설치하지 말고 Dockerfile을 고치는 PR을 냅니다. 컨테이너를 다시 만들면 안에서 설치한 것은 사라집니다.
-- 컨테이너 없이 호스트에서 Python 도구(맵·지형 처리 등)를 돌릴 때는 [공용 Python 환경](../docs/development/python-env.md)(`./tools/setup-venv.sh`)을 씁니다. 이미지의 robot venv와 같은 `uv.lock`을 씁니다.
+- 컨테이너 없이 호스트에서 Python 도구(맵·지형 처리 등)를 돌릴 때는 [공용 Python 환경](../docs/development/python-env.md)(`./tools/1022_setup-venv.sh`)을 씁니다. 이미지의 robot venv와 같은 `uv.lock`을 씁니다.
 - 이미지 버전이 바뀌면(`git pull` 후 `docker/.env`의 태그가 바뀜) 보행팀은 `./docker/hn build sim`, 인지팀·SW팀은 `./docker/hn pull ros`를 다시 실행합니다.
 - 끝낼 때는 `./docker/hn stop`(안 해도 됨). 컨테이너가 꼬였으면 `./docker/hn reset`. 빌드 결과와 캐시는 남습니다.
 - 디스크: `sim`을 빌드하면 BuildKit cache가 수십 GB 남습니다. 빌드가 끝난 뒤 `docker builder prune -f`로 지우면 회수됩니다(이미지와 volume은 그대로). 측정값은 [5. 여유 디스크](#5-여유-디스크)에 있습니다.
@@ -333,7 +332,7 @@ shared memory를 끈 이유는 실험 결과입니다(2026-10-22, `hn:sim`이 2 
 | FAST-LIO | CMake가 `-std=c++14`를 박아 두는데 Jazzy는 C++17이 필요해서 빌드 때 `sed`로 고칩니다(`install_lio.sh`). 지도 저장(`pcd_save_en`)과 `Log`는 소스 폴더(`ROOT_DIR`)에 쓰는 구조라 이미지에서는 동작하지 않습니다 |
 | `livox_ros_driver2` | FAST-LIO가 컴파일에 쓰는 메시지(`CustomMsg`)만 빌드합니다. 드라이버 본체는 Livox-SDK2가 따로 필요하고 저장소에 `package.xml`도 없어서(공식 절차는 `build.sh`가 파일을 바꿔치기) 가장 덜 깨지는 쪽을 택했습니다. 실제 Livox 센서를 붙일 때 전체 드라이버 빌드로 바꿉니다 |
 | `ros2 doctor` 경고 | `foxglove_bridge`가 최신(3.6.3)보다 낮다는 경고는 snapshot 날짜 고정의 결과라 정상입니다. 소스로 빌드한 `fast_lio`, `livox_ros_driver2`는 최신 버전을 못 찾는다고 나옵니다 |
-| 공개 샘플 bag | 작은 LiDAR+IMU ROS 2 bag을 찾지 못했습니다(NVIDIA r2b는 1.2 GB 이상, IMU–LiDAR 변환 없음). 그래서 합성 bag 생성기 `tools/make_demo_bag.py`를 둡니다 |
+| 공개 샘플 bag | 작은 LiDAR+IMU ROS 2 bag을 찾지 못했습니다(NVIDIA r2b는 1.2 GB 이상, IMU–LiDAR 변환 없음). 그래서 합성 bag 생성기 `tools/1022_make_demo_bag.py`를 둡니다 |
 
 ## 문제 해결
 

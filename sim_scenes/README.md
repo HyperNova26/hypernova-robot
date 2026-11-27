@@ -1,22 +1,39 @@
 # 시뮬레이터 장면 변환 안내
 
-## S-004 ground 최종 전달본
+## PAIR360 지도 v1·v2·v3
 
-현재 로컬 전달본과 재현 절차는 [S-004 안내](S004_ground_final/README.md)에 있습니다. Git에는 코드·판단 설정·문서만 올리며, 원본 점군과 생성된 장면 파일은 로컬에 보관합니다.
+2026-11-26 기준입니다. 좌표계는 모두 `pair360_map`(PAIR360 T1 원시 XYZ, m, z 위쪽)입니다. 점군·메시는 Git에 넣지 않고 팀 Drive `14. AI Team/`의 `data/map_vN/`, `meshes/mesh_vN/`에 둡니다.
 
-- CloudCompare: `S004_ground_final/input/original.ply`와 `result/`의 점군·메시
-- MuJoCo: `S004_ground_final/result/mujoco/view_mujoco.py`
-- Isaac Sim: `S004_ground_final/result/isaac/scene.usda`
-- 재현 명령: `tools/map/reproduce_s004_final.py`
+| 버전 | 입력 | 장면 안내 | 만든 코드 |
+| --- | --- | --- | --- |
+| v1 | PAIR360 `pc_v1`만 | [`pair360_v1/`](pair360_v1/README.md) | `tools/map/1109_pair360_v1/` |
+| v2 | `pc_v1` + 2026-11-15 촬영본, `pc_v1` 우선 병합 | [`pair360_v2/`](pair360_v2/README.md) | `tools/map/1116_pair360_v2/`(기록용) |
+| v3 | `pc_v1` + 2026-11-15 촬영본, 11-15 촬영본 우선 병합, Nav2 지도 | [`pair360_v3/`](pair360_v3/README.md) | `tools/map/1124_pair360_v3/` |
 
-MuJoCo 충돌 검사와 USD 재열기는 확인했습니다. M-002 공통 frame 합의와 보행팀의 Isaac Lab 로봇 보행 검증은 남아 있습니다. 아래 전체 점군 변환기와 빈 폴더 분해 도구의 기능은 별개입니다.
+버전별 결과물과 코드의 자세한 대응은 [도구 안내](../tools/README.md#pair360-지도-v1v2v3)에 있습니다. `pair360_parking/`은 그 전(2026-10)의 frame 기록입니다.
+
+## v3: S-017 Nav2 지도와 금지 구역
+
+데모 구역의 Nav2 정적 지도와 금지 구역 마스크는 [S-017 안내](pair360_v3/nav2/README.md)에 있습니다(2026-11-24). 확인 도구는 `tools/map/1124_pair360_v3/check_nav2_keepout.sh`입니다.
+
+지도(map_v3), 지형(mesh_v3), Nav2 지도를 점군 두 개에서 만드는 도구는 `tools/map/1124_pair360_v3/build_pair360_v3.sh`입니다. 사람이 정한 입력과 실행 방법은 [map_v3·mesh_v3 입력](pair360_v3/decisions/README.md)에 있습니다.
+
+## v1: S-004 ground 최종 전달본
+
+현재 로컬 전달본과 재현 절차는 [S-004 안내](pair360_v1/README.md)에 있습니다. Git에는 코드·판단 설정·문서만 올리며, 원본 점군과 생성된 장면 파일은 로컬에 보관합니다.
+
+- CloudCompare: `pair360_v1/input/original.ply`와 `result/`의 점군·메시
+- MuJoCo: `pair360_v1/result/mujoco/view_mujoco.py`
+- Isaac Sim: `pair360_v1/result/isaac/scene.usda`
+- 재현 명령: `tools/map/1109_pair360_v1/reproduce_s004_final.py`
+
+MuJoCo 충돌 검사와 USD 재열기는 확인했습니다. M-002 공통 frame 합의와 보행팀의 Isaac Lab 로봇 보행 검증은 남아 있습니다. 아래 전체 점군 변환기의 기능은 별개입니다.
 
 ## 기존 전체 점군 변환 도구
 
-2026-10-30 기준입니다. `tools/map/`의 도구는 `.sh` 실행기와 같은 이름의 `.py` 구현 파일로 구성됩니다. `.sh`는 환경과 Python 실행기를 선택하고 인수를 전달합니다.
+2026-10-30 기준입니다. 이 변환기는 `.sh` 실행기와 같은 이름의 `.py` 구현 파일로 구성됩니다. `.sh`는 환경과 Python 실행기를 선택하고 인수를 전달합니다.
 
-- [`demo_sim_converter.sh`](../tools/map/demo_sim_converter.sh) / [`demo_sim_converter.py`](../tools/map/demo_sim_converter.py): 점군 전체를 공통 voxel 점유로 변환하여 USD와 MuJoCo XML을 만듭니다.
-- [`demo_sim_disassembler.sh`](../tools/map/demo_sim_disassembler.sh) / [`demo_sim_disassembler.py`](../tools/map/demo_sim_disassembler.py): 입력 파일을 확인하고 날짜별 빈 출력 폴더를 만듭니다. 분해 기능은 미구현입니다.
+- [`1030_demo_sim_converter.sh`](../tools/map/1030_demo_sim_converter.sh) / [`1030_demo_sim_converter.py`](../tools/map/1030_demo_sim_converter.py): 점군 전체를 공통 voxel 점유로 변환하여 USD와 MuJoCo XML을 만듭니다.
 
 지면 분리와 그 뒤의 차량·기타 객체 분류·분리 과정은 아직 완성되지 않았습니다. 이 과정의 구현·개선과 실제 PAIR360 데이터 검증은 **[S-004 후속 작업](https://app.notion.com/p/40645bd87178819e9242cff36b48cb3d)**에서 다룹니다. 전체 점군 변환 결과나 기존 quick 산출물은 지면 분리 및 객체 분류 정확도를 입증하지 않습니다.
 
@@ -34,17 +51,16 @@ MuJoCo 충돌 검사와 USD 재열기는 확인했습니다. M-002 공통 frame 
 
 ```bash
 HN_MAP_PYTHON="$PWD/.venv/bin/python" \
-  ./tools/map/demo_sim_converter.sh /path/to/input.ply
+  ./tools/map/1030_demo_sim_converter.sh /path/to/input.ply
 ```
 
 `.py`를 직접 실행할 수도 있습니다. 이때 Python 환경은 호출자가 선택하며 두 실행 방식의 CLI와 기본 출력 경로는 같습니다. 저장소 경로는 Python 파일의 위치를 기준으로 결정합니다.
 
 ```bash
-uv run --no-sync python tools/map/demo_sim_converter.py /path/to/input.ply
-uv run --no-sync python tools/map/demo_sim_disassembler.py /path/to/input.ply
+uv run --no-sync python tools/map/1030_demo_sim_converter.py /path/to/input.ply
 ```
 
-변환에는 준비된 NumPy, Open3D, usd-core가 필요합니다. 분해 출력 폴더 준비와 두 도구의 `--help`는 Python 표준 라이브러리만 사용하며 타사 패키지를 불러오지 않습니다. 도움말 실행에도 Python은 필요합니다.
+변환에는 준비된 NumPy, Open3D, usd-core가 필요합니다. `--help`는 Python 표준 라이브러리만 사용하며 타사 패키지를 불러오지 않습니다. 도움말 실행에도 Python은 필요합니다.
 
 변환기는 Open3D가 지원하는 일반 점군 형식과 CloudCompare native BIN을 받습니다. 확장자를 바꾸어 지원하지 않는 형식을 대신 입력할 수 없습니다. 지원하지 않는 형식, 읽을 수 없는 파일, 유효한 XYZ가 없는 입력은 오류로 중단합니다. 일반 점군 형식은 PLY, PCD, XYZ, XYZN, XYZRGB, PTS입니다. BIN은 임의의 raw LiDAR binary가 아니라 CloudCompare에서 저장한 BIN이어야 합니다.
 
@@ -59,7 +75,7 @@ data/PAIR360_data/T1_Parking_and_OpenTheater/T1_parking_Seq0_demo.bin
 ## 전체 점군 변환
 
 ```text
-./tools/map/demo_sim_converter.sh INPUT \
+./tools/map/1030_demo_sim_converter.sh INPUT \
   [--voxel-size METERS] [--origin X Y Z] [--scale FACTOR] \
   [--date MMDD] [--output-root DIR] [--max-geoms COUNT] \
   [--cloudcompare EXEC]
@@ -79,7 +95,7 @@ data/PAIR360_data/T1_Parking_and_OpenTheater/T1_parking_Seq0_demo.bin
 현재 PAIR360 BIN을 기본 해상도로 변환하는 예시입니다. CloudCompare가 자동으로 발견되지 않으면 `--cloudcompare /path/to/CloudCompare`로 실제 실행 파일을 명시합니다.
 
 ```bash
-./tools/map/demo_sim_converter.sh \
+./tools/map/1030_demo_sim_converter.sh \
   data/PAIR360_data/T1_Parking_and_OpenTheater/T1_parking_Seq0_demo.bin \
   --voxel-size 0.5
 ```
@@ -109,25 +125,10 @@ sim_scenes/1030_demo_whole/
 
 파일 생성과 구조 검사는 simulator GUI 표시나 물리 동작 성공을 의미하지 않습니다. 생성 뒤 Isaac Sim 또는 MuJoCo에서 실제 배치·축·충돌을 별도로 확인합니다. 스크립트는 viewer나 simulator를 실행하지 않습니다. MuJoCo XML의 box geom 수가 많으면 첫 모델 로딩이 수 분 이상 걸릴 수 있으며, 변환 시간과 모델 로딩 시간은 다릅니다. 로딩 부담을 줄이려면 더 큰 `--voxel-size`를 명시합니다.
 
-## 분해 출력 폴더 준비
-
-```text
-./tools/map/demo_sim_disassembler.sh INPUT [--date MMDD] [--output-root DIR]
-```
-
-이 스크립트는 입력이 파일인지 확인한 뒤 `MMDD_demo_disassembled/` 빈 폴더 하나만 만들고 `not implemented`를 출력합니다. 파일이나 하위 폴더, 분류 결과를 만들지 않습니다. 날짜는 Asia/Seoul 기준이며 `--date`와 `--output-root`의 기본값은 변환기와 같습니다. 기존 출력 경로가 있으면 덮어쓰지 않습니다.
-
-S-004에서는 먼저 지면을 나누는 과정과 이후 비지면 점군에서 차량·기타 객체를 분류·분리하는 과정을 각각 구현·개선하고, 실제 데이터에서 결과를 검증해야 합니다. 빈 출력 폴더 생성은 이 과정의 완료를 의미하지 않습니다.
-
-```bash
-./tools/map/demo_sim_disassembler.sh \
-  data/PAIR360_data/T1_Parking_and_OpenTheater/T1_parking_Seq0_demo.bin
-```
-
 ## 데이터 보존과 확인
 
 - `data/PAIR360_data/` 원본과 `data/PAIR360_demo/` 기존 결과는 보존합니다. 원본은 읽기만 합니다.
-- `sim_scenes/MMDD_demo_whole/`과 `sim_scenes/MMDD_demo_disassembled/`은 생성 결과이며 Git 추적에서 제외합니다. 별도 `--output-root`를 지정한 결과도 Git에 넣지 않습니다.
+- `sim_scenes/MMDD_demo_whole/`은 생성 결과이며 Git 추적에서 제외합니다. 별도 `--output-root`를 지정한 결과도 Git에 넣지 않습니다.
 - 기존 PAIR360 장면의 [`frame.yaml`과 보관 기록](./pair360_parking/README.md)은 유지하지만 현재 변환기의 설정으로 사용하지 않습니다.
 - PAIR360에서 만든 결과를 공유할 때에는 원본의 출처와 ODbL 1.0 조건을 확인합니다. 새 변환기는 출처 문서를 자동으로 만들어 주지 않습니다. [저장소 및 데이터 정책](../docs/development/repository-policy.md)을 함께 따릅니다.
 

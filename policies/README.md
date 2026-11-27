@@ -54,7 +54,7 @@ Rough-Lidar 과제에서 `--gt_height`를 주면 actor의 height map 입력(LiDA
 
   ```bash
   /opt/isaaclab-venv/bin/python \
-    /workspace/hypernova/tools/description/fetch_go2_meshes.py --convert
+    /workspace/hypernova/tools/description/1030_fetch_go2_meshes.py --convert
   ```
 
 - **`PermissionError: '/data/usd'`가 발생할 때:** 호스트 데이터 폴더의 쓰기 권한을 확인합니다. 현재 Go2 설정은 다음 임시 cache를 지정한 뒤 2단계를 다시 실행할 수도 있습니다.

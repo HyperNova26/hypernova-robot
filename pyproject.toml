@@ -30,6 +30,7 @@ dependencies = [
   "pyproj",
   "trimesh",
   "usd-core",
+  "pillow",  # Nav2 map PNG (tools/map/1124_pair360_v3/s11_nav2.py); already locked as a matplotlib dependency
 ]
 
 [tool.uv]
@@ -42,3 +43,7 @@ python-preference = "only-system"
 dev = [
     "pytest>=9.1.1",
 ]
+
+[tool.pytest.ini_options]
+# tests/ 파일은 처음 저장소에 들어온 날짜를 앞에 붙입니다(MMDD_test_이름.py, S-018).
+python_files = ["test_*.py", "[0-9][0-9][0-9][0-9]_test_*.py"]
