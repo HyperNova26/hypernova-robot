@@ -8,6 +8,7 @@ import {
   defaults,
   locomotionStates,
   locomotionStatus,
+  locomotionFromDiagnostics,
 } from "../src/model";
 import { Telemetry } from "../src/store";
 import { connect } from "../src/bridge";
@@ -182,6 +183,126 @@ describe("G-006 locomotion status", () => {
       t: 2,
     });
     expect(s.latched.has("/locomotion/status")).toBe(true);
+    stop();
+    delete (globalThis as any).__socket;
+  });
+});
+
+// diagnostic_msgs/msg/DiagnosticArray as team main publishes G-006 (ADR-0004), with dependencies.
+const diagnosticSchema = `std_msgs/Header header
+DiagnosticStatus[] status
+================================================================================
+MSG: std_msgs/Header
+builtin_interfaces/Time stamp
+string frame_id
+================================================================================
+MSG: builtin_interfaces/Time
+int32 sec
+uint32 nanosec
+================================================================================
+MSG: diagnostic_msgs/DiagnosticStatus
+byte OK=0
+byte WARN=1
+byte ERROR=2
+byte STALE=3
+byte level
+string name
+string message
+string hardware_id
+KeyValue[] values
+================================================================================
+MSG: diagnostic_msgs/KeyValue
+string key
+string value
+`;
+describe("G-006 as DiagnosticArray (team main)", () => {
+  const fallen = {
+    header: { stamp: { sec: 1_763_600_000, nanosec: 0 }, frame_id: "" },
+    status: [
+      {
+        level: 2,
+        name: "locomotion/state",
+        message: "FALLEN",
+        hardware_id: "hn_v0_go2",
+        values: Object.entries({
+          code: "5",
+          state: "FALLEN",
+          reason: "tilt",
+          since_s: "0.00",
+          sim_t: "8.28",
+          tilt_deg: "117.040",
+          roll_deg: "116.300",
+          pitch_deg: "8.100",
+          speed_mps: "0.000",
+        }).map(([key, value]) => ({ key, value })),
+      },
+    ],
+  };
+  it("maps the documented FALLEN example, leaving omitted keys unknown", () => {
+    expect(locomotionStatus(locomotionFromDiagnostics(fallen), 0)).toMatchObject({
+      code: 5,
+      label: "FALLEN",
+      severityLabel: "ERROR",
+      reason: "tilt",
+      robotId: "hn_v0_go2",
+      tilt: 117.04,
+      height: undefined,
+      t: 8.28,
+      timeSource: "sim_time_s",
+      issue: undefined,
+    });
+  });
+  it("subscribes to it through the bridge and decodes the CDR", () => {
+    vi.useFakeTimers();
+    vi.stubGlobal(
+      "WebSocket",
+      class {
+        sent: string[] = [];
+        onmessage?: (e: any) => void;
+        constructor() {
+          (globalThis as any).__socket = this;
+        }
+        close() {}
+        send(d: string) {
+          this.sent.push(d);
+        }
+      },
+    );
+    const s = new Telemetry();
+    const stop = connect(s);
+    const socket = (globalThis as any).__socket;
+    socket.onmessage?.({
+      data: JSON.stringify({
+        op: "advertise",
+        channels: [
+          {
+            id: 4,
+            topic: "/locomotion/status",
+            encoding: "cdr",
+            schemaEncoding: "ros2msg",
+            schemaName: "diagnostic_msgs/msg/DiagnosticArray",
+            schema: diagnosticSchema,
+          },
+        ],
+      }),
+    });
+    expect(s.error).toBe("");
+    const sub = JSON.parse(socket.sent[0]).subscriptions[0];
+    const payload = new MessageWriter(
+      parse(diagnosticSchema, { ros2: true }),
+    ).writeMessage(fallen);
+    const wire = new Uint8Array(13 + payload.length);
+    wire[0] = 1;
+    new DataView(wire.buffer).setUint32(1, sub.id, true);
+    wire.set(payload, 13);
+    socket.onmessage?.({ data: wire.buffer });
+    expect(s.error).toBe("");
+    expect(s.locomotion).toMatchObject({
+      label: "FALLEN",
+      severityLabel: "ERROR",
+      reason: "tilt",
+      t: 8.28,
+    });
     stop();
     delete (globalThis as any).__socket;
   });

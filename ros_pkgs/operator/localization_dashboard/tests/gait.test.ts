@@ -123,6 +123,15 @@ describe("LiDAR map and terrain index", () => {
     expect(map.count).toBe(2);
     expect(map.full).toBe(true);
   });
+  it("keeps far map corners apart at 0.05 m (pair360 y reaches 224 m)", () => {
+    const map = new LidarMap(10, 0.05, 5);
+    map.add(
+      new Float32Array([-81, 223.7, 8, -81, 223.76, 8, 77.3, 64.6, -1]),
+      () => 0,
+      0,
+    );
+    expect(map.count).toBe(3);
+  });
   it("colour runs blue to red", () => {
     const [r0, , b0] = rainbow(0),
       [r1, , b1] = rainbow(1);

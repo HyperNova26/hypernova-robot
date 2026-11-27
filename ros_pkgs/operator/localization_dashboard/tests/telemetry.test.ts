@@ -194,3 +194,12 @@ describe("collection and lifecycle", () => {
     expect(lines.map((x) => x.split(",").length)).toEqual([40, 40, 40]);
   });
 });
+it("shows wall-stamped recordings as seconds since the session start, SIM time as is", () => {
+  const s = new Telemetry();
+  s.ingest("clock", { clock: { sec: 1_794_744_000, nanosec: 0 } });
+  s.ingest("clock", { clock: { sec: 1_794_744_012, nanosec: 500_000_000 } });
+  expect(s.shown(s.simTime)).toBeCloseTo(12.5);
+  s.reset();
+  s.ingest("clock", { clock: { sec: 3, nanosec: 0 } });
+  expect(s.shown(s.simTime)).toBe(3);
+});

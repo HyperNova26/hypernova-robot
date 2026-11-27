@@ -92,7 +92,7 @@ export function LidarView() {
           {s.lidarCloud
             ? (s.lidarCloud.points.length / 3).toLocaleString() +
               " pts · t=" +
-              s.lidarCloud.t.toFixed(3) +
+              s.shown(s.lidarCloud.t).toFixed(3) +
               " s"
             : "NO POINT CLOUD"}
         </span>

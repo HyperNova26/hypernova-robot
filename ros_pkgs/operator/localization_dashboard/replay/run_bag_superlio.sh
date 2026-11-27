@@ -43,6 +43,9 @@ ros2 run super_lio super_lio_node --ros-args --params-file "${SUPER_LIO_CONFIG:-
 # Super-LIO leaves child_frame_id empty; its pose is the imu frame (TF world -> imu).
 $PY -u "$ADAPTERS/lio_adapter.py" --input /lio/odom --output /localization/odometry --frame pair360_map \
   --base mlx_lidar --child-default imu "${SIM[@]}" > "$LOG/adapter.log" 2>&1 & pids+=($!)
+# Provisional /localization/status (pipeline health, not map-matching accuracy).
+$PY -u "$ADAPTERS/localization_status.py" --odom /localization/odometry --scan /lidar/points \
+  > "$LOG/status.log" 2>&1 & pids+=($!)
 $PY -u "$ADAPTERS/reference_map_ros.py" "$MAP_PCD" --frame pair360_map > "$LOG/map.log" 2>&1 & pids+=($!)
 ros2 launch foxglove_bridge foxglove_bridge_launch.xml address:="${BRIDGE_ADDRESS:-127.0.0.1}" port:=8765 \
   > "$LOG/bridge.log" 2>&1 & pids+=($!)

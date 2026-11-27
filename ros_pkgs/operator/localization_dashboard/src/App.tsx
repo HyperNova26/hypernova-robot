@@ -3,36 +3,107 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   Activity,
-  ChevronRight,
+  Crosshair,
   Settings2,
   Plug,
-  FlaskConical,
   Download,
   Pause,
   Play,
   Radio,
   Terminal,
   X,
-  Upload,
-  Unplug,
-  Circle,
   Square,
+  Circle,
+  Map as MapIcon,
 } from "lucide-react";
 import { PCDLoader } from "three/addons/loaders/PCDLoader.js";
-import { telemetry as s, demo } from "./store";
+import { telemetry as s } from "./store";
 import { connect } from "./bridge";
 import { BagRecorder } from "./recorder";
 import {
   csv,
   mapLabel,
   mapReviewLabel,
+  savedSettings,
+  sources,
   type Config,
   type Sample,
+  type Source,
 } from "./model";
 import { MapView } from "./MapView";
 import { LidarView } from "./LidarView";
 const n = (v: number | undefined, d = 2) =>
   v === undefined || !Number.isFinite(v) ? "N/A" : v.toFixed(d);
+// Last data source and connection settings, per browser (a convenience, not shared state).
+const storageKey = "hn-dashboard-connection";
+function loadSettings() {
+  try {
+    return savedSettings(localStorage.getItem(storageKey));
+  } catch {
+    return savedSettings(null);
+  }
+}
+function saveSettings(source: Source, config: Config) {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify({ source, config }));
+  } catch {
+    // Private windows may refuse storage; the session still works with the values in memory.
+  }
+}
+// Panel sizes: log width and position width in px, top-row and state shares in %.
+type Layout = { log: number; top: number; position: number; state: number };
+const layoutKey = "hn-dashboard-layout",
+  layoutDefaults: Layout = { log: 400, top: 60, position: 290, state: 47 };
+function loadLayout(): Layout {
+  try {
+    const saved = JSON.parse(localStorage.getItem(layoutKey) ?? "{}") ?? {};
+    const out = { ...layoutDefaults };
+    for (const k of Object.keys(out) as (keyof Layout)[])
+      if (Number.isFinite(saved[k])) out[k] = saved[k];
+    return out;
+  } catch {
+    return { ...layoutDefaults };
+  }
+}
+const clamp = (v: number, lo: number, hi: number) =>
+  Math.max(lo, Math.min(hi, v));
+// Drag handle between two panels; double-click restores the default sizes.
+function Divider({
+  axis,
+  label,
+  move,
+  done,
+  reset,
+}: {
+  axis: "x" | "y";
+  label: string;
+  move: (e: PointerEvent) => void;
+  done: () => void;
+  reset: () => void;
+}) {
+  return (
+    <button
+      className={"divider " + axis}
+      aria-label={label}
+      title={label + " · 두 번 누르면 기본 크기"}
+      onDoubleClick={reset}
+      onPointerDown={(event) => {
+        event.preventDefault();
+        const el = event.currentTarget;
+        el.setPointerCapture(event.pointerId);
+        const finish = () => {
+          el.removeEventListener("pointermove", move);
+          el.removeEventListener("pointerup", finish);
+          el.removeEventListener("pointercancel", finish);
+          done();
+        };
+        el.addEventListener("pointermove", move);
+        el.addEventListener("pointerup", finish);
+        el.addEventListener("pointercancel", finish);
+      }}
+    />
+  );
+}
 function LocalizationState() {
   const status = s.localization;
   const age = status ? Date.now() - status.received : undefined;
@@ -47,8 +118,7 @@ function LocalizationState() {
       </div>
       <div className="localization-value">
         <strong data-code={status?.code} className={stale ? "stale" : ""}>
-          {status?.label ??
-            (s.liveSession || s.demo ? "상태 메시지 없음" : "대기 중")}
+          {status?.label ?? (s.liveSession ? "상태 메시지 없음" : "대기 중")}
         </strong>
         <small>
           {status?.code === undefined ? "—" : "CODE " + status.code}
@@ -57,7 +127,11 @@ function LocalizationState() {
       <div className="localization-detail">
         {status?.issue ??
           (status
-            ? "측정 t=" +
+            ? (status.reason ? status.reason + " · " : "") +
+              (status.rate !== undefined
+                ? status.rate.toFixed(1) + " Hz · "
+                : "") +
+              "측정 t=" +
               (status.t === undefined ? "미제공" : status.t.toFixed(3) + " s") +
               " · 수신 " +
               Math.round(age!) +
@@ -100,7 +174,7 @@ function LocomotionState() {
         >
           {g
             ? g.label + (g.reason ? ` · ${g.reason}` : "")
-            : s.liveSession || s.demo
+            : s.liveSession
               ? "상태 메시지 없음"
               : "대기 중"}
         </strong>
@@ -127,14 +201,12 @@ function LocomotionState() {
     </div>
   );
 }
-function State() {
-  const a = s.current;
-  const age = s.lastReceived ? Date.now() - s.lastReceived : undefined;
+function StatePanel() {
   return (
     <section className="panel state-panel">
       <div className="panel-head compact">
         <h2>
-          <Activity size={14} /> Robot State
+          <Activity size={14} /> 상태
         </h2>
         <span className={s.receiving ? "status good" : "status"}>
           <i />
@@ -143,18 +215,29 @@ function State() {
       </div>
       <LocalizationState />
       <LocomotionState />
-      <div className="state-body">
-        <div className="state-label">
-          POSITION{" "}
-          <span>
-            m · {a?.frame || s.config.frame} → {a?.child || s.config.base}
-          </span>
-        </div>
-        <div className="triplet">
+    </section>
+  );
+}
+function PositionPanel() {
+  const a = s.current;
+  const age = s.lastReceived ? Date.now() - s.lastReceived : undefined;
+  return (
+    <section className="panel position-panel">
+      <div className="panel-head compact">
+        <h2>
+          <Crosshair size={14} /> 위치
+        </h2>
+        <span className="subtle" title="표시 기준 frame → 추정 기준점 frame">
+          {a?.frame || s.config.frame} → {a?.child || s.config.base}
+        </span>
+      </div>
+      <div className="position-body">
+        <div className="position-xyz">
           {(["x", "y", "z"] as const).map((k) => (
             <div key={k}>
               <small>{k.toUpperCase()}</small>
               <strong>{n(a?.p[k])}</strong>
+              <em>m</em>
             </div>
           ))}
         </div>
@@ -170,31 +253,33 @@ function State() {
           ))}
         </div>
         <div className="metrics">
-          <div>
+          <div title={a ? `속력: ${a.speedSource}` : undefined}>
             <small>수평 속력</small>
             <b>
               {n(a?.speed)}
               <em>m/s</em>
             </b>
           </div>
-          <div title={a?.reason || "동일 시각·기준 좌표의 3D 위치 차이"}>
-            <small>GT 위치 오차</small>
-            <b>
-              {n(a?.error, 3)}
-              <em>m</em>
-            </b>
-          </div>
+          {s.config.gt && (
+            <div title={a?.reason || "동일 시각·기준 좌표의 3D 위치 차이"}>
+              <small>GT 위치 오차</small>
+              <b>
+                {n(a?.error, 3)}
+                <em>m</em>
+              </b>
+            </div>
+          )}
           <div>
-            <small>마지막 LIO 수신</small>
+            <small>마지막 수신</small>
             <b>
               {age === undefined ? "N/A" : n(age, 0)}
-              <em>ms</em>
+              <em>ms 전</em>
             </b>
           </div>
         </div>
         <div className="state-foot">
           {a
-            ? `속력: ${a.speedSource} · 측정 t=${n(a.t, 3)} s`
+            ? `측정 t=${n(s.shown(a.t), 3)} s`
             : "Odometry 메시지를 기다리고 있습니다."}
         </div>
       </div>
@@ -223,10 +308,12 @@ async function finishRecording() {
   }
   s.notify();
 }
+// Narrow log column: the latest 100 rows, main numbers only; every field (status, GT time, ...) is in the CSV.
 function Logger() {
   const [paused, setPaused] = useState(false);
   const frozen = useRef<Sample[]>([]);
   const rows = paused ? frozen.current : s.rows;
+  const gt = !!s.config.gt;
   const exportCsv = () => {
     const url = URL.createObjectURL(
       new Blob([csv(s.rows, s.events, s.statuses, s.gait)], {
@@ -235,7 +322,7 @@ function Logger() {
     );
     const a = document.createElement("a");
     a.href = url;
-    a.download = `hyper-${s.demo ? "ui-test" : "telemetry"}-${Date.now()}.csv`;
+    a.download = `hyper-telemetry-${Date.now()}.csv`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 500);
   };
@@ -243,97 +330,80 @@ function Logger() {
     <section className="panel logger">
       <div className="panel-head compact">
         <h2>
-          <Terminal size={14} /> Telemetry Logger{" "}
+          <Terminal size={14} /> 로그{" "}
           <span className="chip">{s.rows.length.toLocaleString()} / 6,000</span>
         </h2>
-        <div className="toolbar">
-          <span className="subtle">
-            {paused ? "화면 정지 · 수집 계속" : "최근 200행 · 자동 갱신"}
-          </span>
-          <button
-            onClick={() => {
-              if (!paused) frozen.current = [...s.rows];
-              setPaused(!paused);
-            }}
-          >
-            {paused ? <Play size={13} /> : <Pause size={13} />}{" "}
-            {paused ? "재개" : "일시정지"}
-          </button>
-          <button
-            className={s.recorder ? "recording" : ""}
-            disabled={!s.recorder && !s.liveSession}
-            title={
-              s.liveSession
-                ? "받은 ROS 메시지를 원본(CDR) 그대로 ROS 2 bag(MCAP)으로 기록합니다. 대시보드가 구독한 토픽만 들어갑니다."
-                : "ROS 수신 중에만 기록할 수 있습니다"
+        <span className="subtle">
+          {paused ? "화면 정지 · 수집 계속" : "최근 100행"}
+        </span>
+      </div>
+      <div className="toolbar">
+        <button
+          onClick={() => {
+            if (!paused) frozen.current = [...s.rows];
+            setPaused(!paused);
+          }}
+        >
+          {paused ? <Play size={13} /> : <Pause size={13} />}{" "}
+          {paused ? "재개" : "일시정지"}
+        </button>
+        <button
+          className={s.recorder ? "recording" : ""}
+          disabled={!s.recorder && s.link !== "open"}
+          title={
+            s.link === "open"
+              ? "받은 ROS 메시지를 원본(CDR) 그대로 ROS 2 bag(MCAP)으로 기록합니다. 대시보드가 구독한 토픽만 들어갑니다."
+              : "ROS 수신 중에만 기록할 수 있습니다"
+          }
+          onClick={() => {
+            if (s.recorder) void finishRecording();
+            else {
+              s.recorder = new BagRecorder(undefined, () => {
+                s.event("bag 1 GB 도달: 자동 저장");
+                void finishRecording();
+              });
+              s.recorder.seed(s.latched.values());
+              s.event("bag 기록 시작");
+              s.notify();
             }
-            onClick={() => {
-              if (s.recorder) void finishRecording();
-              else {
-                s.recorder = new BagRecorder(undefined, () => {
-                  s.event("bag 1 GB 도달: 자동 저장");
-                  void finishRecording();
-                });
-                s.recorder.seed(s.latched.values());
-                s.event("bag 기록 시작");
-                s.notify();
-              }
-            }}
-          >
-            {s.recorder ? <Square size={13} /> : <Circle size={13} />}{" "}
-            {s.recorder
-              ? `기록 종료 · ${(s.recorder.bytes / 1e6).toFixed(1)} MB`
-              : "bag 기록"}
-          </button>
-          <button onClick={exportCsv}>
-            <Download size={13} /> CSV 저장
-          </button>
-        </div>
+          }}
+        >
+          {s.recorder ? <Square size={13} /> : <Circle size={13} />}{" "}
+          {s.recorder
+            ? `기록 종료 · ${(s.recorder.bytes / 1e6).toFixed(1)} MB`
+            : "bag 기록"}
+        </button>
+        <button onClick={exportCsv} title="시각·좌표계·GT·상태·수신 이벤트 전체">
+          <Download size={13} /> CSV
+        </button>
       </div>
       <div className="log-table">
         <table>
           <thead>
             <tr>
-              {[
-                "SIM TIME (s)",
-                "X (m)",
-                "Y (m)",
-                "Z (m)",
-                "ROLL (°)",
-                "PITCH (°)",
-                "YAW (°)",
-                "SPEED (m/s)",
-                "GT ERROR (m)",
-                "위치추정 상태",
-                "보행 상태",
-                "LIO 수신",
-              ].map((x) => (
-                <th key={x}>{x}</th>
-              ))}
+              {["t (s)", "X", "Y", "Z", "YAW°", "m/s", ...(gt ? ["GT 오차"] : [])].map(
+                (x) => (
+                  <th key={x}>{x}</th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody>
             {rows
-              .slice(-200)
+              .slice(-100)
               .reverse()
               .map((a) => (
-                <tr key={a.t}>
-                  <td>{n(a.t, 3)}</td>
-                  <td>{n(a.p.x, 3)}</td>
-                  <td>{n(a.p.y, 3)}</td>
-                  <td>{n(a.p.z, 3)}</td>
-                  <td>{n(a.rpy.x, 2)}</td>
-                  <td>{n(a.rpy.y, 2)}</td>
-                  <td>{n(a.rpy.z, 2)}</td>
-                  <td>{n(a.speed, 3)}</td>
-                  <td title={a.reason}>{n(a.error, 3)}</td>
-                  <td>{a.localization?.label || "N/A"}</td>
-                  <td title={a.locomotion?.reason}>
-                    {a.locomotion?.label || "N/A"}
-                  </td>
-                  <td>
-                    <span className="table-status">● 수신 중</span>
-                  </td>
+                <tr
+                  key={a.t}
+                  title={`위치추정 ${a.localization?.label || "N/A"} · 보행 ${a.locomotion?.label || "N/A"}`}
+                >
+                  <td title={`stamp ${a.t.toFixed(3)} s`}>{n(s.shown(a.t), 2)}</td>
+                  <td>{n(a.p.x, 2)}</td>
+                  <td>{n(a.p.y, 2)}</td>
+                  <td>{n(a.p.z, 2)}</td>
+                  <td>{n(a.rpy.z, 1)}</td>
+                  <td>{n(a.speed, 2)}</td>
+                  {gt && <td title={a.reason}>{n(a.error, 3)}</td>}
                 </tr>
               ))}
           </tbody>
@@ -345,26 +415,27 @@ function Logger() {
         )}
       </div>
       <div className="logger-foot">
+        <i className={s.receiving ? "live-dot" : "idle-dot"} />
         <span>
-          <i className={s.receiving ? "live-dot" : "idle-dot"} />
           {s.events.at(-1)?.event || "세션 준비 완료"}
-          {s.events.length > 0 && ` · t=${n(s.events.at(-1)!.t, 2)} s`}
+          {s.events.length > 0 && ` · t=${n(s.shown(s.events.at(-1)!.t), 2)} s`}
         </span>
-        <span>BUFFER 6,000 · CSV에 시각·좌표계·GT·수신 이벤트 보존</span>
       </div>
     </section>
   );
 }
 function Settings({
+  initial,
   close,
-  onConnect,
+  apply,
 }: {
+  initial: Config;
   close: () => void;
-  onConnect: () => void;
+  apply: (config: Config) => void;
 }) {
-  const [c, set] = useState<Config>({ ...s.config });
+  const [c, set] = useState<Config>({ ...initial });
   const fields: [keyof Config, string][] = [
-    ["url", "Foxglove WebSocket"],
+    ["url", "Foxglove WebSocket 주소"],
     ["frame", "표시 기준 frame"],
     ["base", "추정·비교 기준점 frame"],
     ["lio", "공통 Odometry 토픽"],
@@ -374,6 +445,7 @@ function Settings({
     ["statusField", "상태 코드 필드 경로 (기본 status · 미확정)"],
     ["locomotion", "보행 상태 토픽 (G-006 LocomotionStatus)"],
     ["prior", "Reference Map PointCloud2 토픽"],
+    ["path", "글로벌 경로 Path 토픽 (S-012, Nav2 기본 /plan)"],
   ];
   return (
     <div className="modal-backdrop">
@@ -381,24 +453,21 @@ function Settings({
         className="settings"
         onSubmit={(e) => {
           e.preventDefault();
-          s.config = c;
-          s.reset();
-          close();
-          onConnect();
+          apply(c);
         }}
       >
         <div className="panel-head">
           <div>
             <span className="eyebrow">DATA CONNECTION</span>
-            <h2>데이터 연결 설정</h2>
+            <h2>연결 설정</h2>
           </div>
           <button type="button" aria-label="닫기" onClick={close}>
             <X size={18} />
           </button>
         </div>
         <p>
-          S-005 명세의 공통 토픽과 좌표를 사용합니다. GT 토픽과 상태 코드
-          필드명은 실제 메시지를 확인해 지정하세요.
+          주소나 토픽을 바꾸면 데이터 소스가 "직접 지정"으로 바뀝니다. S-005
+          명세의 공통 토픽과 좌표가 기본값입니다.
         </p>
         <div className="settings-grid">
           {fields.map(([key, label]) => (
@@ -434,8 +503,7 @@ function Settings({
             checked={c.twistValid}
             onChange={(e) => set({ ...c, twistValid: e.target.checked })}
           />{" "}
-          주행 속력에 LIO twist 선속도 사용 (FAST-LIO2는 twist 패치 필요, 0이면
-          위치 차분으로 대체)
+          주행 속력에 LIO twist 선속도 사용 (0이면 위치 차분으로 대체)
         </label>
         <label className="check-row">
           <input
@@ -443,12 +511,9 @@ function Settings({
             checked={c.mapVerified}
             onChange={(e) => set({ ...c, mapVerified: e.target.checked })}
           />{" "}
-          지도 좌표와 표시 frame의 정합을 확인함
+          지도 좌표와 표시 frame의 정합을 확인함 (로컬 PCD 지도를 ROS 좌표에
+          겹쳐 표시)
         </label>
-        <p>
-          GT도 mlx_lidar와 같은 기준점을 사용해야 합니다. 상태 코드 필드명은
-          명세 캡처에 없어 기본 status를 사용하며, 다르면 위 경로를 변경하세요.
-        </p>
         <button className="primary" type="submit">
           <Plug size={15} /> 적용하고 연결
         </button>
@@ -458,17 +523,72 @@ function Settings({
 }
 export default function App() {
   useSyncExternalStore(s.subscribe, () => s.version);
-  const [settings, setSettings] = useState(false),
-    [session, setSession] = useState<"none" | "demo" | "live">("none");
+  const [settings, setSettings] = useState(false);
+  const [source, setSource] = useState<Source>(() => {
+    const saved = loadSettings();
+    s.config = saved.config;
+    return saved.source;
+  });
   const stop = useRef<(() => void) | undefined>(undefined);
+  const [layout, setLayout] = useState<Layout>(loadLayout);
+  const layoutNow = useRef(layout);
+  layoutNow.current = layout;
+  const mainBox = useRef<HTMLElement>(null),
+    leftBox = useRef<HTMLDivElement>(null),
+    topBox = useRef<HTMLDivElement>(null),
+    bottomBox = useRef<HTMLDivElement>(null);
+  const resize =
+    (
+      box: React.RefObject<HTMLElement | null>,
+      size: (r: DOMRect, e: PointerEvent) => Partial<Layout>,
+    ) =>
+    (e: PointerEvent) => {
+      const r = box.current?.getBoundingClientRect();
+      if (r) setLayout((l) => ({ ...l, ...size(r, e) }));
+    };
+  const saveLayout = () => {
+    try {
+      localStorage.setItem(layoutKey, JSON.stringify(layoutNow.current));
+    } catch {
+      // Sizes still apply for this page.
+    }
+  };
+  const resetLayout = () => {
+    setLayout({ ...layoutDefaults });
+    try {
+      localStorage.removeItem(layoutKey);
+    } catch {
+      // nothing saved
+    }
+  };
   const upload = useRef<HTMLInputElement>(null);
-  const [mapShare, setMapShare] = useState(68),
-    [logHeight, setLogHeight] = useState(140),
-    [stateHeight, setStateHeight] = useState(312); // +68 px for the G-006 gait block
-  // Remembers which source "수신 시작" resumes after "수신 중지".
-  const lastSource = useRef<"demo" | "live">("live");
-  const workspace = useRef<HTMLElement>(null),
-    rail = useRef<HTMLElement>(null);
+  const begin = () => {
+    void finishRecording(); // reconnecting ends the current bag rather than mixing sessions
+    stop.current?.();
+    s.reset();
+    try {
+      stop.current = connect(s);
+    } catch (error) {
+      stop.current = undefined;
+      s.connection = "연결 실패";
+      s.error = String(error);
+      s.notify();
+    }
+  };
+  const end = () => {
+    void finishRecording();
+    stop.current?.();
+    stop.current = undefined;
+    s.connection = "미연결";
+    s.reset();
+  };
+  const choose = (next: Source, config: Config) => {
+    s.config = { ...config, ...sources[next].config };
+    setSource(next);
+    saveSettings(next, s.config);
+    if (stop.current) begin();
+    else s.notify();
+  };
   // Top menus are <details>; close any open one when the pointer lands outside it.
   useEffect(() => {
     const close = (e: PointerEvent) => {
@@ -481,54 +601,6 @@ export default function App() {
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
   }, []);
-  const startResize = (
-    axis: "map" | "log" | "state",
-    event: React.PointerEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-    const element = event.currentTarget;
-    element.setPointerCapture(event.pointerId);
-    const move = (e: PointerEvent) => {
-      const r = workspace.current!.getBoundingClientRect();
-      if (axis === "state") {
-        const box = rail.current!.getBoundingClientRect();
-        setStateHeight(
-          Math.max(170, Math.min(box.height - 150, e.clientY - box.top)),
-        );
-      } else if (axis === "map")
-        setMapShare(
-          Math.max(45, Math.min(76, ((e.clientX - r.left) / r.width) * 100)),
-        );
-      else
-        setLogHeight(
-          Math.max(100, Math.min(r.height * 0.45, r.bottom - e.clientY)),
-        );
-    };
-    const finish = () => {
-      element.removeEventListener("pointermove", move);
-      element.removeEventListener("pointerup", finish);
-      element.removeEventListener("pointercancel", finish);
-    };
-    element.addEventListener("pointermove", move);
-    element.addEventListener("pointerup", finish);
-    element.addEventListener("pointercancel", finish);
-  };
-  const begin = (kind: "demo" | "live") => {
-    void finishRecording(); // reconnecting ends the current bag rather than mixing sessions
-    stop.current?.();
-    s.reset();
-    try {
-      stop.current = kind === "demo" ? demo(s) : connect(s);
-      lastSource.current = kind;
-      setSession(kind);
-    } catch (error) {
-      stop.current = undefined;
-      s.connection = "연결 실패";
-      s.error = String(error);
-      s.notify();
-      setSession("none");
-    }
-  };
   const load = (
     buffer: ArrayBuffer,
     mapVersion: string,
@@ -600,13 +672,20 @@ export default function App() {
         }
       });
     const timer = setInterval(() => s.tick(), 200);
-    if (new URLSearchParams(location.search).get("demo") === "1") begin("demo");
     return () => {
       controller.abort();
       clearInterval(timer);
       stop.current?.();
     };
   }, []);
+  const live = !!stop.current;
+  const tone = !live
+    ? "idle"
+    : s.receiving
+      ? "good"
+      : s.link === "failed" || s.link === "closed"
+        ? "bad"
+        : "wait";
   return (
     <div className="app">
       <header className="topbar">
@@ -614,139 +693,105 @@ export default function App() {
           <div className="brand-symbol">
             H<span />
           </div>
-          <div>
-            <h1>
-              HYPER<span>NOVA</span>
-            </h1>
-            <small>ROBOTICS / LOCALIZATION CONSOLE</small>
-          </div>
-        </div>
-        <div className="header-divider" />
-        <span className="mode-badge">
-          {s.demo ? "DEMO" : s.liveSession ? "LIVE" : "IDLE"}
-        </span>
-        <div className="breadcrumb">
-          Workspace <ChevronRight size={13} />
-          <strong>위치추정 대시보드</strong>
+          <h1>
+            HYPER<span>NOVA</span>
+          </h1>
+          <strong className="app-title">위치추정 대시보드</strong>
         </div>
         <div className="top-spacer" />
-        <div className="sim-clock">
-          <small>SIM TIME</small>
+        <label className="source-select" title={sources[source].start}>
+          <span>데이터 소스</span>
+          <select
+            aria-label="데이터 소스"
+            value={source}
+            onChange={(e) => {
+              const next = e.target.value as Source;
+              choose(next, s.config);
+              if (next === "custom") setSettings(true);
+            }}
+          >
+            {(Object.keys(sources) as Source[]).map((key) => (
+              <option key={key} value={key}>
+                {sources[key].label}
+              </option>
+            ))}
+          </select>
+        </label>
+        {/* One toggle: stop while a session is open (even a failed one), start otherwise. */}
+        {live && s.link !== "failed" && s.link !== "closed" ? (
+          <button
+            className="receive stop"
+            aria-label="수신 중지"
+            title="데이터 수신을 멈추고 화면 기록을 비웁니다 (bag 기록 중이면 저장)"
+            onClick={end}
+          >
+            <Square size={14} /> 수신 중지
+          </button>
+        ) : (
+          <button
+            className="receive"
+            aria-label="수신 시작"
+            title={`${s.config.url}에 연결합니다${sources[source].start ? ` · 먼저 ${sources[source].start}` : ""}`}
+            onClick={begin}
+          >
+            <Play size={15} /> {live ? "다시 연결" : "수신 시작"}
+          </button>
+        )}
+        <div
+          className={"connection " + tone}
+          title={`${s.config.url} · 수신 전용 (브라우저는 ROS 메시지를 보내지 않음)`}
+        >
+          <i />
+          <span>{s.connection}</span>
           <b>
-            {n(s.clockAvailable ? s.simTime : undefined, 3)}
+            {s.t0 !== undefined && s.t0 > 1e8 ? "경과" : "SIM"}{" "}
+            {n(s.clockAvailable ? s.shown(s.simTime) : undefined, 1)}
             <em>s</em>
           </b>
         </div>
-        <div className={"connection " + (session === "demo" ? "demo" : "")}>
-          <i />
-          {s.connection}
-        </div>
+        <input
+          type="file"
+          accept=".pcd"
+          hidden
+          ref={upload}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) f.arrayBuffer().then((bytes) => load(bytes, f.name));
+          }}
+        />
+        <details className="top-menu">
+          <summary title="지도 관리">
+            <MapIcon size={15} />
+          </summary>
+          <div>
+            <p>
+              기본 지도는 자동으로 읽습니다. 다른 PCD를 비교할 때 파일을
+              선택하세요.
+            </p>
+            {s.localPrior && (
+              <p>
+                현재 지도 {s.localPrior.mapVersion} ·{" "}
+                {mapReviewLabel(s.localPrior.review)}
+                {s.localPrior.reviewReason && (
+                  <small> ({s.localPrior.reviewReason})</small>
+                )}
+              </p>
+            )}
+            <button onClick={() => upload.current?.click()}>
+              다른 지도 파일 선택 (.pcd)
+            </button>
+            <small>파일은 이 브라우저 안에서만 읽습니다.</small>
+          </div>
+        </details>
         <button
-          title="연결 설정"
+          className="icon"
+          title="연결 설정 (주소·토픽)"
           aria-label="연결 설정"
           onClick={() => setSettings(true)}
         >
-          <Settings2 size={17} />
+          <Settings2 size={16} />
         </button>
       </header>
-      <div className="workspace-title">
-        <div>
-          <span className="eyebrow">
-            PERCEPTION WORKSPACE <span>/ 01</span>
-          </span>
-          <h2>
-            Localization Dashboard <span>3D</span>
-          </h2>
-        </div>
-        <div className="workspace-actions">
-          <label className="source-select">
-            데이터 소스{" "}
-            <select
-              aria-label="데이터 소스"
-              value={session === "demo" ? "demo" : "live"}
-              onChange={(e) => {
-                if (e.target.value === "demo") begin("demo");
-                else {
-                  stop.current?.();
-                  stop.current = undefined;
-                  s.reset();
-                  s.connection = "미연결";
-                  setSession("none");
-                  setSettings(true);
-                }
-              }}
-            >
-              <option value="demo">가상 데이터 (브라우저 생성)</option>
-              <option value="live">실제 데이터 (ROS 수신)</option>
-            </select>
-          </label>
-
-          <input
-            type="file"
-            accept=".pcd"
-            hidden
-            ref={upload}
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) f.arrayBuffer().then((bytes) => load(bytes, f.name));
-            }}
-          />
-          <details className="top-menu">
-            <summary>지도 관리</summary>
-            <div>
-              <p>
-                기본 지도는 자동으로 읽습니다. 다른 PCD를 비교할 때 파일을
-                선택하세요.
-              </p>
-              {s.localPrior && (
-                <p>
-                  현재 지도 {s.localPrior.mapVersion} ·{" "}
-                  {mapReviewLabel(s.localPrior.review)}
-                  {s.localPrior.reviewReason && (
-                    <small> ({s.localPrior.reviewReason})</small>
-                  )}
-                </p>
-              )}
-              <button onClick={() => upload.current?.click()}>
-                다른 지도 파일 선택 (.pcd)
-              </button>
-              <small>파일은 이 브라우저 안에서만 읽습니다.</small>
-            </div>
-          </details>
-          {/* One toggle: stop while receiving, resume the last source when idle. */}
-          {session === "none" ? (
-            <button
-              aria-label="수신 시작"
-              title={
-                lastSource.current === "demo"
-                  ? "가상 데이터를 다시 시작합니다"
-                  : `${s.config.url}에 다시 연결합니다`
-              }
-              onClick={() => begin(lastSource.current)}
-            >
-              <Plug size={14} /> 수신 시작
-            </button>
-          ) : (
-            <button
-              aria-label="수신 중지"
-              title="데이터 수신을 멈추고 화면 기록을 비웁니다 (bag 기록 중이면 저장)"
-              onClick={() => {
-                void finishRecording();
-                stop.current?.();
-                stop.current = undefined;
-                s.connection = "미연결";
-                s.reset();
-                setSession("none");
-              }}
-            >
-              <Unplug size={14} /> 수신 중지
-            </button>
-          )}
-          <button className="primary" onClick={() => setSettings(true)}>
-            <Plug size={14} /> ROS 주소·토픽 설정
-          </button>
-        </div>
-      </div>
       {s.error && (
         <div className="error-bar" role="alert">
           {s.error}
@@ -761,71 +806,88 @@ export default function App() {
         </div>
       )}
       <main
-        className="resizable-workspace"
-        ref={workspace}
+        className="dash"
+        ref={mainBox}
         style={
           {
-            "--map-share": mapShare + "%",
-            "--log-height": logHeight + "px",
-            "--state-height": stateHeight + "px",
+            "--log-w": layout.log + "px",
+            "--top-h": layout.top + "%",
+            "--pos-w": layout.position + "px",
+            "--state-w": layout.state + "%",
           } as React.CSSProperties
         }
       >
-        <MapView />
-        <button
-          className="layout-divider-v"
-          aria-label="지도와 상태 너비 조절"
-          onPointerDown={(e) => startResize("map", e)}
-        />
-        <aside className="right-rail" ref={rail}>
-          <State />
-          <button
-            className="layout-divider-r"
-            aria-label="상태와 LiDAR 높이 조절"
-            onPointerDown={(e) => startResize("state", e)}
+        <div className="dash-left" ref={leftBox}>
+          <div className="dash-top" ref={topBox}>
+            <MapView />
+            <Divider
+              axis="x"
+              label="지도와 위치 패널 너비 조절"
+              move={resize(topBox, (r, e) => ({
+                position: clamp(r.right - e.clientX, 200, r.width * 0.5),
+              }))}
+              done={saveLayout}
+              reset={resetLayout}
+            />
+            <PositionPanel />
+          </div>
+          <Divider
+            axis="y"
+            label="위아래 패널 높이 조절"
+            move={resize(leftBox, (r, e) => ({
+              top: clamp(((e.clientY - r.top) / r.height) * 100, 30, 80),
+            }))}
+            done={saveLayout}
+            reset={resetLayout}
           />
-          <section className="panel sensor-panel">
-            <div className="panel-head compact">
-              <h2>
-                <Radio size={14} /> LiDAR 3D View
-              </h2>
-              <span className="subtle">CURRENT SCAN · 16:9</span>
-            </div>
-            <LidarView />
-            <div className="sensor-foot">
-              <span>{s.config.scan || "토픽 미지정"}</span>
-              <span>
-                {s.cloud && !s.mapCloud
-                  ? "지도 변환 없음 · 원본 좌표"
-                  : "드래그 회전 · 휠 확대"}
-              </span>
-            </div>
-          </section>
-        </aside>
-        <button
-          className="layout-divider-h"
-          aria-label="Logger 높이 조절"
-          onPointerDown={(e) => startResize("log", e)}
+          <div className="dash-bottom" ref={bottomBox}>
+            <StatePanel />
+            <Divider
+              axis="x"
+              label="상태와 LiDAR 패널 너비 조절"
+              move={resize(bottomBox, (r, e) => ({
+                state: clamp(((e.clientX - r.left) / r.width) * 100, 20, 80),
+              }))}
+              done={saveLayout}
+              reset={resetLayout}
+            />
+            <section className="panel sensor-panel">
+              <div className="panel-head compact">
+                <h2>
+                  <Radio size={14} /> LiDAR 현재 스캔
+                </h2>
+                <span className="subtle">
+                  {s.config.scan || "토픽 미지정"} · 드래그 회전 · 휠 확대
+                </span>
+              </div>
+              <LidarView />
+            </section>
+          </div>
+        </div>
+        <Divider
+          axis="x"
+          label="로그 너비 조절"
+          move={resize(mainBox, (r, e) => ({
+            log: clamp(r.right - e.clientX - 14, 260, r.width * 0.5),
+          }))}
+          done={saveLayout}
+          reset={resetLayout}
         />
         <Logger />
       </main>
-      <footer>
-        <span>
-          <span className="footer-mark">H</span> HYPERNOVA{" "}
-          <span className="footer-separator">/</span> S-005 · S-006
-        </span>
-        <span>
-          {s.demo
-            ? "합성 데이터로 화면 기능을 시험하고 있습니다."
-            : "ROS 2 · Foxglove Bridge · 수신 전용"}
-          <span className="footer-separator">/</span> FRAME {s.config.frame} ·
-          METERS
-        </span>
-      </footer>
       {settings && (
         <Settings
+          initial={s.config}
           close={() => setSettings(false)}
-          onConnect={() => begin("live")}
+          apply={(config) => {
+            const preset = sources[source].config as Partial<Config>;
+            const same = (Object.keys(preset) as (keyof Config)[]).every(
+              (k) => config[k] === preset[k],
+            );
+            setSettings(false);
+            choose(same ? source : "custom", config);
+            if (!stop.current) begin();
+          }}
         />
       )}
     </div>

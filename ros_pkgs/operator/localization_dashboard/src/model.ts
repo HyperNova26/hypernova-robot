@@ -55,6 +55,8 @@ export type LocalizationStatus = {
   t?: number;
   received: number;
   field: string;
+  reason?: string;
+  rate?: number;
   issue?: string;
   raw: unknown;
 };
@@ -85,6 +87,44 @@ export function localizationStatus(
           ? "명세에 없는 상태 코드입니다."
           : undefined,
     raw: message,
+  };
+}
+// Provisional /localization/status (2026-11-28, docs/interfaces/localization-status.md): the same
+// DiagnosticArray layout as G-006, one status "localization/state". t is sim_t (odometry stamp),
+// because header.stamp is wall time there.
+export function localizationFromDiagnostics(
+  m: any,
+  received: number,
+): LocalizationStatus {
+  const list: any[] = Array.isArray(m.status) ? m.status : [];
+  const entry =
+    list.find((s) => s?.name === "localization/state") ?? list[0] ?? {};
+  const values: Record<string, string> = {};
+  for (const kv of entry.values ?? [])
+    if (typeof kv?.key === "string") values[kv.key] = String(kv.value);
+  const num = (key: string) =>
+    values[key] === undefined || values[key].trim() === ""
+      ? undefined
+      : Number(values[key]);
+  const code = num("code");
+  const known = code !== undefined && Number.isInteger(code);
+  const t = num("sim_t");
+  return {
+    code: known ? code : undefined,
+    label: !known
+      ? "필드 확인 필요"
+      : (localizationStates[code] ?? `UNKNOWN(${code})`),
+    t: t !== undefined && Number.isFinite(t) ? t : undefined,
+    received,
+    field: "values.code",
+    reason: values.reason,
+    rate: num("rate_hz"),
+    issue: !known
+      ? "localization/state 항목에 정수 code 값이 없습니다."
+      : localizationStates[code] === undefined
+        ? "명세에 없는 상태 코드입니다."
+        : undefined,
+    raw: m,
   };
 }
 // G-006 hn_interfaces/msg/LocomotionStatus (feat/sim-fault-injection, 2026-11-20, ADR-0004 Proposed).
@@ -123,6 +163,42 @@ const finite = (v: unknown) =>
   typeof v === "number" && Number.isFinite(v) ? v : undefined;
 const integer = (v: unknown) =>
   typeof v === "number" && Number.isInteger(v) ? v : undefined;
+// Team main publishes G-006 as diagnostic_msgs/DiagnosticArray (ADR-0004, docs/interfaces/
+// locomotion-status.md): one status "locomotion/state", level = severity, string values.
+// This maps it onto the LocomotionStatus field names so one parser handles both.
+export function locomotionFromDiagnostics(m: any) {
+  const list: any[] = Array.isArray(m.status) ? m.status : [];
+  const entry =
+    list.find((s) => s?.name === "locomotion/state") ?? list[0] ?? {};
+  const values: Record<string, string> = {};
+  for (const kv of entry.values ?? [])
+    if (typeof kv?.key === "string") values[kv.key] = String(kv.value);
+  const num = (key: string) =>
+    values[key] === undefined || values[key].trim() === ""
+      ? undefined
+      : Number(values[key]);
+  const level =
+    typeof entry.level === "number"
+      ? entry.level
+      : entry.level instanceof Uint8Array || Array.isArray(entry.level)
+        ? entry.level[0]
+        : undefined;
+  return {
+    header: m.header,
+    code: num("code"),
+    state: values.state ?? entry.message,
+    severity: level,
+    reason: values.reason,
+    since_s: num("since_s"),
+    robot_id: entry.hardware_id,
+    sim_time_s: num("sim_t"),
+    tilt_deg: num("tilt_deg"),
+    roll_deg: num("roll_deg"),
+    pitch_deg: num("pitch_deg"),
+    speed_mps: num("speed_mps"),
+    height_m: num("height_m"),
+  };
+}
 export function locomotionStatus(
   message: any,
   received: number,
@@ -149,7 +225,8 @@ export function locomotionStatus(
         : (locomotionSeverities[severity] ?? `UNKNOWN(${severity})`),
     reason: typeof message.reason === "string" ? message.reason : undefined,
     sinceS: finite(message.since_s),
-    robotId: typeof message.robot_id === "string" ? message.robot_id : undefined,
+    robotId:
+      typeof message.robot_id === "string" ? message.robot_id : undefined,
     tilt: finite(message.tilt_deg),
     roll: finite(message.roll_deg),
     pitch: finite(message.pitch_deg),
@@ -157,7 +234,11 @@ export function locomotionStatus(
     height: finite(message.height_m),
     t: sim ?? header,
     timeSource:
-      sim !== undefined ? "sim_time_s" : header !== undefined ? "header.stamp" : "없음",
+      sim !== undefined
+        ? "sim_time_s"
+        : header !== undefined
+          ? "header.stamp"
+          : "없음",
     received,
     issue:
       code === undefined
@@ -197,6 +278,7 @@ export type Config = {
   statusField: string;
   locomotion: string;
   prior: string;
+  path: string;
   twistValid: boolean;
   tolerance: number;
   timeout: number;
@@ -213,11 +295,62 @@ export const defaults: Config = {
   statusField: "status",
   locomotion: "/locomotion/status",
   prior: "/localization/reference_map",
+  // S-012 global path. Nav2 planner_server publishes nav_msgs/Path on /plan by default.
+  path: "/plan",
   twistValid: true,
   tolerance: 0.05,
   timeout: 1500,
   mapVerified: false,
 };
+// Where the dashboard listens. All are read-only Foxglove bridges; replay/run-demo.sh starts the
+// local ones on 8765. "custom" keeps whatever address and topics the settings form holds.
+export const sources = {
+  bag: {
+    label: "핸드헬드 기록 재생 (11-15 bag · Super-LIO)",
+    start: "replay/run-demo.sh bag",
+    config: { url: "ws://localhost:8765", gt: "" },
+  },
+  sim: {
+    label: "시뮬레이터 (Isaac Sim·MuJoCo 등)",
+    start:
+      "시뮬레이터가 계약 토픽을 내보내고 foxglove_bridge를 실행 (연결 시험만: replay/run-demo.sh sim)",
+    config: { url: "ws://localhost:8765", gt: "/ground_truth/odom" },
+  },
+  robot: {
+    label: "실물 로봇 (원격 연결)",
+    start:
+      "로봇 PC에서 foxglove_bridge address:=0.0.0.0 실행 후 ⚙에서 ws://<로봇 IP>:8765 입력",
+    config: { gt: "" },
+  },
+  custom: {
+    label: "직접 지정 (다른 주소·토픽)",
+    start: "",
+    config: {},
+  },
+} as const satisfies Record<
+  string,
+  { label: string; start: string; config: Partial<Config> }
+>;
+export type Source = keyof typeof sources;
+// Saved choice: unknown keys and wrong types fall back to the defaults.
+export function savedSettings(raw: string | null): {
+  source: Source;
+  config: Config;
+} {
+  let saved: any = {};
+  try {
+    saved = JSON.parse(raw ?? "{}") ?? {};
+  } catch {
+    saved = {};
+  }
+  const config = { ...defaults };
+  for (const key of Object.keys(defaults) as (keyof Config)[])
+    if (typeof saved.config?.[key] === typeof defaults[key])
+      (config as any)[key] = saved.config[key];
+  const source: Source =
+    saved.source in sources ? (saved.source as Source) : "bag";
+  return { source, config: { ...config, ...sources[source].config } };
+}
 export const stamp = (h: any) =>
   Number(h?.sec ?? h?.secs ?? 0) + Number(h?.nanosec ?? h?.nsecs ?? 0) * 1e-9;
 export function pose(m: any): Pose {
@@ -340,6 +473,20 @@ export function sample(
         : undefined,
     reason,
     received,
+  };
+}
+// nav_msgs/Path → the poses' positions as a polyline in the path's frame (empty path = no plan).
+export function globalPath(m: any): Cloud {
+  const poses: any[] = Array.isArray(m.poses) ? m.poses : [];
+  const out: number[] = [];
+  for (const ps of poses) {
+    const p = ps?.pose?.position;
+    if (p && [p.x, p.y, p.z].every(Number.isFinite)) out.push(p.x, p.y, p.z);
+  }
+  return {
+    t: stamp(m.header?.stamp),
+    frame: m.header?.frame_id || poses[0]?.header?.frame_id || "",
+    points: new Float32Array(out),
   };
 }
 export function pointCloud(m: any, max = 24000, readLabels = false): Cloud {

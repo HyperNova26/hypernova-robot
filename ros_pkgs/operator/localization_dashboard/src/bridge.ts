@@ -27,16 +27,23 @@ export function connect(store: Telemetry) {
     status: store.config.status,
     locomotion: store.config.locomotion,
     prior: store.config.prior,
+    path: store.config.path,
     clock: "/clock",
     tf: "/tf",
     tf_static: "/tf_static",
   };
   store.connection = "연결 중";
+  store.link = "connecting";
   store.livePrior = undefined;
   store.liveSession = true;
   store.notify();
+  // A browser WebSocket error carries no reason; whether the socket ever opened tells
+  // "nothing is listening at this address" apart from a bridge that went away.
+  let opened = false;
   client.on("open", () => {
     if (!active) return;
+    opened = true;
+    store.link = "open";
     store.connection = "Bridge 연결 · 토픽 대기";
     store.event("Bridge 연결");
     store.notify();
@@ -49,13 +56,19 @@ export function connect(store: Telemetry) {
   });
   client.on("error", (e) => {
     if (!active) return;
-    store.error = "Bridge 연결 오류: " + e.message;
+    store.error = opened
+      ? "Bridge 연결 오류: " + e.message
+      : `${store.config.url}에 연결하지 못했습니다. 데이터 소스(bag 재생·시뮬)가 켜져 있는지 확인하세요.`;
     store.notify();
   });
   client.on("close", () => {
     if (!active) return;
-    store.connection = "연결 종료";
-    store.event("Bridge 연결 종료");
+    store.link = opened ? "closed" : "failed";
+    store.connection = opened ? "연결 종료" : "연결 실패";
+    store.event(opened ? "Bridge 연결 종료" : "Bridge 연결 실패");
+    if (opened && !store.error)
+      store.error =
+        "Bridge 연결이 끊겼습니다. bag 재생이 끝났거나 데이터 소스가 꺼졌습니다.";
     store.lastReceived = 0;
     store.tick();
   });
@@ -72,13 +85,21 @@ export function connect(store: Telemetry) {
           gt: "nav_msgs/Odometry",
           scan: "sensor_msgs/PointCloud2",
           prior: "sensor_msgs/PointCloud2",
+          path: "nav_msgs/Path",
           status: "hn_interfaces/LocalizationStatus",
           locomotion: "hn_interfaces/LocomotionStatus",
           tf: "tf2_msgs/TFMessage",
           tf_static: "tf2_msgs/TFMessage",
           clock: "rosgraph_msgs/Clock",
         };
-        if (channel.schemaName.replace("/msg/", "/") !== expected[role])
+        const type = channel.schemaName.replace("/msg/", "/");
+        // G-006 and the provisional localization status use DiagnosticArray; the hn_interfaces
+        // drafts are still accepted.
+        const accepted =
+          role === "locomotion" || role === "status"
+            ? [expected[role], "diagnostic_msgs/DiagnosticArray"]
+            : [expected[role]];
+        if (!accepted.includes(type))
           throw Error(
             `${channel.topic}: 예상 형식 ${expected[role]}, 실제 ${channel.schemaName}`,
           );
@@ -100,11 +121,12 @@ export function connect(store: Telemetry) {
             schema: channel.schema,
             schemaEncoding: channel.schemaEncoding ?? "ros2msg",
             encoding: channel.encoding,
-            // /locomotion/status is transient_local depth 1 (ADR-0004), like the map and static TF.
+            // Both status topics are transient_local depth 1 (ADR-0004), like the map and static TF.
             latched:
               role === "prior" ||
               role === "tf_static" ||
-              role === "locomotion",
+              role === "locomotion" ||
+              role === "status",
           },
         });
         channelSubs.set(channel.id, id);
@@ -154,6 +176,7 @@ export function connect(store: Telemetry) {
   const timer = setInterval(() => store.tick(), 200);
   return () => {
     active = false;
+    store.link = "idle";
     clearInterval(timer);
     client.close();
   };

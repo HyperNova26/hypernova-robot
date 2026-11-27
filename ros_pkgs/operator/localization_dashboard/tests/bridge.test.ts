@@ -54,9 +54,25 @@ it("reports a genuine bridge close while connected", () => {
   vi.stubGlobal("WebSocket", FakeSocket);
   const s = new Telemetry();
   const stop = connect(s);
+  FakeSocket.latest.onopen?.({});
   FakeSocket.latest.onclose?.({ code: 1006 });
   expect(s.connection).toBe("연결 종료");
+  expect(s.link).toBe("closed");
+  expect(s.error).toContain("끊겼습니다");
   expect(s.lastReceived).toBe(0);
+  stop();
+  expect(s.link).toBe("idle");
+});
+it("tells a refused address apart from a dropped bridge", () => {
+  vi.useFakeTimers();
+  vi.stubGlobal("WebSocket", FakeSocket);
+  const s = new Telemetry();
+  const stop = connect(s);
+  FakeSocket.latest.onerror?.({});
+  FakeSocket.latest.onclose?.({ code: 1006 });
+  expect(s.connection).toBe("연결 실패");
+  expect(s.link).toBe("failed");
+  expect(s.error).toContain("ws://localhost:8765에 연결하지 못했습니다");
   stop();
 });
 it("decodes an advertised custom status layout instead of assuming the message fields", () => {

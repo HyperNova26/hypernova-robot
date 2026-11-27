@@ -4,7 +4,32 @@
 
 2026-11-16 기준입니다. S-005 공통 localization 토픽을 `foxglove_bridge`로 받아 기준 지도 위에 추정 궤적, GT, 현재 LiDAR 스캔, 위치추정 상태, Logger를 보여 주는 **읽기 전용** 웹 대시보드입니다. React + Three.js로 만들었고 Foxglove WebSocket의 CDR(Common Data Representation)·ros2msg 메시지를 해석합니다. 브라우저는 어떤 ROS 메시지도 발행하지 않습니다.
 
+**실행 방법은 [RUN.md](RUN.md)** 에 핸드헬드 기록·시뮬레이터·실물 로봇별로 정리했습니다(2026-11-28).
+
 아직 colcon package가 아닙니다. `ros_pkgs/README.md`의 `operator` 후보 경계에 두었고, package 구성과 위치는 리뷰에서 정합니다.
+
+## 처음 받은 팀원이 할 일 (2026-11-27)
+
+Ubuntu 24.04와 Windows의 WSL2(Ubuntu 24.04)에서 같은 명령입니다. Node.js는 없어도 됩니다(없으면 Docker 안에서 빌드).
+
+1. **Docker 준비**: 저장소 최상위에서 `./docker/hn pull ros`로 팀 ROS 이미지를 받습니다. WSL이면 Docker Desktop → Settings → Resources → WSL integration에서 쓰는 Ubuntu를 켜고(Apply & restart), 저장소와 데이터는 Windows 폴더(`/mnt/c/...`)가 아니라 WSL 홈(`~/`)에 둡니다. `/mnt/c`를 거치면 파일 읽기·쓰기가 크게 느립니다.
+2. **데이터 받기**: 팀 Drive `14. AI Team/`에서 아래 세 곳을 같은 폴더 구조로 `~/hypernova-data/ai-team/`(또는 `--data`로 지정한 곳)에 받습니다.
+
+   | Drive 경로 | 크기 | 쓰는 곳 |
+   | --- | --- | --- |
+   | `data/recordings/20261115T120809_074988Z_measurement_e03893/rosbag2/` | 약 1.9 GB | 핸드헬드 기록 재생 |
+   | `data/dashboard_public/` | 약 11 MB | 지형 메시·지도 프리뷰·로봇 모델(`public/`) |
+   | `meshes/mesh_v3/PAIR360-Go2-MuJoCo_mesh_v3.zip` | 약 18 MB | 연결 시험용 SIM 지형 |
+
+3. **준비**: `replay/run-demo.sh setup`. Drive 사본을 확인하고 `dashboard_public`의 해시를 대조한 뒤 `public/`에 복사합니다. SIM 장면 zip을 풀고, 없는 재생 이미지(FAST-LIO2 twist, Super-LIO)를 빌드합니다(처음 한 번 약 10분).
+4. **실행**: `replay/run-demo.sh bag`(실측 재생) 또는 `replay/run-demo.sh sim`(SIM, `--fall-at 40`이면 40 s에 낙상. G-006 판정기 `ros_pkgs/hn_robot_state`가 필요하므로 main(#22)이 병합된 브랜치에서 실행하거나 `HN_ROBOT_STATE_DIR`로 다른 체크아웃의 폴더를 지정). 브라우저가 열리면 데이터 소스를 고르고 '수신 시작'을 누릅니다. 끝낼 때는 `replay/run-demo.sh stop`.
+
+### 연결 주소
+
+- 미리 정한 데이터 소스는 모두 `ws://localhost:8765`입니다. localhost는 대시보드를 연 그 PC라는 뜻이라, 각자 자기 PC에서 위 스크립트로 띄우면 주소를 바꿀 필요가 없습니다. 토픽과 frame(`pair360_map`, `mlx_lidar`)은 S-005 공통 규칙이라 모두 같습니다.
+- **다른 PC나 실기 로봇의 데이터를 볼 때**: 데이터를 내는 쪽에서 `foxglove_bridge`가 모든 주소에서 받도록 띄웁니다(`address:=0.0.0.0`, 이 스크립트는 `--expose`). 대시보드 쪽은 톱니(연결 설정) → Foxglove WebSocket 주소를 `ws://<그 PC IP>:8765`로 바꿉니다. 같은 네트워크여야 하고 방화벽에서 8765/TCP가 열려 있어야 합니다. 바뀐 주소와 토픽은 그 브라우저에 저장됩니다.
+- **글로벌 경로(S-012)**: 대시보드는 `nav_msgs/Path`를 기본 `/plan`(Nav2 planner_server 기본 토픽)에서 받아 지도 위에 자홍색 선으로 그립니다. 경로를 받으면 '글로벌 경로' 레이어와 범례가 나타납니다. frame이 `pair360_map`이 아니면 TF로 바꿔 그리므로, Nav2 `map` frame을 쓰면 `pair360_map ↔ map` TF가 bridge에 함께 나와야 합니다. 토픽 이름이 다르면 톱니(연결 설정)의 '글로벌 경로 Path 토픽'을 바꿉니다. `replay/run-demo.sh sim`은 Nav2 없이도 보이도록 시험 경로를 `/plan`으로 1 Hz 발행합니다(planner 결과가 아님).
+- 보행팀의 보행 시뮬(`tools/demo/state_walk_mujoco.sh --ros-topic /locomotion/status`)은 현재 **보행 상태만** 발행합니다(2026-11-27 main·원격 브랜치 확인). 대시보드에 붙이면 상태 패널은 바뀌지만, 지도 위 로봇·궤적·LiDAR는 움직이지 않습니다. 이것까지 보려면 시뮬에서 `/localization/odometry`(nav_msgs/Odometry, `pair360_map` → `mlx_lidar`)와 `/lidar/points`(sensor_msgs/PointCloud2), `/clock`을 내보내야 합니다. 같은 일을 하는 예시가 `adapters/mujoco_ros.py`의 `MujocoTelemetry`입니다.
 
 ## 확인한 범위
 
@@ -25,7 +50,7 @@ MuJoCo SIM은 보행 시뮬레이션이 아닙니다. LiDAR만 단 mocap 몸체�
 | 항목 | 결과 |
 | --- | --- |
 | 단위·인터페이스 시험 | `npm test` 59개 통과, `tsc` 통과 (Windows, Node.js 24.19.0). `public/robot/`이 없으면 URDF 사본 시험 1개는 건너뜁니다 |
-| 실측 bag → Super-LIO → 대시보드 | `replay/run-demo.ps1 -Bag <11-15 rosbag2>`, 0.5배속. 출발점(x -46.7 m)부터 지형 위 로봇, 궤적, LiDAR 누적 갱신을 화면으로 확인 |
+| 실측 bag → Super-LIO → 대시보드 | 당시 `replay/run-demo.ps1 -Bag <11-15 rosbag2>`(11-27에 `run-demo.sh`로 대체), 0.5배속. 출발점(x -46.7 m)부터 지형 위 로봇, 궤적, LiDAR 누적 갱신을 화면으로 확인 |
 | 지도 정합 | `replay/registration/1115_superlio.env`. FAST-LIO2 정합 경로 대비 수평 차이 중앙값 0.46 m, p95 0.69 m. 같은 기록 안에서만 유효합니다 |
 | 확인하지 못한 것 | LiDAR–IMU 외부 보정(추정값 사용), 실제 `LocalizationStatus`, 실기 보행, 다른 기록의 정합 |
 
@@ -44,16 +69,38 @@ MuJoCo SIM은 보행 시뮬레이션이 아닙니다. LiDAR만 단 mocap 몸체�
 | `replay/run_bag_superlio.sh`, `super_lio_mlx.yaml` | bag 재생 → Super-LIO → `adapters/lio_adapter.py` → `foxglove_bridge` |
 | `replay/run_bag_lio.sh`, `fast_lio_mlx.yaml` | 같은 재생을 FAST-LIO2로 (이전 경로) |
 | `replay/registration/` | `pair360_map` 정합값(`1115*.env`·`.json`)과 정합 스크립트 |
-| `replay/run-demo.ps1` | Docker 재생과 dev server를 함께 띄우는 Windows 실행 스크립트 |
+| `replay/run-demo.sh` | Docker 재생·SIM과 웹 화면을 함께 띄우는 실행 스크립트(Ubuntu·WSL2 공통, 11-27에 PowerShell판을 대체) |
 
-```powershell
-cd replay
-docker build -t hn:ros-2026.10.1-local-twist ../adapters/fast_lio_twist
-docker build -t hn:ros-2026.10.1-local-superlio -f Dockerfile.superlio .
-./run-demo.ps1 -Bag <20261115T120809_074988Z_measurement_e03893/rosbag2> -Rate 0.5
+```bash
+replay/run-demo.sh setup          # 이미지가 없으면 여기서 빌드(위 '처음 받은 팀원이 할 일')
+replay/run-demo.sh bag --rate 0.5
 ```
 
-컨테이너는 `ROS_DOMAIN_ID=42`로 띄웁니다. 같은 호스트의 다른 ROS 컨테이너(예: MuJoCo SIM)와 같은 domain이면 토픽이 섞입니다. 대시보드의 ROS 주소 설정은 새로고침하면 기본값으로 돌아가므로, 재생 전에 주소를 다시 확인합니다. 원본 bag과 지도·지형 파일은 커밋하지 않습니다.
+컨테이너는 `ROS_DOMAIN_ID=42`로 띄웁니다. 같은 호스트의 다른 ROS 컨테이너(예: MuJoCo SIM)와 같은 domain이면 토픽이 섞입니다. 원본 bag과 지도·지형 파일은 커밋하지 않습니다.
+
+## 2026-11-27 갱신: 화면 재배치, G-006 연결, 시연 녹화
+
+| 항목 | 결과 |
+| --- | --- |
+| 단위·인터페이스 시험 | `npm test` 77개 통과, `tsc`·`vite build` 통과 (Windows, Node.js 24.19.0, 2026-11-28) |
+| 위치추정 상태 (2026-11-28) | WSL2에서 11-15 bag 재생 → `localization_status.py`가 `ACQUIRING` → `TRACKING`(10 Hz) 발행, 대시보드에 `TRACKING · CODE 1` 표시 |
+| 실측 bag → Super-LIO → 대시보드 | 11-15 기록 1배속 전체 재생. 위치·궤적·로그·LiDAR 누적 갱신, 경사로 구간(z 약 6 m)에서도 로봇이 지형 위에 섬 |
+| MuJoCo SIM + G-006 | `adapters/mujoco_route_sim.py --locomotion-topic /locomotion/status --fall-at 40`(지금의 `replay/run-demo.sh sim --fall-at 40`과 같은 구성). 대시보드 보행 상태가 WALKING에서 40 s에 `FALLEN · tilt`로 바뀜. 같은 입력을 판정기에 넣으면 INITIALIZING(0 s) → STANDING(1.0 s) → WALKING(5.1 s) → FALLEN(40.2 s) |
+| WSL2 실행 | Windows 10 + Docker Desktop 29.9 + WSL2 Ubuntu 24.04, Node.js 없음: `setup` 6 s, `bag`(Docker 안 웹 빌드 70 s 포함) → 위치·LiDAR 수신, `sim --fall-at 30` → 30 s에 `FALLEN · tilt` |
+| 글로벌 경로 | `tests/path.test.ts`(nav_msgs/Path CDR 구독·해석), WSL `sim`에서 `/plan` 200점이 지도에 자홍색 선으로 표시. Nav2 실제 출력과는 아직 연결하지 않음 |
+| 확인하지 못한 것 | 보행 정책을 돌리는 팀 시뮬(`tools/demo/state_*_mujoco.sh`, `hn:sim`)이 내는 `/locomotion/status`와의 실제 연결. 이 PC에는 `hn:sim` 이미지와 데모 데이터가 없습니다 |
+
+- **G-006 메시지 형식**: main(#22)의 `/locomotion/status`는 `diagnostic_msgs/DiagnosticArray`(`docs/interfaces/locomotion-status.md`)입니다. 대시보드는 이 형식과 병합 전 초안 `hn_interfaces/LocomotionStatus`를 모두 받습니다(`src/model.ts`의 `locomotionFromDiagnostics`). 이전에는 초안 형식만 받아, 팀 시뮬에 붙으면 형식 오류로 보행 상태가 표시되지 않았습니다.
+- **MuJoCo SIM의 보행 상태**: `adapters/mujoco_route_sim.py --locomotion-topic /locomotion/status`는 `ros_pkgs/hn_robot_state`의 `StateEstimator`(기본 임계값)로 운반체의 움직임을 판정하고 `StatusPublisher`로 발행합니다. 입력은 kinematic 운반체(수평 자세, 경로 속도, 같은 값의 명령)이므로 보행 정책의 판정 결과가 아닙니다. `--stand-s`(기본 5 s) 동안 서 있다가 걷고, `--fall-at`을 주면 그 시각에 옆으로 눕힙니다. 이 기능은 main(#22)의 `ros_pkgs/hn_robot_state`가 필요하므로 이 브랜치에 main을 병합한 뒤에 동작합니다.
+- **화면 배치**: 메뉴 한 줄, 왼쪽 위 [3D 지도 | 위치], 왼쪽 아래 [상태 | LiDAR], 오른쪽 [로그]. 패널 사이 손잡이 4개로 크기를 바꾸고 브라우저에 저장합니다(두 번 누르면 기본값).
+- **데이터 소스**: 브라우저 가상 데이터를 없애고 `핸드헬드 기록 재생`, `시뮬레이터`(GT 토픽 자동 설정), `실물 로봇`, `직접 지정` 중에서 고릅니다(2026-11-28 이름 변경). 선택과 연결 설정은 localStorage에 남아 새로고침 뒤에도 유지됩니다.
+- **연결 오류 안내**: 브라우저 WebSocket 오류에는 이유가 없으므로, 한 번도 열리지 않은 경우(데이터 소스가 꺼져 있음)와 열린 뒤 끊긴 경우(bag 재생 종료 등)를 나눠 보여 줍니다.
+- **시점**: 지도 머리의 '로봇 따라가기 / 지도 전체 / 평면도'. '지도 전체'는 기준 지도와 지나온 경로를 함께 맞춥니다.
+- **LiDAR 누적**: 받은 모든 스캔을 0.07 m voxel로 최대 300만 점까지 쌓습니다(이전: 최신 자세와 짝이 맞는 스캔만, 0.1 m).
+- **화면 갱신 묶기**: ROS 메시지마다 패널 전체를 다시 그리던 것을 120 ms 간격으로 묶고 로그는 최근 100행만 그립니다. 3D 화면은 매 프레임 store를 직접 읽습니다.
+- **시각 표시**: wall 시각으로 찍힌 기록(약 1.8e9 s)은 세션 시작 뒤 경과 초로 보여 줍니다. CSV에는 원래 stamp를 남깁니다.
+- **시점**: '로봇 따라가기'는 로봇 뒤 7 m·위 4 m에서 시작하고, 로봇이 돌면 카메라 위치도 같은 각도만큼 돕니다. 로봇 다리 위상은 보고된 속력이 아니라 화면에서 움직인 거리로 진행하므로 느린 재생에서도 발이 미끄러지지 않습니다.
+- **시연 녹화**: `node replay/record_demo.mjs --out <mp4> --speedup 4`가 화면에 창을 띄우지 않는 headless Chrome(GPU 사용)으로 대시보드를 1920×1080으로 열고, '수신 시작' → '지도 전체' → '로봇 따라가기' → 재생 종료 후 '지도 전체' 순서로 DevTools screencast 프레임을 ffmpeg로 저장합니다. 이 PC(Intel UHD)에서는 초당 약 7프레임이라, bag을 `-Rate 0.25`로 재생하고 `--speedup 4`로 영상을 실제 속도로 되돌려 약 28 fps를 얻었습니다. `--capture desktop`은 Windows 화면 전체를 30 fps로 캡처하지만 사용자가 연 다른 창도 그대로 녹화되므로 쓰지 않는 PC에서만 씁니다.
 
 ## 실행
 
@@ -61,12 +108,12 @@ docker build -t hn:ros-2026.10.1-local-superlio -f Dockerfile.superlio .
 
 ```bash
 npm ci
-npm run dev        # http://127.0.0.1:5173/  (?demo=1 또는 데이터 소스의 가상 데이터)
+npm run dev        # http://127.0.0.1:5173/  (데이터 소스는 replay/run-demo.sh로 띄움)
 npm test
 npm run build
 ```
 
-데이터 소스는 브라우저가 만드는 가상 데이터와 ROS 수신 두 가지입니다. ROS 수신은 '연결 설정'에서 `ws://localhost:8765`를 지정합니다. 수신 중에는 '수신 중지', 멈추면 '수신 시작'으로 마지막 소스에 다시 연결합니다.
+데이터 소스를 화면에서 고르고 '수신 시작'을 누릅니다. 미리 정한 소스는 모두 `ws://localhost:8765`이고, 다른 주소·토픽은 톱니(연결 설정)에서 바꿉니다. 수신 중에는 '수신 중지', 연결이 끊기면 '다시 연결'이 됩니다.
 
 ## 입력 토픽
 
@@ -75,14 +122,14 @@ npm run build
 | 역할 | 기본 토픽 | 타입·좌표 |
 | --- | --- | --- |
 | 추정 위치·자세 | `/localization/odometry` | `nav_msgs/msg/Odometry`, `pair360_map → mlx_lidar` |
-| 위치추정 상태 | `/localization/status` | `hn_interfaces/msg/LocalizationStatus`, 코드 0~5 |
+| 위치추정 상태 | `/localization/status` | 임시 `diagnostic_msgs/msg/DiagnosticArray`([localization-status.md](../../../docs/interfaces/localization-status.md)) 또는 `hn_interfaces/msg/LocalizationStatus` 초안, 코드 0~5 |
 | 기준 지도 | `/localization/reference_map` | `sensor_msgs/msg/PointCloud2`, 시작 시 1회, transient-local |
 | 현재 LiDAR | `/lidar/points` | `sensor_msgs/msg/PointCloud2` |
 | 좌표 변환 | `/tf`, `/tf_static` | `tf2_msgs/msg/TFMessage` |
 | SIM 시각 | `/clock` | `rosgraph_msgs/msg/Clock` |
 | GT (선택) | 기본값 없음 | `nav_msgs/msg/Odometry`. SIM에서만 지정, REAL은 비웁니다 |
 
-- 상태 코드: 0 `ACQUIRING`, 1 `TRACKING`, 2 `DEGRADED`, 3 `LOST`, 4 `STALE_INPUT`, 5 `INPUT_TIMEOUT`. `LocalizationStatus.msg`의 필드 정의가 아직 없어 코드 필드 경로 기본값 `status`는 가정입니다. 설정에서 바꿀 수 있습니다.
+- 상태 코드: 0 `ACQUIRING`, 1 `TRACKING`, 2 `DEGRADED`, 3 `LOST`, 4 `STALE_INPUT`, 5 `INPUT_TIMEOUT`. 2026-11-28부터 `adapters/localization_status.py`가 Odometry의 주기·끊김·튐으로 상태를 판정해 DiagnosticArray로 냅니다(지도 기준 정확도 판정은 아님). `hn_interfaces` 형식의 코드 필드 경로 기본값 `status`는 가정이며 설정에서 바꿀 수 있습니다.
 - 연결 중 상태 메시지를 한 번도 받지 못하면 '상태 메시지 없음'으로 표시합니다. 알고리즘 상태와 통신 상태(Odometry 수신 여부)는 따로 표시합니다.
 - GT 토픽은 S-005에서 정하지 않았습니다. MuJoCo SIM은 `tools/check_demo_lio.py`의 데모 bag 이름을 따라 `/ground_truth/odom`을 내지만, 웹 기본값에는 넣지 않았습니다.
 
@@ -129,7 +176,9 @@ HN_MAP_RELEASE=/data/map-release npm run map:sync              # 바뀐 경우�
 - `prepare-map.mjs`는 PCD sha256이 manifest의 `reference_sha256`과 같을 때만 프리뷰(voxel·라벨당 실측점 1개, 8만 점 이하)를 만들고, 검수 상태(`status`)를 그대로 화면에 보여 줍니다.
 - `prepare-terrain.mjs`는 MuJoCo heightfield를 4칸 간격으로 샘플링해 표시용 메시를 만듭니다. 충돌면 그 자체가 아닙니다.
 
-## MuJoCo 경로 SIM
+## MuJoCo 경로 SIM (연결 시험용)
+
+보행 시뮬이 아닙니다. 보행팀 시뮬이 위치·LiDAR 토픽을 내기 전까지 화면 연결을 확인하는 데만 씁니다([RUN.md](RUN.md#b-시뮬레이터-isaac-simisaac-labmujoco)).
 
 `adapters/mujoco_route_sim.py`는 지형 패키지의 `route_xyz_m`을 따라 LiDAR mocap 몸체를 0.6 m/s로 왕복시키고 다음을 발행합니다.
 
@@ -160,10 +209,12 @@ ros2 launch foxglove_bridge foxglove_bridge_launch.xml address:=127.0.0.1 port:=
 | --- | --- |
 | `adapters/mujoco_ros.py` | 기존 MuJoCo runner의 `mj_step` 뒤에 부르는 읽기 전용 훅. `mujoco_route_sim.py`가 사용 (팀 보행 runner 연결은 미확인) |
 | `adapters/reference_map_ros.py` | PCD를 `/localization/reference_map`으로 1회 발행 (transient-local) |
+| `adapters/localization_status.py` | 임시 `/localization/status` 판정·발행 (Odometry 주기·끊김·튐, 2026-11-28) |
 
 ## 남은 일
 
-- `hn_interfaces/msg/LocalizationStatus` 정의와 상태 판정 조건
+- 위치추정 상태: 임시 DiagnosticArray 판정(2026-11-28)을 지도 정합 점수 기반으로 바꾸고 `hn_interfaces` 형식 확정
+- 지도 정합(relocalization): 누적 오차 보정과 실기 첫 위치 정합
 - GT 토픽 이름과 `mlx_lidar`·`front_lidar` frame 이름 합의
 - 팀 LIO 어댑터 출력으로 실제 추정 궤적 확인 (11-15 bag 재생으로 Super-LIO 경로는 확인, 실기 미확인)
 - LiDAR–IMU 외부 보정과 대시보드 ROS 주소 설정 유지

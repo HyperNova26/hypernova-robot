@@ -114,12 +114,14 @@ export class LidarMap {
         y = points[i + 1],
         z = points[i + 2];
       if (!Number.isFinite(x + y + z)) continue;
-      const ix = Math.floor(x / v) + 4096,
-        iy = Math.floor(y / v) + 4096,
-        iz = Math.floor(z / v) + 1024;
-      if (ix < 0 || ix >= 8192 || iy < 0 || iy >= 8192 || iz < 0 || iz >= 2048)
+      // 2^16 cells per horizontal axis and 2^12 vertically: the key stays below 2^44,
+      // exact in a double, and covers +-1.6 km x +-100 m at 0.05 m.
+      const ix = Math.floor(x / v) + 32768,
+        iy = Math.floor(y / v) + 32768,
+        iz = Math.floor(z / v) + 2048;
+      if (ix < 0 || ix >= 65536 || iy < 0 || iy >= 65536 || iz < 0 || iz >= 4096)
         continue;
-      const key = (ix * 8192 + iy) * 2048 + iz;
+      const key = (ix * 65536 + iy) * 4096 + iz;
       if (this.seen.has(key)) continue;
       this.seen.add(key);
       const n = this.count++;

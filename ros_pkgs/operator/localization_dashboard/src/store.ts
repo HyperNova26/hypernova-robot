@@ -7,8 +7,11 @@ import {
   sample,
   stamp,
   pointCloud,
+  globalPath,
   localizationStatus,
   locomotionStatus,
+  locomotionFromDiagnostics,
+  localizationFromDiagnostics,
   type Config,
   type Pose,
   type Cloud,
@@ -29,18 +32,34 @@ export class Telemetry {
   rows: Sample[] = [];
   events: { t: number; event: string }[] = [];
   simTime = 0;
+  // First stamp of the session. Recordings stamped in wall time (~1.8e9 s) are shown as seconds
+  // since it; SIM time already starts near 0 and is shown as is. CSV keeps the stamps.
+  t0?: number;
+  shown(t: number) {
+    return this.t0 !== undefined && this.t0 > 1e8 ? t - this.t0 : t;
+  }
   clockAvailable = false;
   lastReceived = 0;
   receiving = false;
   connection = "미연결";
+  // Bridge socket state, set by bridge.connect (idle when no session).
+  link: "idle" | "connecting" | "open" | "closed" | "failed" = "idle";
   error = "";
   demo = false;
   pausedInput = false;
+  // Bumped when listeners run. Every ROS message calls notify (tens per second); the panels
+  // re-render at most every `uiInterval` ms, while the 3D views read the store each frame.
   version = 0;
+  uiInterval = 120;
+  private uiTimer?: ReturnType<typeof setTimeout>;
   listeners = new Set<() => void>();
   notify = () => {
-    this.version++;
-    this.listeners.forEach((f) => f());
+    if (this.uiTimer !== undefined) return;
+    this.uiTimer = setTimeout(() => {
+      this.uiTimer = undefined;
+      this.version++;
+      this.listeners.forEach((f) => f());
+    }, this.uiInterval);
   };
   subscribe = (f: () => void) => {
     this.listeners.add(f);
@@ -54,6 +73,7 @@ export class Telemetry {
     this.clouds = [];
     this.statuses = [];
     this.gait = [];
+    this.plan = undefined;
     this.frames.clear(preserveStatic);
     if (!preserveStatic) {
       this.livePrior = undefined;
@@ -63,6 +83,7 @@ export class Telemetry {
     this.rows = [];
     this.events = [];
     this.simTime = 0;
+    this.t0 = undefined;
     this.clockAvailable = false;
     this.lastReceived = 0;
     this.receiving = false;
@@ -88,11 +109,9 @@ export class Telemetry {
       if (role === "tf" || role === "tf_static")
         this.frames.ingest(m, role === "tf_static");
       if (role === "status") {
-        const status = localizationStatus(
-          m,
-          this.config.statusField,
-          Date.now(),
-        );
+        const status = Array.isArray(m.status)
+          ? localizationFromDiagnostics(m, Date.now())
+          : localizationStatus(m, this.config.statusField, Date.now());
         const previous = this.statuses.at(-1);
         this.statuses.push(status);
         if (this.statuses.length > 1000) this.statuses.shift();
@@ -110,7 +129,10 @@ export class Telemetry {
           }
       }
       if (role === "locomotion") {
-        const status = locomotionStatus(m, Date.now());
+        const status = locomotionStatus(
+          Array.isArray(m.status) ? locomotionFromDiagnostics(m) : m,
+          Date.now(),
+        );
         const previous = this.gait.at(-1);
         this.gait.push(status);
         if (this.gait.length > 1000) this.gait.shift();
@@ -139,6 +161,7 @@ export class Telemetry {
           this.event("SIM 시각 재설정");
         }
         this.simTime = t;
+        this.t0 ??= t;
         this.clockAvailable = true;
       }
       if (role === "lio" || role === "gt") {
@@ -150,6 +173,7 @@ export class Telemetry {
         }
         if (list.at(-1)?.t === p.t) return;
         list.push(p);
+        this.t0 ??= p.t;
         if (list.length > 6000) list.shift();
         if (role === "lio") {
           this.frames.odometry(p);
@@ -181,6 +205,12 @@ export class Telemetry {
           }
         }
       }
+      if (role === "path") {
+        const path = globalPath(m);
+        if (!this.plan)
+          this.event(`글로벌 경로 수신: ${path.points.length / 3}점`);
+        this.plan = path;
+      }
       if (role === "scan" || role === "prior") {
         const cloud = pointCloud(
           m,
@@ -204,6 +234,8 @@ export class Telemetry {
   // Last message of each latched topic in this session, for seeding new bags.
   latched = new Map<string, LatchedMessage>();
   localPrior?: Cloud;
+  // Latest global path (S-012), in its own frame; MapView transforms it to the display frame.
+  plan?: Cloud;
   livePrior?: Cloud;
   liveSession = false;
   get prior() {

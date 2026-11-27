@@ -12,3 +12,4 @@ public/*.bin
 public/reference-map.json
 public/terrain-mesh.json
 public/robot/
+.run-demo/

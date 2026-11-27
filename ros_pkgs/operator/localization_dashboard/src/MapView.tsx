@@ -4,53 +4,45 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { telemetry as s } from "./store";
-import { mapClasses, mapReviewLabel, priorExcluded } from "./model";
+import { mapReviewLabel, priorExcluded } from "./model";
 import { createGo2Marker } from "./Go2Marker";
 import { loadRobot, type RobotModel } from "./RobotModel";
-import { LidarMap, TerrainIndex } from "./observed";
-const groundLabel = mapClasses.findIndex((c) => c.name === "지면"),
-  priorGray = "#9aa4ad";
+import { LidarMap, TerrainIndex, rainbow } from "./observed";
+const priorGray = "#9aa4ad";
+// Camera presets. "free" = the user moved the camera since the last preset.
+type View = "follow" | "overview" | "plan" | "free";
+const views: [Exclude<View, "free">, string, string][] = [
+  [
+    "follow",
+    "로봇 따라가기",
+    "로봇 뒤에서 따라가며 봅니다. 드래그로 둘레를 돌 수 있습니다",
+  ],
+  ["overview", "지도 전체", "지도 전체를 비스듬히 내려다봅니다"],
+  ["plan", "평면도", "지도 전체를 바로 위에서 내려다봅니다 (x 오른쪽, y 위쪽)"],
+];
+// CSS gradient of the LiDAR height colours, for the legend.
+const rainbowCss = `linear-gradient(90deg, ${[0, 0.25, 0.5, 0.75, 1]
+  .map((t) => `rgb(${rainbow(t).map((c) => Math.round(c * 255))})`)
+  .join(", ")})`;
 export function MapView() {
   const host = useRef<HTMLDivElement>(null),
     api = useRef<
-      | { fit: () => void; top: () => void; iso: () => void; focus: () => void }
-      | undefined
+      { overview: () => void; plan: () => void; focus: () => void } | undefined
     >(undefined);
-  const [follow, setFollow] = useState(false),
+  const [view, setView] = useState<View>("overview"),
     [gt, setGt] = useState(true),
     [scan, setScan] = useState(true),
-    [classify, setClassify] = useState(false),
-    [ground, setGround] = useState(true),
-    [offGround, setOffGround] = useState(true),
+    [prior, setPrior] = useState(true),
     [mesh, setMesh] = useState(true),
     [paint, setPaint] = useState(true),
+    [plan, setPlan] = useState(true),
     [meshInfo, setMeshInfo] = useState(""),
     [robotInfo, setRobotInfo] = useState("로봇 모델 읽는 중"),
     [painted, setPainted] = useState(0),
     [size, setSize] = useState(1),
     [failure, setFailure] = useState("");
-  const options = useRef({
-    follow,
-    gt,
-    scan,
-    classify,
-    ground,
-    offGround,
-    mesh,
-    paint,
-    size,
-  });
-  options.current = {
-    follow,
-    gt,
-    scan,
-    classify,
-    ground,
-    offGround,
-    mesh,
-    paint,
-    size,
-  };
+  const options = useRef({ view, gt, scan, prior, mesh, paint, plan, size });
+  options.current = { view, gt, scan, prior, mesh, paint, plan, size };
   useEffect(() => {
     const el = host.current!;
     let renderer: THREE.WebGLRenderer;
@@ -74,13 +66,23 @@ export function MapView() {
     controls.panSpeed = 0.6;
     controls.zoomSpeed = 0.7;
     controls.screenSpacePanning = true;
+    // The pair360_map origin lies ~60 m outside the map, so the grid sits under the map
+    // (terrain, else prior map) instead of at the origin, and no origin axes are drawn.
     const grid = new THREE.GridHelper(400, 80, 0x314454, 0x1a2b38);
     grid.rotation.x = Math.PI / 2;
-    scene.add(
-      grid,
-      new THREE.AxesHelper(5),
-      new THREE.HemisphereLight(0xe9f4ff, 0x324253, 3),
-    );
+    const placeGrid = (g: THREE.BufferGeometry) => {
+      g.computeBoundingBox();
+      const b = g.boundingBox;
+      if (!b || b.isEmpty()) return false;
+      grid.position.set(
+        (b.min.x + b.max.x) / 2,
+        (b.min.y + b.max.y) / 2,
+        b.min.z - 0.05,
+      );
+      return true;
+    };
+    let gridOnTerrain = false;
+    scene.add(grid, new THREE.HemisphereLight(0xe9f4ff, 0x324253, 3));
     const light = new THREE.DirectionalLight(0xffffff, 2);
     light.position.set(10, -10, 30);
     scene.add(light);
@@ -112,7 +114,7 @@ export function MapView() {
     scene.add(terrain);
     let terrainIndex: TerrainIndex | undefined;
     // Accumulated LiDAR map over the gray prior: turbo by height above the ground (display only).
-    const lidarMap = new LidarMap(),
+    const lidarMap = new LidarMap(3_000_000, 0.07),
       lidarGeometry = new THREE.BufferGeometry(),
       lidarPositions = new THREE.BufferAttribute(lidarMap.positions, 3),
       lidarColors = new THREE.BufferAttribute(lidarMap.colors, 3);
@@ -121,7 +123,7 @@ export function MapView() {
     lidarGeometry.setDrawRange(0, 0);
     const lidarPoints = new THREE.Points(
       lidarGeometry,
-      new THREE.PointsMaterial({ size: 0.08, vertexColors: true }),
+      new THREE.PointsMaterial({ size: 0.09, vertexColors: true }),
     );
     lidarPoints.frustumCulled = false;
     scene.add(lidarPoints);
@@ -157,6 +159,7 @@ export function MapView() {
         );
         geometry.computeVertexNormals();
         geometry.computeBoundingSphere();
+        gridOnTerrain = placeGrid(geometry);
         terrainIndex = new TerrainIndex(
           geometry.getAttribute("position").array as Float32Array,
           meta.cell_m ?? 0.4,
@@ -183,7 +186,16 @@ export function MapView() {
         gapSize: 0.2,
       }),
     );
-    scene.add(path, gtLine);
+    // Global path (S-012): magenta, lifted 0.15 m so it is not hidden in the terrain mesh.
+    const planGeometry = new THREE.BufferGeometry();
+    const planLine = new THREE.Line(
+      planGeometry,
+      new THREE.LineBasicMaterial({ color: 0xff4fd8 }),
+    );
+    planLine.position.z = 0.15;
+    planLine.frustumCulled = false;
+    scene.add(path, gtLine, planLine);
+    let lastPlan: unknown;
     const robot = createGo2Marker();
     scene.add(robot.root);
     // Team URDF (v1 HYPER) replaces the box marker once loaded.
@@ -205,25 +217,46 @@ export function MapView() {
       lastYaw: number | undefined,
       smoothYaw = 0,
       smoothZ: number | undefined,
+      lastXY: { x: number; y: number } | undefined,
+      screenSpeed = 0,
+      followed = false,
+      followYaw = 0,
       robotGround = 0,
-      lastPaintCount = 0;
+      lastPaintCount = 0,
+      lastPaintLabel = 0,
+      paintedUntil = -Infinity;
     let previousMap: unknown,
       previousScan: unknown,
-      previousPaint: unknown,
       lastPath = -1,
       lastGT = -1,
-      lastColor = false,
-      lastLayers = "",
+      lastPathT: number | undefined,
+      lastGTT: number | undefined,
+      lastPrior = true,
       id = 0;
     const center = new THREE.Vector3(),
       extent = new THREE.Vector3(40, 40, 10);
-    const fit = () => {
-      mapGeometry.computeBoundingBox();
-      const bounds = mapGeometry.boundingBox;
-      if (bounds && !bounds.isEmpty()) {
-        bounds.getCenter(center);
-        bounds.getSize(extent);
+    // Map extent: the prior map (else the terrain mesh) plus the travelled path and 10 m
+    // around it, so the whole session fits once the robot has left the map's area.
+    const bounds = () => {
+      const box = new THREE.Box3();
+      for (const g of [mapGeometry, terrain.geometry]) {
+        g.computeBoundingBox();
+        if (g.boundingBox && !g.boundingBox.isEmpty()) {
+          box.copy(g.boundingBox);
+          break;
+        }
       }
+      pathGeometry.computeBoundingBox();
+      const route = pathGeometry.boundingBox;
+      if (route && !route.isEmpty())
+        box.union(route.clone().expandByVector(new THREE.Vector3(10, 10, 0)));
+      if (!box.isEmpty()) {
+        box.getCenter(center);
+        box.getSize(extent);
+      }
+    };
+    const fit = () => {
+      bounds();
       const distance = Math.max(5, extent.length() * 0.9);
       controls.target.copy(center);
       camera.position
@@ -234,22 +267,45 @@ export function MapView() {
       camera.far = Math.max(1000, distance * 10);
       camera.updateProjectionMatrix();
     };
-    api.current = {
-      fit,
-      top: () => {
-        const d = Math.max(5, camera.position.distanceTo(controls.target));
-        camera.position
-          .copy(controls.target)
-          .add(new THREE.Vector3(0, -0.001, d));
-      },
-      iso: fit,
-      focus: () => {
-        if (!s.current) return;
-        const p = s.current.p;
-        controls.target.set(p.x, p.y, p.z);
-        camera.position.set(p.x + 3, p.y - 4, p.z + 2.5);
-      },
+    // Straight down on the whole map, x to the right and y up the screen.
+    const plan = () => {
+      bounds();
+      const half = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+      const d = Math.max(
+        5,
+        (extent.y / 2 / half) * 1.08,
+        (extent.x / 2 / (half * camera.aspect)) * 1.08,
+      );
+      controls.target.copy(center);
+      camera.position.set(center.x, center.y - 0.001, center.z + d);
+      camera.far = Math.max(1000, d * 4);
+      camera.updateProjectionMatrix();
     };
+    // Behind and above the robot's heading.
+    const focus = () => {
+      const target = modelRoot.visible
+        ? modelRoot.position
+        : robot.root.visible
+          ? robot.root.position
+          : undefined;
+      if (!target) return false;
+      const back = new THREE.Vector3(-7, 0, 0).applyAxisAngle(
+        new THREE.Vector3(0, 0, 1),
+        smoothYaw,
+      );
+      controls.target.copy(target);
+      camera.position
+        .copy(target)
+        .add(back)
+        .add(new THREE.Vector3(0, 0, 4));
+      return true;
+    };
+    api.current = { overview: fit, plan, focus: () => void focus() };
+    // Dragging leaves a fixed preset (the follow camera keeps following).
+    const userMove = () => {
+      if (options.current.view !== "follow") setView("free");
+    };
+    controls.addEventListener("start", userMove);
     const resize = new ResizeObserver(() => {
       const r = el.getBoundingClientRect();
       if (!r.width || !r.height) return;
@@ -269,46 +325,29 @@ export function MapView() {
     const draw = () => {
       const opts = options.current,
         prior = s.prior;
-      if (
-        prior !== previousMap ||
-        opts.classify !== lastColor ||
-        `${opts.ground}${opts.offGround}` !== lastLayers
-      ) {
+      if (prior !== previousMap || opts.prior !== lastPrior) {
         const changed = prior !== previousMap;
         previousMap = prior;
-        lastColor = opts.classify;
-        lastLayers = `${opts.ground}${opts.offGround}`;
+        lastPrior = opts.prior;
         const all = prior?.points ?? new Float32Array(0);
-        // Without labels the ground/non-ground split is unknown: either box shows every point.
-        // Prior = ground + non-ground; vehicle/noise labels are never prior map.
-        const keep = (i: number) =>
-          prior?.labels
-            ? priorExcluded.has(prior.labels[i])
-              ? false
-              : prior.labels[i] === groundLabel
-                ? opts.ground
-                : opts.offGround
-            : opts.ground || opts.offGround;
-        const pts =
-          opts.ground && opts.offGround && !prior?.labels
-            ? all
-            : all.filter((_, i) => keep(Math.floor(i / 3)));
+        // Prior map = every labelled class except vehicles and noise (never prior map).
+        const labels = prior?.labels;
+        const pts = !opts.prior
+          ? new Float32Array(0)
+          : labels
+            ? all.filter(
+                (_, i) => !priorExcluded.has(labels[Math.floor(i / 3)]),
+              )
+            : all;
         mapGeometry.setAttribute("position", new THREE.BufferAttribute(pts, 3));
-        const colors = new Float32Array(pts.length),
-          color = new THREE.Color();
-        for (let i = 0, k = 0; i < all.length; i += 3) {
-          if (!keep(i / 3)) continue;
-          color.set(
-            opts.classify && prior?.labels
-              ? (mapClasses[prior.labels[i / 3]]?.color ?? priorGray)
-              : priorGray,
-          );
+        const color = new THREE.Color(priorGray),
+          colors = new Float32Array(pts.length);
+        for (let k = 0; k < colors.length; k += 3)
           colors.set([color.r, color.g, color.b], k);
-          k += 3;
-        }
         mapGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
         mapGeometry.computeBoundingSphere();
-        if (changed && prior) fit();
+        if (changed && prior && !gridOnTerrain) placeGrid(mapGeometry);
+        if (changed && prior && opts.view === "overview") fit();
       }
       terrain.visible =
         opts.mesh &&
@@ -321,26 +360,39 @@ export function MapView() {
       if (s.lio.length < lastPath) {
         lidarMap.clear();
         lidarGeometry.setDrawRange(0, 0);
+        paintedUntil = -Infinity;
       }
-      if (aligned && aligned !== previousPaint && !lidarMap.full) {
-        previousPaint = aligned;
-        const first = lidarMap.add(
-          aligned.points,
-          (x, y) => terrainIndex?.groundAt(x, y),
-          robotGround,
-        );
-        if (lidarMap.count > first) {
-          for (const attr of [lidarPositions, lidarColors]) {
-            attr.clearUpdateRanges();
-            attr.addUpdateRange(first * 3, (lidarMap.count - first) * 3);
-            attr.needsUpdate = true;
-          }
-          lidarGeometry.setDrawRange(0, lidarMap.count);
+      // Every scan received, not only the one paired with the latest pose: several can
+      // arrive between two animation frames.
+      const first = lidarMap.count;
+      if (s.mapAligned)
+        for (const c of s.clouds) {
+          if (c.t <= paintedUntil || lidarMap.full) continue;
+          const world = s.frames.cloud(c, s.config.frame);
+          if (!world) continue;
+          paintedUntil = c.t;
+          lidarMap.add(
+            world.points,
+            (x, y) => terrainIndex?.groundAt(x, y),
+            robotGround,
+          );
         }
+      if (lidarMap.count > first) {
+        for (const attr of [lidarPositions, lidarColors]) {
+          attr.clearUpdateRanges();
+          attr.addUpdateRange(first * 3, (lidarMap.count - first) * 3);
+          attr.needsUpdate = true;
+        }
+        lidarGeometry.setDrawRange(0, lidarMap.count);
       }
       lidarPoints.visible = opts.paint;
-      if (lidarMap.count !== lastPaintCount) {
+      // The count label re-renders the panel; twice a second is enough.
+      if (
+        lidarMap.count !== lastPaintCount &&
+        performance.now() - lastPaintLabel > 500
+      ) {
         lastPaintCount = lidarMap.count;
+        lastPaintLabel = performance.now();
         setPainted(lidarMap.count);
       }
       const cloud = opts.scan ? aligned : undefined;
@@ -352,16 +404,19 @@ export function MapView() {
         );
         scanGeometry.computeBoundingSphere();
       }
-      if (lastPath !== s.lio.length || lastPath === 6000) {
+      // At the 6,000-pose cap the length stops changing; the newest stamp still does.
+      if (lastPath !== s.lio.length || lastPathT !== s.lio.at(-1)?.t) {
         lastPath = s.lio.length;
+        lastPathT = s.lio.at(-1)?.t;
         pathGeometry.setAttribute(
           "position",
           new THREE.BufferAttribute(posePoints(s.lio), 3),
         );
         pathGeometry.computeBoundingSphere();
       }
-      if (lastGT !== s.gt.length || lastGT === 6000) {
+      if (lastGT !== s.gt.length || lastGTT !== s.gt.at(-1)?.t) {
         lastGT = s.gt.length;
+        lastGTT = s.gt.at(-1)?.t;
         gtGeometry.setAttribute(
           "position",
           new THREE.BufferAttribute(posePoints(s.gt), 3),
@@ -369,6 +424,19 @@ export function MapView() {
         gtGeometry.computeBoundingSphere();
         gtLine.computeLineDistances();
       }
+      const planInMap = s.plan && s.frames.cloud(s.plan, s.config.frame);
+      if (planInMap !== lastPlan) {
+        lastPlan = planInMap;
+        planGeometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(
+            planInMap?.points ?? new Float32Array(0),
+            3,
+          ),
+        );
+        planGeometry.computeBoundingSphere();
+      }
+      planLine.visible = opts.plan && s.mapAligned && !!planInMap;
       path.visible = s.mapAligned;
       gtLine.visible = s.mapAligned && opts.gt;
       const p = s.current,
@@ -383,8 +451,17 @@ export function MapView() {
       robot.root.visible = shown && !model;
       modelRoot.visible = shown && !!model;
       if (p && shown) {
+        // Leg cadence follows how far the marker moves on screen per wall second, not the
+        // reported speed, so feet stay planted at any replay rate (bag --rate 0.5, 1/3, ...).
+        const step = lastXY
+          ? Math.hypot(p.p.x - lastXY.x, p.p.y - lastXY.y)
+          : 0;
+        lastXY = { x: p.p.x, y: p.p.y };
+        if (dt > 0)
+          screenSpeed +=
+            ((step < 2 ? step : 0) / dt - screenSpeed) * Math.min(1, dt * 4);
         const q = s.lio.at(-1)?.q,
-          moving = s.receiving ? (p.speed ?? 0) : 0;
+          moving = s.receiving ? screenSpeed : 0;
         // Heading only: the recording is hand-held, so its roll/pitch is not the robot's.
         const forward = q
           ? new THREE.Vector3(1, 0, 0).applyQuaternion(
@@ -431,13 +508,26 @@ export function MapView() {
           robot.root.scale.setScalar(opts.size * 3);
           robot.animate(p.t * 8, moving > 0.03);
         }
-        if (opts.follow) {
+        if (opts.view === "follow") {
+          if (!followed) {
+            followed = focus();
+            followYaw = smoothYaw;
+          }
           const target = model ? modelRoot.position : robot.root.position;
-          const delta = target.clone().sub(controls.target);
-          camera.position.add(delta);
+          // Keep the user's chosen offset, turned with the robot's heading so it stays behind.
+          const offset = camera.position
+            .clone()
+            .sub(controls.target)
+            .applyAxisAngle(new THREE.Vector3(0, 0, 1), smoothYaw - followYaw);
+          followYaw = smoothYaw;
+          camera.position.copy(target).add(offset);
           controls.target.copy(target);
         }
-      } else lastYaw = undefined;
+      } else {
+        lastYaw = undefined;
+        lastXY = undefined;
+      }
+      if (opts.view !== "follow") followed = false;
       controls.update();
       renderer.render(scene, camera);
       id = requestAnimationFrame(draw);
@@ -445,6 +535,7 @@ export function MapView() {
     draw();
     return () => {
       cancelAnimationFrame(id);
+      controls.removeEventListener("start", userMove);
       meshLoad.abort();
       resize.disconnect();
       controls.dispose();
@@ -466,61 +557,45 @@ export function MapView() {
       api.current = undefined;
     };
   }, []);
+  const pick = (next: Exclude<View, "free">) => {
+    setView(next);
+    if (next === "overview") api.current?.overview();
+    if (next === "plan") api.current?.plan();
+  };
   return (
     <section className="panel map-panel">
-      <div className="panel-head">
-        <div>
-          <span className="eyebrow">LOCALIZATION · XYZ</span>
-          <h2>3D 지도 & 이동 궤적</h2>
+      <div className="panel-head compact map-head">
+        <h2>3D 지도</h2>
+        <div className="view-switch" role="group" aria-label="시점">
+          {views.map(([key, label, hint]) => (
+            <button
+              key={key}
+              className={view === key ? "active" : ""}
+              title={hint}
+              onClick={() => pick(key)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
         <span className="subtle">
-          {s.livePrior ? "ROS 지도" : "로컬 지도"}
-          <span className="chip">Z 포함 · m</span>
+          왼쪽 드래그 회전 · 오른쪽 드래그 이동 · 휠 확대
         </span>
       </div>
       <div className="map-surface">
         <div className="map-three" ref={host} />
         {failure && <div className="map-empty">{failure}</div>}
-        <div className="map-tags">
-          <span className="chip">
-            {s.demo
-              ? "합성 데이터 미리보기"
-              : s.mapAligned
-                ? s.config.frame
-                : "지도 좌표 정합 미확인"}
-          </span>
-          {s.prior && s.prior === s.localPrior && (
+        {!s.mapAligned && s.link === "open" && (
+          <div className="map-tags">
             <span
-              className={"chip" + (s.prior.review ? " review" : " unreviewed")}
-              title={s.prior.reviewReason ?? "map-release manifest 검수 상태"}
+              className="chip unreviewed"
+              title="ROS 지도가 표시 frame과 다르거나 아직 오지 않았습니다. 연결 설정에서 정합 확인을 켜면 로컬 지도에 겹칩니다"
             >
-              {mapReviewLabel(s.prior.review)}
+              지도 좌표 정합 미확인
             </span>
-          )}
-        </div>
-        <div className="map-controls">
-          <button onClick={() => api.current?.fit()}>전체 보기</button>
-          <button onClick={() => api.current?.top()}>위에서</button>
-          <button onClick={() => api.current?.iso()}>입체 보기</button>
-        </div>
+          </div>
+        )}
         <div className="map-bottom">
-          <button
-            className={follow ? "active" : ""}
-            onClick={() => {
-              if (!follow) api.current?.focus();
-              setFollow(!follow);
-            }}
-          >
-            로봇 따라가기 {follow ? "ON" : "OFF"}
-          </button>
-          <label>
-            <input
-              type="checkbox"
-              checked={gt}
-              onChange={(e) => setGt(e.target.checked)}
-            />
-            GT
-          </label>
           <span className="layer-group" aria-label="표시 레이어">
             <label title={meshInfo}>
               <input
@@ -528,31 +603,17 @@ export function MapView() {
                 checked={mesh}
                 onChange={(e) => setMesh(e.target.checked)}
               />
-              메시
+              지형 메시
             </label>
-            <label
-              title={
-                s.prior?.labels
-                  ? "prior map 중 지면 라벨 점"
-                  : "이 지도에는 분류 라벨이 없어 지면을 구분하지 못합니다"
-              }
-            >
+            <label title="기준 지도 점(회색). 차량·노이즈 라벨은 제외">
               <input
                 type="checkbox"
-                checked={ground}
-                onChange={(e) => setGround(e.target.checked)}
+                checked={prior}
+                onChange={(e) => setPrior(e.target.checked)}
               />
-              Prior 지면
+              기준 지도
             </label>
-            <label title="prior map 중 지면이 아닌 점(줄기·수관·시설물·미분류). 차량·노이즈는 제외">
-              <input
-                type="checkbox"
-                checked={offGround}
-                onChange={(e) => setOffGround(e.target.checked)}
-              />
-              Prior 비지면
-            </label>
-            <label title="이번 세션에 받은 LiDAR 점을 0.1 m 칸마다 하나씩 누적해, 바닥에서의 높이(0~5 m)로 무지개색을 칠합니다(표시용)">
+            <label title="이번 세션에 받은 LiDAR 점을 0.07 m 칸마다 하나씩 누적해, 바닥에서의 높이(0~5 m)로 무지개색을 칠합니다(표시용)">
               <input
                 type="checkbox"
                 checked={paint}
@@ -566,19 +627,31 @@ export function MapView() {
                 checked={scan}
                 onChange={(e) => setScan(e.target.checked)}
               />
-              LiDAR
+              현재 스캔
             </label>
+            {s.plan && (
+              <label title={`${s.config.path} (nav_msgs/Path), 자홍색 선`}>
+                <input
+                  type="checkbox"
+                  checked={plan}
+                  onChange={(e) => setPlan(e.target.checked)}
+                />
+                글로벌 경로
+              </label>
+            )}
+            {s.config.gt && (
+              <label title="GT 경로(점선)">
+                <input
+                  type="checkbox"
+                  checked={gt}
+                  onChange={(e) => setGt(e.target.checked)}
+                />
+                GT
+              </label>
+            )}
           </span>
-          <label>
-            <input
-              type="checkbox"
-              checked={classify}
-              onChange={(e) => setClassify(e.target.checked)}
-            />
-            분류색
-          </label>
           <label title="1이 실제 크기입니다">
-            로봇 표시 배율
+            로봇 크기
             <input
               aria-label="로봇 표시 배율"
               type="range"
@@ -591,21 +664,28 @@ export function MapView() {
           </label>
         </div>
       </div>
-      <div className="map-legend">
-        <span>
-          {s.prior?.mapVersion ?? "실시간 기준 지도"} · 왼쪽 드래그 회전 ·
-          오른쪽 드래그 이동 · 휠 확대
+      <div
+        className="map-legend"
+        title={`${robotInfo} · 위치 기준 ${s.config.base}(수평 위치·방향만, 높이는 지형) · 다리는 이동 거리 기반 trot 표시용 애니메이션(관절 실측 아님) · ${meshInfo || "지형 메시 읽는 중"}${s.prior ? ` · 지도 ${s.prior.mapVersion} ${mapReviewLabel(s.prior.review)}` : ""}`}
+      >
+        <span className="height-scale">
+          LiDAR 높이 0 m<i style={{ background: rainbowCss }} />5 m
         </span>
+        <span>LiDAR 누적 {painted.toLocaleString()}점</span>
+        <span>
+          <i className="line blue" /> LIO 경로
+        </span>
+        {s.plan && (
+          <span title={s.config.path}>
+            <i className="line magenta" /> 글로벌 경로{" "}
+            {(s.plan.points.length / 3).toLocaleString()}점
+          </span>
+        )}
         <em>
           {s.prior
-            ? (s.prior.points.length / 3).toLocaleString() + " pts"
+            ? `지도 ${s.prior.mapVersion ?? "ROS 발행본"} · ${(s.prior.points.length / 3).toLocaleString()}점`
             : "지도 대기"}
         </em>
-      </div>
-      <div className="map-model-note">
-        {robotInfo} · 위치 기준 {s.config.base}(수평 위치·방향만, 높이는 지형) ·
-        다리는 이동 거리 기반 trot 표시용 애니메이션(관절 실측 아님) · LiDAR
-        누적 {painted.toLocaleString()}점 · {meshInfo || "지형 메시 읽는 중"}
       </div>
     </section>
   );
