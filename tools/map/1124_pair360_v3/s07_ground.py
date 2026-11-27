@@ -8,9 +8,10 @@ with holes < 100 m2 filled. The mesh exists only inside it (known = scope); the 
 Each cell takes the median floor height. Every scope cell then gets a height: gaps up to 1.5 m from measured
 floor take a normalised Gaussian average of it; larger gaps (under removed cars, under dense vegetation, sparse
 far floor) are filled from a pyramid of block averages (push-pull) and smoothed over 0.5 m, so there are no
-holes. A light median + Gaussian filter removes single-return bumps, a 1 m band along the pc_v2 coverage edge is
-blended so the two sources meet without a step, and the reviewed curb lines become vertical steps (edits.py):
-the grid alone would smooth a 0.15-0.3 m curb into a 0.3-0.4 m wide ramp.
+holes. A light median + Gaussian filter removes single-return bumps, then a band up to 1 m on each side of the
+pc_v2 coverage edge is smoothed. The report compares height mismatches across that edge before and after
+smoothing. Reviewed curb lines then become vertical steps (edits.py): the grid alone would smooth a 0.15-0.3 m
+curb into a 0.3-0.4 m wide ramp.
 
 In : results/map_v3/map_v3_ground.pcd, frames.map_xyzi + work/02_<pc>_labels.npy (scope),
      work/06_coverage.npz, decisions/terrain_edits.json
@@ -93,6 +94,39 @@ def push_pull(h, valid):
     return est
 
 
+def blend_coverage_seam(height, in_v2, known):
+    """Smooth the coverage boundary and report absolute height mismatches before curb edits."""
+    stats = {"band_cells_in_scope": 0, "samples": 0, "before_m_p50_p90": None, "after_m_p50_p90": None}
+    if not in_v2.any() or in_v2.all():
+        return height, stats
+
+    # At each cell, only the transform for its own side gives a nonzero distance.
+    edge = np.maximum(ndimage.distance_transform_edt(in_v2),
+                      ndimage.distance_transform_edt(~in_v2))*STEP
+    band = edge <= BLEND_M
+    blended = np.where(band, ndimage.gaussian_filter(height, 5), height)
+    stats["band_cells_in_scope"] = int((known & band).sum())
+
+    # Sample horizontal and vertical crossings with two in-scope cells on each side.
+    before, after = [], []
+    for coverage, scope, original, smoothed in ((in_v2, known, height, blended),
+                                                (in_v2.T, known.T, height.T, blended.T)):
+        left, right = coverage[:, 1:-2], coverage[:, 2:-1]
+        crossings = ((left != right) & (coverage[:, :-3] == left) & (coverage[:, 3:] == right)
+                     & scope[:, :-3] & scope[:, 1:-2] & scope[:, 2:-1] & scope[:, 3:])
+        row, col = np.nonzero(crossings)
+        for grid, samples in ((original, before), (smoothed, after)):
+            # Extrapolate each side's local slope by half a cell to the same edge midpoint.
+            left_z = 1.5*grid[row, col+1] - .5*grid[row, col]
+            right_z = 1.5*grid[row, col+2] - .5*grid[row, col+3]
+            samples.append(np.abs(right_z-left_z))
+    stats["samples"] = sum(len(samples) for samples in before)
+    if stats["samples"]:
+        stats["before_m_p50_p90"] = np.percentile(np.concatenate(before), [50, 90]).round(4).tolist()
+        stats["after_m_p50_p90"] = np.percentile(np.concatenate(after), [50, 90]).round(4).tolist()
+    return blended, stats
+
+
 def main():
     MESH_DIR.mkdir(parents=True, exist_ok=True)
     review = edits.load()
@@ -134,10 +168,7 @@ def main():
     ij = np.clip(np.floor((np.stack([gx, gy], -1)-cov["origin_xy"])/cov["cell_m"]).astype(int), 0,
                  np.array(cov["pc_v2"].shape[::-1])-1)
     in_v2 = cov["pc_v2"][ij[..., 1], ij[..., 0]]
-    edge = ndimage.distance_transform_edt(in_v2)*STEP
-    edge = np.minimum(edge, ndimage.distance_transform_edt(~in_v2)*STEP)
-    band = edge <= BLEND_M
-    h = np.where(band, ndimage.gaussian_filter(h, 5), h)
+    h, seam = blend_coverage_seam(h, in_v2, known)
     curbs = {}
     for curb in review["curbs"]:
         h, step = edits.curb_step(h, x, y, curb, review["curb_step_half_width_m"])
@@ -152,10 +183,11 @@ def main():
         "cells_in_scope": int(inside), "measured_cells_in_scope": int((measured & known).sum()),
         "short_gap_cells_in_scope": int((near & ~measured & known).sum()),
         "filled_cells_in_scope": int((far & known).sum()), "fill_short_max_m": FILL_M,
-        "seam_blend_m": BLEND_M, "curb_steps": curbs,
+        "seam_blend_m": BLEND_M, "seam_continuity": seam, "curb_steps": curbs,
         "cells_by_source": {"pc_v1": int(((source == 1) & known).sum()), "pc_v2": int(((source == 2) & known).sum())}})
     print("scope m2", round(float(inside*STEP**2)), "measured", int((measured & known).sum()), "short gaps",
           int((near & ~measured & known).sum()), "filled", int((far & known).sum()), sstats, curbs)
+    print("seam continuity", seam)
 
 
 if __name__ == "__main__":
