@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 HYPERNOVA contributors.
-"""Load a Nav2 static map and keep-out mask into a real Nav2 global costmap, then report keep-out coverage.
+"""Check Nav2 keep-out coverage and start-to-goal connectivity in the static map and mask.
 
 Run inside the team ROS container (./docker/hn ros) through check_nav2_keepout.sh. Nodes come up in the order
 that makes the keep-out filter apply fully: filter_mask_server and costmap_filter_info_server, then the
 costmap, then map_server; each step waits until the previous nodes report lifecycle state "active".
-Exits 1 if any keep-out or outside-map cell is not lethal, 2 if Nav2 packages are missing.
+The route check uses four-neighbor free cells in the map and mask.
+Exits 1 if the keep-out or route check fails, 2 if Nav2 packages are missing.
 """
 import argparse
 import os
@@ -14,6 +15,8 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections import deque
+from math import floor, isfinite
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
@@ -108,17 +111,54 @@ def grab_grids(node, timeout_s):
     return None, None
 
 
-def report(grid):
+def check_route(walkable, geometry, start_xy, goal_xy):
+    """Check for a four-neighbor path on an axis-aligned map grid."""
+    res, origin_x, origin_y = geometry
+    height, width = walkable.shape
+    endpoints = []
+    for name, (x, y) in (('start', start_xy), ('goal', goal_xy)):
+        grid_y = (y - origin_y) / res
+        grid_x = (x - origin_x) / res
+        if not (0 <= grid_y < height and 0 <= grid_x < width):
+            print(f'route FAIL: {name} ({x}, {y}) is outside the map')
+            return False
+        row, col = floor(grid_y), floor(grid_x)
+        if not walkable[row, col]:
+            print(f'route FAIL: {name} ({x}, {y}) is blocked at row {row}, column {col}')
+            return False
+        endpoints.append((row, col))
+
+    start, goal = endpoints
+    unvisited = walkable.copy()
+    unvisited[start] = False
+    pending = deque([start])
+    while pending:
+        row, col = pending.popleft()
+        if (row, col) == goal:
+            print(f'route PASS: {start_xy} to {goal_xy} is connected on the static map and mask')
+            return True
+        for next_row, next_col in ((row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)):
+            if 0 <= next_row < height and 0 <= next_col < width and unvisited[next_row, next_col]:
+                unvisited[next_row, next_col] = False
+                pending.append((next_row, next_col))
+    print(f'route FAIL: {start_xy} to {goal_xy} is disconnected on the static map and mask')
+    return False
+
+
+def report(grid, geometry, start_xy, goal_xy):
     static, mask, cost = grid['/map'], grid['/keepout_filter_mask'], grid['/global_costmap/costmap']
     keepout = mask == 100
     lethal = cost >= 99
-    walkable = (static == 0) & ~keepout
+    walkable = (static == 0) & (mask == 0)
     rows = [('keep-out cells (off road + outside map)', keepout, lethal),
             ('outside map (unknown in map.yaml)', static == -1, lethal),
             ('walkable cells with cost 0', walkable, cost == 0)]
     for name, sel, ok in rows:
-        print(f'{name}: {int(sel.sum())} cells, {ok[sel].mean() * 100:.2f}%')
-    failed = not lethal[keepout].all() or not lethal[static == -1].all()
+        count = int(sel.sum())
+        percent = f'{ok[sel].mean() * 100:.2f}%' if count else 'n/a'
+        print(f'{name}: {count} cells, {percent}')
+    connected = check_route(walkable, geometry, start_xy, goal_xy)
+    failed = not lethal[keepout].all() or not lethal[static == -1].all() or not connected
     print('RESULT:', 'FAIL' if failed else 'PASS')
     return int(failed)
 
@@ -129,10 +169,14 @@ def main():
                     help='folder with map.yaml, keepout_mask.yaml and nav2_params.example.yaml (default: %(default)s)')
     ap.add_argument('--start-xy', type=float, nargs=2, default=(-48.46, 119.61),
                     help='robot position published as pair360_map -> base_link, m (default: 2026-11-15 recording start)')
+    ap.add_argument('--goal-xy', type=float, nargs=2, default=(21.9, 184.4),
+                    help='target for the static route check in pair360_map, m (default: 21.9 184.4)')
     ap.add_argument('--save', type=Path, help='also write the three grids to <SAVE>/nav2_grids.npz (int8 values, res, origin)')
     ap.add_argument('--timeout', type=float, default=300.0,
                     help='seconds to wait for the full-size costmap (default: %(default)s; 1611x1616 takes minutes)')
     args = ap.parse_args()
+    if not all(isfinite(value) for value in (*args.start_xy, *args.goal_xy)):
+        ap.error('--start-xy and --goal-xy must contain finite coordinates')
     maps = args.maps.resolve()
 
     missing = missing_packages()
@@ -174,7 +218,7 @@ def main():
             args.save.mkdir(parents=True, exist_ok=True)
             np.savez_compressed(args.save / 'nav2_grids.npz', res=geometry[0], origin=geometry[1:],
                                 **{t.strip('/').replace('/', '_'): g.astype(np.int8) for t, g in grid.items()})
-        return report(grid)
+        return report(grid, geometry, args.start_xy, args.goal_xy)
     finally:
         nodes.stop()
         node.destroy_node()
