@@ -70,8 +70,6 @@ replay/run-demo.sh stop
 - 같은 `ROS_DOMAIN_ID`에서 `ros2 launch foxglove_bridge foxglove_bridge_launch.xml port:=8765`를 띄우고, 데이터 소스 **'시뮬레이터'**를 고릅니다.
 - Isaac Sim·Isaac Lab과의 연결은 아직 시험하지 않았습니다.
 
-`replay/run-demo.sh sim`은 보행 시뮬이 아닙니다. LiDAR만 단 가짜 몸체를 시험 경로로 미끄러뜨려 화면 연결(보행 상태, 글로벌 경로, 넘어짐 표시)을 확인하는 **연결 시험용**입니다. 보행팀 시뮬이 위 토픽을 내기 전까지만 씁니다.
-
 ## C. 실물 로봇
 
 로봇 PC에서 데이터를 내고, 노트북 브라우저에서 원격으로 봅니다. 아직 로봇용 launch 파일은 없고, 아래는 구성 계획입니다.
@@ -108,7 +106,7 @@ replay/run-demo.sh stop
 | 경우 | 결과 |
 | --- | --- |
 | A. 핸드헬드 기록 | WSL2 + Docker에서 bag 재생, 위치·LiDAR·위치추정 상태(`TRACKING`, 10 Hz) 표시 확인 |
-| B. 시뮬레이터 | 연결 시험용 `run-demo.sh sim`만 확인. 보행팀 MuJoCo·Isaac 시뮬과는 위치·LiDAR 토픽이 아직 없어 연결하지 않음 |
+| B. 시뮬레이터 | 시험하지 않음. 보행팀 로봇에 LiDAR·IMU가 들어가고 시뮬이 위치·LiDAR 토픽을 낸 뒤 연결 |
 | C. 실물 로봇 | 시험하지 않음 |
 
 ## 남은 일

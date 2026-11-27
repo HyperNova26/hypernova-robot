@@ -313,7 +313,7 @@ export const sources = {
   sim: {
     label: "시뮬레이터 (Isaac Sim·MuJoCo 등)",
     start:
-      "시뮬레이터가 계약 토픽을 내보내고 foxglove_bridge를 실행 (연결 시험만: replay/run-demo.sh sim)",
+      "시뮬레이터가 RUN.md의 토픽을 내보내고 foxglove_bridge를 실행",
     config: { url: "ws://localhost:8765", gt: "/ground_truth/odom" },
   },
   robot: {
