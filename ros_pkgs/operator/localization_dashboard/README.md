@@ -12,6 +12,9 @@
 
 Ubuntu 24.04와 Windows의 WSL2(Ubuntu 24.04)에서 같은 명령입니다. Node.js는 없어도 됩니다(없으면 Docker 안에서 빌드).
 
+- **Windows**: WSL2 Ubuntu 24.04와 Docker Desktop을 설치하고, Docker Desktop의 WSL integration에서 그 Ubuntu를 켭니다. 아래 명령은 모두 Ubuntu 터미널에서 실행합니다.
+- **네이티브 Ubuntu 24.04**: WSL·Docker Desktop 설치와 연동은 필요 없습니다. Docker Engine만 있으면 아래 1번의 `./docker/hn pull ros`부터 그대로 합니다.
+
 1. **Docker 준비**: 저장소 최상위에서 `./docker/hn pull ros`로 팀 ROS 이미지를 받습니다. WSL이면 Docker Desktop → Settings → Resources → WSL integration에서 쓰는 Ubuntu를 켜고(Apply & restart), 저장소와 데이터는 Windows 폴더(`/mnt/c/...`)가 아니라 WSL 홈(`~/`)에 둡니다. `/mnt/c`를 거치면 파일 읽기·쓰기가 크게 느립니다.
 2. **데이터 받기**: 팀 Drive `14. AI Team/`에서 아래 세 곳을 같은 폴더 구조로 `~/hypernova-data/ai-team/`(또는 `--data`로 지정한 곳)에 받습니다.
 
