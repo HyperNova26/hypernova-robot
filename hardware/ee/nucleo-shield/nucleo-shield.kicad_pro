@@ -206,6 +206,7 @@
       "track_widths": [
         0,
         0.2,
+        0.3,
         0.45,
         0.85,
         1.2,
@@ -333,6 +334,44 @@
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Input trunk",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 2,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 1.5,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "RS distribution",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 3,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.85,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
       }
     ],
     "meta": {
@@ -342,11 +381,11 @@
     "netclass_assignments": null,
     "netclass_patterns": [
       {
-        "netclass": "E5V trunk",
+        "netclass": "Input trunk",
         "pattern": "/EXT_5V_IN"
       },
       {
-        "netclass": "E5V trunk",
+        "netclass": "Input trunk",
         "pattern": "/EXT_5V_FUSED"
       },
       {
@@ -362,8 +401,32 @@
         "pattern": "/+3V3"
       },
       {
-        "netclass": "Module power",
+        "netclass": "RS distribution",
         "pattern": "/+3V3_RS485"
+      },
+      {
+        "netclass": "Input trunk",
+        "pattern": "/J17_DAMPED"
+      },
+      {
+        "netclass": "Input trunk",
+        "pattern": "/SURGE_SOURCE"
+      },
+      {
+        "netclass": "Input trunk",
+        "pattern": "/J17_ISENSE"
+      },
+      {
+        "netclass": "Input trunk",
+        "pattern": "/J17_PROTECTED"
+      },
+      {
+        "netclass": "E5V trunk",
+        "pattern": "/RS_BUCK_VIN"
+      },
+      {
+        "netclass": "E5V trunk",
+        "pattern": "/BOOST_6V"
       }
     ]
   },

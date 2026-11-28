@@ -28,22 +28,25 @@ J19–J22,기판 커넥터,기본,JST,B7B-XH-A,4,개,"2.50 mm XH 7핀. 전용 +3
 J19–J22,하네스 하우징,기본,JST,XHP-7,4,개,RS-485 모듈 하네스의 캐리어 쪽입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
 J19–J22,하네스 압착 단자,기본,JST,SXH-001T-P0.6,28,개,22–28 AWG 단자입니다. 하우징당 7개입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
 J1·J2,완성 모듈,선정,STMicroelectronics,NUCLEO-G474RE,1,개,"MB1367. JP5=5–6 E5V, SB5·SB6 설정은 assembly.md 확인.",https://www.st.com/en/evaluation-tools/nucleo-g474re.html,2026-11-28
-J19–J22,완성 모듈,선정,Waveshare,4777,4,개,RS485 Board (3.3V). SP3485와 120 Ω 내장 종단이 실장되어 있습니다. 다리당 1개이며 4 Mbps와 동시 송신 전류는 실물로 확인합니다.,https://www.waveshare.com/RS485-Board-3.3V.htm,2026-11-28
-J19–J22,모듈측 하우징,기본,Harwin,M20-1060500,4,개,Waveshare 로직용 2.54 mm 1×5. 모듈 고정과 접점 삽입 깊이를 검사합니다.,https://www.harwin.com/products/M20-1060500,2026-11-28
-J19–J22,모듈측 압착 단자,기본,Harwin,M20-1180042,20,개,"하우징당 5개, 24 AWG.",https://www.harwin.com/products/M20-1180042,2026-11-28
-J19–J22,모듈측 A/B 배선,기본,미지정,120 Ω 특성 임피던스 짧은 꼬임쌍,4,쌍,캐리어 핀 6·7은 모듈의 2극 A/B 나사 단자로 분기합니다. 신호 GND는 5핀 로직 헤더에서 연결합니다.,https://files.waveshare.com/upload/9/95/RS485-Board-UserManual.pdf,2026-11-28
-J19–J22,하네스 풀다운,기본,미지정,10 kΩ 저항,4,개,각 모듈 가까이에서 RSE–GND 사이에 연결하고 접속부를 절연합니다.,https://files.waveshare.com/upload/b/bf/RS485-Board-Schematic.pdf,2026-11-28
-J19–J22,모듈측 바이패스,기본,미지정,100 nF X7R 세라믹 커패시터,4,개,모듈측 VCC–GND 접점 가까이 각 1개. 캐리어 C5–C8은 별도입니다.,https://files.waveshare.com/upload/b/bf/RS485-Board-Schematic.pdf,2026-11-28
-J3–J6,모터측 종단,모터 버스 끝에 없을 때,미지정,120 Ω 종단저항,4,개,다리당 최원단에 1개입니다. 모듈에 120 Ω이 있으므로 캐리어 R30–R33은 기본 미실장입니다.,https://www.ti.com/lit/an/slla272d/slla272d.pdf,2026-11-28
+J19–J22,RS-485 완성 모듈,기본,Texas Instruments,THVD1424EVM,4,개,"EVM당 공급자가 R3(RO 모니터 LED 직렬저항)만 제거한 상태로 납품. 3.0–5.5 V, 2선 Y/Z, 외부 DE·/RE, SLR=Low. 출하 점퍼를 하네스 설정과 도통 비교.",https://www.ti.com/lit/ug/sllu356/sllu356.pdf,2026-11-28
+J19–J22,EVM J1–J4 짝 소켓,기본,Mill-Max,803-43-008-10-001000,16,개,모듈당 2×4 소켓 4개. EVM의 802-10-008-10-001000 수핀(Ø0.76 mm)에 결합. 하네스 제작자가 각 소켓을 지지·절연해 한 신호씩 인출.,https://www.mill-max.com/sites/default/files/external/catalog/2018-07/029-087.pdf,2026-11-28
+J19–J22,EVM J7 단락캡,기본,Samtec,SNT-100-BK-G,4,개,모듈당 1개. J7.1–2 VCC=VL. 기지급품 사용 시 중복 구매 제외.,https://www.samtec.com/products/snt-100-bk-g,2026-11-28
+J19–J22,EVM J8 설정 플러그 수헤더,기본,Samtec,TSW-110-07-G-D,4,개,EVM 암 SSQ-110-23-F-D에 끼우는 2×10 수헤더. 제작자가 납땜면에 하네스 표의 네 쌍을 결선·절연하고 핀 1 방향 고정.,https://www.samtec.com/products/tsw-110-07-g-d,2026-11-28
+J19–J22,EVM측 조립 서비스,기본,하네스 제작처,모듈별 로직 소켓 지지대 및 설정 플러그 조립,4,개,"EVM R3 제거, J1–J4 소켓 리드와 J8 전용 플러그 제작·고정, RSE 분기 및 풀다운. J6 전원, J17 Y/Z는 실장된 Phoenix Contact 1725669 나사 단자. 하네스 전체 공급 시 BOM 부속 중복 제외.",https://www.ti.com/lit/ug/sllu356/sllu356.pdf,2026-11-28
+J19–J22,EVM측 RSE 풀다운,기본,축형 저항 공급처,"10 kΩ ±1%, 0.25 W",4,개,모듈측 분기점 J2.3·J3.4에서 J6.2 GND로 한 개. EVM C9·C10·C11과 캐리어 C5–C8이 전원을 바이패스.,https://www.ti.com/lit/ug/sllu356/sllu356.pdf,2026-11-28
+J3–J6,모터측 종단,모터 버스 끝에 없을 때,미지정,"120 Ω ±1%, 0.25 W",4,개,실제 다리당 마지막 노드에 1개. 캐리어 끝은 전원이 인가된 THVD1424 내장 TERM_TX. 캐리어 R30–R33과 중간 종단 미실장.,https://www.ti.com/lit/an/slla272d/slla272d.pdf,2026-11-28
 J14,기판 커넥터,기본,JST,B6B-XH-A,1,개,"XH 6핀 상부형. 1=3V3, 2=GND, 3=TX, 4=RX, 5=STB, 6=보호 E5V.",https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
 J14,하네스 하우징,기본,JST,XHP-6,1,개,캐리어측 키드 하우징.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
 J14,하네스 압착 단자,기본,JST,SXH-001T-P0.6,6,개,26 AWG.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
-J23,기판 커넥터,기본,JST,B5B-XH-A,1,개,"5핀 상부형. PG, EN, 퓨즈 뒤 VIN, 공통 GND, 전용 VOUT.",https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
-J23,하네스 하우징,기본,JST,XHP-5,1,개,캐리어측 키드 하우징.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
-J23,하네스 압착 단자,기본,JST,SXH-001T-P0.6,5,개,"PG/EN 26 AWG, 전원·GND 22 AWG.",https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
-J23,벅 완성 모듈,헤더 실장 납품,Pololu,2857 D24V22F3,1,개,3.3 V 고정. 표준품에 동봉된 1×5 수헤더를 납품처가 실장하고 도통 검사한 구성으로 견적 확인.,https://www.pololu.com/product/2857,2026-11-28
-J23,모듈측 하우징,기본,Harwin,M20-1060500,1,개,1×5 암 하우징. PG/EN/VIN/GND/VOUT를 표식으로 연결.,https://www.harwin.com/products/M20-1060500,2026-11-28
-J23,모듈측 압착 단자,기본,Harwin,M20-1180042,5,개,22/26 AWG 각 전선에 해당하는 압착 치수를 검사합니다.,https://www.harwin.com/products/M20-1180042,2026-11-28
+J23,기판 커넥터,기본,JST,B8B-XH-A,1,개,8핀 수직 XH. 1~6=PG/EN/보호 VIN/GND_IN/VOUT/GND_OUT. 7·8 미연결. 6핀 J14와 기계적으로 구별.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
+J23,하네스 하우징,기본,JST,XHP-8,1,개,캐리어측. 1~6번에 압착 단자 6개를 끼우고 7·8번 캐비티를 비움.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
+J23,하네스 압착 단자,기본,JST,SXH-001T-P0.6,6,개,"PG/EN 26 AWG, VIN/GND_IN/VOUT/GND_OUT 22 AWG.",https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
+J23,RS 벅 완성 모듈,기본,Texas Instruments,TPSM365R6V3EVM,1,개,"고정 3.3 V/600 mA. EVM에서 J6 1–2, J3 7–8, J5 개방해 MODE/FPWM 설정. PG TP4, EN J2.2. J1/J4의 5 mm 나사 단자에 입력과 출력의 전원·접지를 각각 체결.",https://www.ti.com/lit/ug/snvu846/snvu846.pdf,2026-11-28
+J23,EN J2 짝 하우징,기본,Harwin,M20-1060300,1,개,J2 1×3 중 가운데 2번에만 접점 삽입. 공급자가 PG 리드를 TP4 루프에 납땜하고 절연·장력완화.,https://www.harwin.com/products/M20-1060300,2026-11-28
+J23,EN J2 압착 단자,기본,Harwin,M20-1180042,1,개,"26 AWG, J2.2에 결선.",https://www.harwin.com/products/M20-1180042,2026-11-28
+J23,벅 EVM 입력 말단 TVS,기본,Littelfuse,P6KE8.2A,1,개,"단방향 축형. 모듈 바로 옆 J1.2 VIN에 K(띠), J1.1 GND에 A를 접속. VRWM 7.02 V, VC 12.1 V @ 50.4 A (10/1000 µs, 25 °C). 절연 고정 후 말단에서 과도 측정.",https://www.littelfuse.com/assetdocs/littelfuse_tvs_diode_p6ke_datasheet.pdf?assetguid=620a3cb5-3282-4670-8b03-66f21bc75523,2026-11-28
+J24,승압 모듈용 직결 암소켓,기본,Samtec,SSW-103-01-G-S,1,개,2.54 mm 1×3 THT 암소켓. 6 V 모듈의 0.64 mm 각핀과 결합. VIN/VOUT 라벨·유격 방지 홀더 확인.,https://www.samtec.com/products/ssw-103-01-g-s,2026-11-28
+J24,6 V 승압 완성 모듈,기본,Pololu,4942 U3V16F6,1,개,"동봉 수직 1×3 수헤더를 공급자 선실장. 6 V ±4%, 기동 ≥2.7 V, VIN ≤16 V, 13.1×8.1 mm. J24에 직결 고정. 커넥터 반삽·역삽 방지.",https://www.pololu.com/product/4942,2026-11-28
 J7–J10,ToF 완성 모듈,헤더 실장 납품,Pololu,3415 VL53L1X carrier,4,개,"VIN 2.6–5.5 V, 7핀 수직 수헤더 실장·도통 검사 납품으로 견적 확인. 표준 소매품은 헤더 동봉.",https://www.pololu.com/product/3415,2026-11-28
 J7–J10,모듈측 하우징,기본,Harwin,M20-1060700,4,개,"2.54 mm 1×7. 2,3,5,4,6번 접점을 사용하고 1·7번을 비웁니다.",https://www.harwin.com/products/M20-1060700,2026-11-28
 J7–J10,모듈측 압착 단자,기본,Harwin,M20-1180042,20,개,"26 AWG, 각 모듈에 5개.",https://www.harwin.com/products/M20-1180042,2026-11-28
@@ -89,8 +92,26 @@ F1,캐리어 퓨즈,기본,Littelfuse,0251002.MXL,1,개,2 A 축형. J17 뒤 두 
 U9–U11,3상태 버퍼,기본,Texas Instruments,SN74AHC126N,3,개,"역급전 방지, DIP-14.",https://www.ti.com/product/SN74AHC126,2026-11-28
 U15,슈미트 반전기,기본,Texas Instruments,SN74HC14N,1,개,DIP-14.,https://www.ti.com/product/SN74HC14,2026-11-28
 R57,전류제한 설정,기본,Vishay,CMF5559K700BERE70,1,개,"59.7 kΩ ±0.1%, U14.",power-validation.md,2026-11-28
-R63,RS 감시 상단,기본,Vishay,CMF5555K600BEEA70,1,개,"55.6 kΩ ±0.1%, ≤25 ppm/K.",power-validation.md,2026-11-28
-R64,RS 감시 하단,기본,Vishay,CMF5510K200BEEB,1,개,"10.2 kΩ ±0.1%, ≤25 ppm/K.",power-validation.md,2026-11-28
-J7–J10·J23,모듈 헤더 선실장 서비스,헤더 실장 견적,THT 납품처,1×7 수직 헤더 4줄 + 1×5 수직 헤더 1줄,1,건,캐리어는 베어 PCB 발주. Pololu 모듈에만 33접점 납땜 후 정렬·반대면 높이·인접 핀 단락·핀 도통 검사. 소량 수삽 납품 견적 미확정.,https://thewintech.co.kr/pcb-soldering/,2026-11-28
+R63,RS 감시 상단,기본,TE Connectivity,YR1B576RCC,1,개,"576 Ω ±0.1%, ±15 ppm/K, 0.25 W. D17 로컬 아노드에서 U13 ADJ2까지.",https://www.te.com/en/product-6-1676914-4.html,2026-11-28
+R64,RS 감시 하단,기본,TE Connectivity,YR1B2K49CC,1,개,"2.49 kΩ ±0.1%, ±15 ppm/K, 0.25 W. U13 ADJ2에서 공통 GND까지.",https://www.te.com/en/product-7-1676913-3.html,2026-11-28
+J7–J10·J24,모듈 헤더 선실장 서비스,헤더 실장 견적,THT 납품처,1×7 수직 헤더 4줄 + 1×3 수직 헤더 1줄,1,건,Pololu #3415 4개와 #4942 1개에 총 31접점 납땜. 핀 정렬·모듈 방향·단락·도통 확인. 하네스 및 EVM R3 제거 서비스는 별도 견적.,https://thewintech.co.kr/pcb-soldering/,2026-11-28
 R37,U6 전류 제한 설정,기본,정밀 저항 공급처,"1.82 kΩ ±0.1%, ≤25 ppm/K, 축형",1,개,U6 공칭 약 439.6 mA. 온도·공차 검토는 전원 계산서 참조.,power-validation.md,2026-11-28
 C11,U6 ILIM 보상,기본,KEMET,C315C123J3G5TA,1,개,"12 nF ±5%, 25 V C0G, THT 2.54 mm. R38=976 Ω ±1%와 함께 사용.",power-validation.md,2026-11-28
+U16,공통 입력 보호·실장된 DIP 변환기,기본,Analog Devices / Proto Advantage,LTC4364IS-2#PBF + PA0005,1,개,"SOIC-16 IC와 DIP-16 기계핀 실장 납품. 폭 7.62 mm 핀열, 기판 외곽 17.78×20.32 mm, 1번 동향. 납품 도통표를 assembly.md의 16핀 배정과 일치시킵니다.",https://www.proto-advantage.com/store/product_info.php?products_id=2200005,2026-11-28
+Q3·Q4,외부 N채널 MOSFET,기본,Infineon,IRLZ44NPBF,2,개,"TO-220AB 리드 1=G, 2와 탭=D, 3=S. 각 드레인 탭 절연 및 기구 간섭 검사.",https://www.infineon.com/part/IRLZ44N,2026-11-28
+R68,공통 전류 검출 저항,기본,KOA Speer,BPR58C27LK,1,개,"27 mΩ ±10%, 5 W, 9 mm 방사형 THT. U16 전류 감시 켈빈 접점으로 결선.",https://www.koaspeer.com/pdfs/BPR.pdf,2026-11-28
+R69·R71,보호 문턱 상단,기본,정밀 저항 공급처,"3.48 kΩ ±0.1%, ≤25 ppm/K, 축형",2,개,FB/OV 분압 두 쌍. 1.00 kΩ 하단과 함께 사용.,https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4364-1-4364-2.pdf,2026-11-28
+R70·R72,보호 문턱 하단,기본,정밀 저항 공급처,"1.00 kΩ ±0.1%, ≤25 ppm/K, 축형",2,개,FB/OV 분압 두 쌍.,https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4364-1-4364-2.pdf,2026-11-28
+D14·D15,게이트-소스 제너,기본,Vishay,BZX55C12,2,개,12 V 축형 THT. 실크의 K(띠)와 회로도 극성 확인.,https://www.vishay.com/docs/85604/bzx55.pdf,2026-11-28
+D16,보호 출력 TVS,기본,Littelfuse,5KP6.5A,1,개,"단방향 P600. K=J17_PROTECTED, A=GND. VRWM 6.5 V, VC 11.2 V @ 455.4 A (10/1000 µs, 25 °C). 몸체·지름 최대 9.10 mm, 리드 Ø1.36 mm까지. J23 말단 TVS 별도.",https://www.littelfuse.com/assetdocs/littelfuse_tvs_diode_5kp_datasheet.pdf?assetguid=b1ddd6a2-fccb-4327-bea1-7d77c0793479,2026-11-28
+C22,보호 게이트 보상,기본,WIMA,MKS2C026801A00JSSD,1,개,"68 nF ±5% 초기, 63 V PET 필름, P5 mm. Q3 게이트 램프를 제어하므로 운용 온도에서 유효용량을 반영.",https://www.wima.de/wp-content/uploads/media/d_WIMA_MKS_2.pdf,2026-11-28
+C23,보호 타이머,기본,WIMA,MKP2C024701C00JSSD,1,개,"47 nF ±5% 초기, 63 V PP 필름, P5 mm. TMR 타임아웃은 사용 온도에서 실측.",https://www.wima.de/wp-content/uploads/media/WIMA_Hauptkatalog_2025_26.pdf,2026-11-28
+C24,승압 입력 로컬 댐핑,기본,Panasonic,EEUFR1E681,1,개,"680 µF ±20%, 25 V, 105 °C, Ø10×16 mm P5 mm, 28 mΩ max @ 100 kHz. 승압 VIN–GND. 실크와 전해 극성 확인.",https://industrial.panasonic.com/ww/products/pt/aluminum-cap-lead/models/EEUFR1E681,2026-11-28
+C25,입구 보호 IC 바이패스,기본,KEMET,C315C104K5R5TA,1,개,"100 nF ±10%, 50 V X7R, P2.54 mm. U16 VCC–GND에 인접 배치.",https://search.kemet.com/component-documentation/download/specsheet/C315C104K5R5TA,2026-11-28
+C26,U6 승압 출력 로컬 바이패스,기본,TDK,FG26X7R1E106KRT06,1,개,"10 µF ±10%, 25 V X7R, P5 mm. U6 입력 6 V DC 바이어스에서 유효용량을 확인.",https://product.tdk.com/en/search/capacitor/ceramic/lead-mlcc/info?part_no=FG26X7R1E106KRT06,2026-11-28
+D9,원입력 양방향 TVS,기본,Littelfuse,P6KE30CA,1,개,"F1 뒤 원입력. VRWM 25.6 V, VC 41.4 V @ 14.7 A. 지속 DC 오인가 차단은 U16/Q3/Q4.",https://www.littelfuse.com/assetdocs/littelfuse_tvs_diode_p6ke_datasheet.pdf?assetguid=620a3cb5-3282-4670-8b03-66f21bc75523,2026-11-28
+D17,RS 감시 오프셋 기준전압,기본,Analog Devices,LT1634CCZ-2.5#PBF,1,개,"2.5 V, C등급 TO-92 직선 리드. 0–70 °C 보증. 2=VOUT(+3V3_RS485), 1·3=GND/TEST(둘 다 R63 상단 로컬 아노드). R63·R64 직렬 회로로 바이어스. 로컬 아노드는 캐리어 GND와 분리.",https://www.analog.com/media/en/technical-documentation/data-sheets/1634ff.pdf,2026-11-28
+J23,벅 EVM 입력 말단 커패시터,기본,Panasonic,EEUFR1E470,1,개,"47 µF ±20%, 25 V, 105 °C. EVM J1에 P6KE8.2A와 병렬로 짧게 선조립. VIN에 +. 온도·노화 포함 조립품 유효용량 ≥30 µF; 0.30 Ω max @100 kHz.",https://industrial.panasonic.com/ww/products/pt/aluminum-cap-lead/models/EEUFR1E470,2026-11-28
+R73,Q3 게이트 감쇠,기본,축형 저항 공급처,"10 Ω ±1%, ≥0.25 W",1,개,R73을 Q3 게이트에 가깝게 배치.,https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4364-1-4364-2.pdf,2026-11-28
+R74,J23 라인 감쇠,기본,Vishay,AC03000006807JAC00,1,개,"0.68 Ω ±5%, 3 W @40 °C, 2.5 W @70 °C. AC03 pulse-capable THT, 몸체 13×Ø4.8 mm. 직렬 저항과 케이블의 루프 인덕턴스 합계 ≤1 µH.",https://www.vishay.com/docs/28730/ac_ac-at_ac-ni.pdf,2026-11-28
+R75,원입력 과도 전류 제한,기본,Vishay,AC05000003307JAC00,1,개,"0.33 Ω ±5%, 5 W @40 °C, 4.7 W @70 °C. AC05 pulse-capable THT, 몸체 18×Ø7.5 mm. 원입력에서 Q3 드레인 앞까지 직렬.",https://www.vishay.com/docs/28730/ac_ac-at_ac-ni.pdf,2026-11-28

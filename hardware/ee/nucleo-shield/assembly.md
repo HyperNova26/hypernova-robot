@@ -2,7 +2,7 @@
 
 # Nucleo 캐리어 조립과 하네스
 
-2026-11-28 기준 P2.2 시제품 조립 안내입니다. 2층 베어 PCB를 발주하고 캐리어 커넥터와 필수 부품을 손납땜합니다. RS-485 트랜시버와 외부 센서는 커넥터나 헤더가 실장된 완성 모듈과 변환 하네스로 연결합니다. 전원과 하네스는 이 문서의 핀 배정을 적용합니다. [Notion EE 요구사항][requirements]
+2026-11-28 기준 P2.3 시제품 조립 안내입니다. 2층 베어 PCB를 발주하고 캐리어 커넥터와 필수 부품을 손납땜합니다. RS-485 트랜시버와 외부 센서는 커넥터나 헤더가 실장된 완성 모듈과 변환 하네스로 연결합니다. 전원과 하네스는 이 문서의 핀 배정을 적용합니다. [Notion EE 요구사항][requirements]
 
 ## 기판과 실장면
 
@@ -27,7 +27,8 @@ CN7·CN10 소켓의 1번 간격은 60.96 mm이고, 각 소켓은 2.54 mm 피치�
 | J17 | 상부 삽입형 JST XH `B2B-XH-A`, `XHP-2` | 외부 안정화 5.15–5.25 V, GND |
 | J18 | 기본 미실장, 상부 삽입형 JST PH `B3B-PH-K`, `PHR-3` | 비상정지 NC 보조접점, 미연결, GND |
 | J19–J22 | 상부 삽입형 JST XH `B7B-XH-A`, `XHP-7` 및 `SXH-001T-P0.6` 단자(22–28 AWG) | 전용 +3V3_RS485, GND, 모듈 RO, 모듈 DI, 모듈 RSE, RS-485 A, RS-485 B |
-| J23 | JST XH `B5B-XH-A`, `XHP-5` | PG, EN, 퓨즈 뒤 VIN, 공통 GND, +3V3_RS485 VOUT |
+| J23 | JST XH `B8B-XH-A`, `XHP-8` | PG, EN, 보호 VIN, GND_IN, +3V3_RS485 VOUT, GND_OUT, 미연결, 미연결 (7·8번은 단자 미삽입) |
+| J24 | 2.54 mm 1×3 암소켓과 #4942 선실장 수직 수헤더 | 보호 VIN, 공통 GND, 승압 6 V VOUT (핀 1과 양끝 라벨을 맞춤) |
 
 PH는 2.00 mm, XH는 2.50 mm, GH는 1.25 mm 피치입니다. ToF, RS-485 모듈, 모터 하네스 양쪽 끝에 채널 번호를 표시합니다. 전선 규격에 맞는 압착 단자나 기성 피그테일을 씁니다. J11은 방향 키가 없어 하네스 양쪽에 1번을 표시하고 전원을 넣기 전 3.3 V와 GND의 도통을 확인합니다. [JST PH 제품 정보][ph] · [JST XH 데이터시트][xh] · [Harwin 수헤더][imu-header] · [Harwin 암 하우징][imu-housing] · [Harwin 압착 단자][imu-contact]
 
@@ -35,9 +36,13 @@ J15는 표면실장 커넥터입니다. 기판 뒷면에 GH 4핀의 신호 패�
 
 ## 전원과 조립 순서
 
-캐리어 J17에는 부하 시 5.15~5.25 V의 안정화 전원을 연결합니다. F1 뒤에서 E5V 계통과 J23의 RS-485 벅 입력을 분기합니다. U6와 U14를 거치는 E5V가 CN7-6과 CAN 포트의 6번에 공급됩니다. U7의 입력 창 비교와 D13이 벅 EN을 제어하고 벅에는 입력 역극성 보호가 내장되어 있습니다. 각 부분의 전압·전류 한계와 시험 순서는 [전원 계산서](power-validation.md)에 기록했습니다.
+J17에서 부하 시 5.15~5.25 V를 받습니다. F1 뒤 D9가 원입력 과도를 제한하고, R75·U16·외부 MOSFET 및 R68을 거친 공통 보호 출력에서 두 전원을 분기합니다. U16은 역극성을 차단하고 과전압 때 출력을 조절한 뒤 TMR 만료 시 분리합니다. J24의 6 V 승압 출력은 U6와 U14를 거쳐 CN7-6 및 J14.6에 공급됩니다. 다른 분기는 R74를 거쳐 J23 벅의 입력으로 갑니다. 벅 EN은 기존 입력 창과 연동하며, PG와 U13 양전원 감시가 성립해야 송신을 허용합니다. [전원·고장 조건과 시험 순서](power-validation.md)
 
-Nucleo JP5를 5–6번 E5V에 두고 U12용 SB5를 확인합니다. J11 SPI1은 SB6를 개방합니다. J19~J22의 1번은 J23 VOUT이며 Nucleo CN7-16과 독립입니다. 통전 전 두 출력 간 단락, GND 공통, U13/U14 어댑터 1번과 승인한 핀 대응을 확인합니다. U13/U14는 IC가 기계핀 DIP 변환기판에 납땜된 완제품을 구매해 캐리어에 관통홀 납땜합니다. 외부 전원으로 먼저 시동한 후 데이터 가능한 ST-LINK USB를 연결합니다. [ST Nucleo 전원 설정][nucleo]
+Nucleo JP5를 5–6번 E5V에 두고 U12용 SB5를 확인합니다. J11 SPI1은 SB6를 개방합니다. J19~J22의 1번은 J23 VOUT이며 CN7-16과 독립입니다. 통전 전 두 출력 간 단락 및 공통 GND를 검사합니다. U13·U14·U16은 IC와 기계핀을 공급자가 납땜한 DIP 변환 조립품입니다. U16의 PA0005와 16핀 SOIC IC의 1번 방향을 맞춰 조립한 뒤, DIP 핀 1→16의 순서 **OUT, SENSE, NC, DGATE, SOURCE, HGATE, NC, VCC, SHDN, UV, OV, GND, FLT, ENOUT, TMR, FB**를 핀별 도통 검사합니다. U16.9(SHDN)의 기계핀은 실장하되 캐리어 패드는 미연결이고, U16.10(UV)은 J17_GATE에 연결됩니다. Q3·Q4는 G=1, D=2 및 탭, S=3입니다. 서로 다른 드레인의 금속 탭과 기구 사이를 절연합니다. D16은 K를 보호 출력, A를 GND에 두고 C24는 +를 J24 VIN에 향하게 합니다. 외부 전원으로 먼저 기동한 뒤 데이터 가능한 ST-LINK USB를 연결합니다. [ADI U16 핀·보호 동작](https://www.analog.com/media/en/technical-documentation/data-sheets/ltc4364-1-4364-2.pdf) · [PA0005 치수](https://www.proto-advantage.com/store/datasheets/PA0005.pdf) · [ST Nucleo 설정][nucleo]
+
+D17은 LT1634CCZ-2.5#PBF TO-92 직선 리드입니다. 가운데 핀 2(VOUT/캐소드)는 +3V3_RS485, 바깥 핀 1·3(GND/TEST)은 모두 R63 상단의 로컬 아노드에 연결합니다. 이 접점은 시스템 GND에서 떠 있습니다. R63 576 Ω과 R64 2.49 kΩ이 직렬로 기준소자에 약 0.2 mA를 공급하고, 중간점을 U13 ADJ2로 보냅니다. C13과 C26이 J24 승압 출력의 U6 입력을 바이패스하는지 도통 검사합니다. D17 C등급의 보증 주위온도는 0~70 °C입니다. [ADI LT1634 핀맵·전기 사양](https://www.analog.com/media/en/technical-documentation/data-sheets/1634ff.pdf)
+
+DIP 조립품의 상면 1번 표식과 캐리어의 사각 패드를 맞춥니다. U13은 핀 1→8이 ADJ1, ADJ2, REF, GND, /RST, VCC, TMR, SEL입니다. U14는 핀 1→6이 IN, GND, EN, /FAULT, ILIM, OUT입니다. U13의 REF 및 U14의 /FAULT는 캐리어에서 미사용입니다. 조립업체가 어댑터 핀–IC 리드의 도통 기록을 제공하고 첫 캐리어에 납땜하기 전 이 표와 대조합니다. [LTC2909 핀맵](https://www.analog.com/media/en/technical-documentation/data-sheets/2909fb.pdf) · [TPS2553 DBV 핀맵](https://www.ti.com/lit/ds/symlink/tps2553.pdf)
 
 ## 선택 실장하는 비상정지 보조접점
 
@@ -55,8 +60,11 @@ Nucleo JP5를 5–6번 E5V에 두고 U12용 SB5를 확인합니다. J11 SPI1은 
 | J14·Jetson | `MIKROE-3992` CAN FD 3 Click을 양쪽에 각 1개 사용합니다. 두 모듈에 로컬 5 V와 3.3 V VIO를 각각 공급합니다. 캐리어 PB15가 STB를 제어하며 Jetson STB는 GND입니다. 내장 분할 종단은 약 120.8 Ω입니다. [제조사 회로도][can] |
 | J15 | GH 네 신호 패드와 두 금속 고정 탭을 모두 납땜하고 확대 검사합니다. 1번은 EX_OUT, 2번은 반환선, 3·4번은 예비로 비워 둡니다. |
 | J16 | 경고음은 필수입니다. PUI Audio `AT-1740-TT-3-R` 수동 피에조를 하네스에 부착합니다. 4 kHz PWM과 모듈별 패턴을 적용하고 기구 조립 후 시작음·오류음을 확인합니다. 정격 3 Vpp에서 78 dBA/10 cm이며 실물 동작 음량은 측정 대상입니다. 180 Ω 직렬 저항이 3.40 V에서 충전 순간을 약 19 mA로 제한하고 2.2 kΩ이 꺼짐 구간에 방전합니다. D6은 기본 미실장입니다. [PUI 데이터시트][piezo] |
-| J19~J22 | Waveshare 4777 ×4. C5~C8과 선택 바이어스 A측은 전용 +3V3_RS485입니다. 모듈 끝에 10 kΩ RSE 풀다운, 모듈 VCC에 100 nF 바이패스를 둡니다. R30~R33 및 R49~R56은 미실장입니다. [모듈 회로도][rs485-schematic] |
-| J23 | Pololu D24V22F3 #2857의 5핀 수헤더를 출하 전에 실장한 상태로 주문합니다. 3.3 V 변형을 고르고 실제 하네스·부하에서 PG, 기동, 차단과 0↔300 mA 전환을 시험합니다. [Pololu 벅 모듈](https://www.pololu.com/product/2857) |
+| J19~J22 | TI THVD1424EVM ×4를 각각 독립 지지대에 고정합니다. J7로 VCC와 VL을 묶고 J8은 반이중·20 Mbps 모드 및 Y/Z 내장 종단을 선택합니다. RO 유휴 전압을 위해 EVM R3만 공급자가 제거합니다. C5~C8과 선택 A측 바이어스의 공급은 +3V3_RS485입니다. R30~R33 및 R49~R56은 기본 미실장입니다. [TI EVM][rs485-manual] |
+| J23 | TI TPSM365R6V3EVM의 고정 3.3 V/600 mA 변형입니다. 입력 나사 단자 바로 옆에 P6KE8.2A와 47 µF/25 V를 병렬 선조립합니다. 핀 순서·점퍼·양방향 전원 리턴은 하네스 표를 따릅니다. 단일 EVM 및 네 EVM 부하 전환에서 입력·출력·PG와 모듈 단자 전압을 기록합니다. [TI EVM 안내](https://www.ti.com/lit/ug/snvu846/snvu846.pdf) |
+| J24 | Pololu #4942 U3V16F6, 6 V ±4%를 선정합니다. 동봉 1×3 수직 헤더를 납품 전에 실장하고 13.1×8.1 mm 모듈을 캐리어에 직결합니다. 실크의 VIN·GND·VOUT를 확인하고 역삽을 차단하는 비도전성 가이드로 지지합니다. [Pololu 사양](https://www.pololu.com/product/4942) |
+
+TI 평가보드와 해당 전용 하네스는 고정 시험대 시제품을 대상으로 합니다. 양산 BOM에는 THVD1424EVM과 전원 EVM의 공급·사용 조건 및 실제 기구 진동 조건을 별도로 검토합니다. [TI EVM 사용 조건][rs485-manual]
 
 ## 센서 단자 전압과 I²C
 
@@ -80,11 +88,11 @@ R9/R10과 R11/R12 모두 기본 미실장입니다. 아래는 4개 ToF가 모두
 
 J3–J6의 독립 반이중 버스를 다리별로 하나씩 사용합니다. J19↔J3, J20↔J4, J21↔J5, J22↔J6으로 각 외부 모듈과 모터 버스가 연결됩니다. A/B는 특성 임피던스 120 Ω의 꼬임쌍으로 배선하고, 신호 기준용 GND를 함께 연결합니다. 모듈과 캐리어 사이 A/B도 짧게 짝지어 배선하고, 모터 전원과 리턴은 전용 하네스로 배선합니다. [TI RS-485 설계 지침][rs485-guide]
 
-4777 모듈의 내장 120 Ω을 캐리어 쪽 버스 끝 종단으로 사용하고, 반대쪽 끝의 120 Ω을 하나 확인합니다. 캐리어의 R30–R33과 중간 노드 종단은 기본 미실장 상태로 둡니다. 모듈을 교체하는 경우 실제 종단 위치와 저항값을 다시 확인합니다. 상대 장치의 A/B 표기와 신호 극성은 핀맵과 파형으로 확인합니다. [Waveshare 회로도][rs485-schematic] · [TI RS-485 설계 지침][rs485-guide]
+THVD1424EVM의 H/F=High에서는 Y와 Z가 송수신을 함께 담당합니다. J8 플러그로 TERM_TX=High를 설정해 캐리어 끝에 공칭 120 Ω을 걸고 최원단에는 120 Ω ±1% 한 개를 둡니다. EVM의 R25/R26, 캐리어 R30~R33, 중간 노드는 미실장입니다. 회로의 선택 바이어스 A 풀업·B 풀다운도 기본 미실장입니다. [TI EVM 회로도][rs485-manual] · [TI 전기 사양][rs485-ic]
 
-SP3485의 차동 입력 임계값은 ±200 mV 범위입니다. 모든 장치가 수신 중일 때 각 채널에서 A–B 전압과 UART RX 유휴 고레벨을 확인합니다. 유휴 수준이 불안정하면 해당 채널에 바이어스 저항 한 쌍을 실장하고, 실제 종단과 부하에서 신호 여유와 전원 전류를 다시 확인합니다. [MaxLinear SP3485 데이터시트][rs485-ic] · [TI RS-485 설계 지침][rs485-guide]
+THVD1424 수신기는 버스 개방·단락·유휴 시 High를 내보냅니다. 다른 장치까지 연결한 각 버스에서 유휴 A–B와 UART RX High를 측정합니다. 환경 노이즈 때문에 바이어스를 장착하려면 해당 채널의 두 저항과 종단 부하를 반영해 전류·차동전압을 재계산합니다. [TI 전기 사양][rs485-ic]
 
-RSE가 저레벨이면 수신이고 고레벨이면 송신입니다. 하네스의 모듈 쪽에 있는 10 kΩ 풀다운은 RSE 선이 끊어져도 모듈을 수신 상태로 유지합니다. 각 모듈 접점에서 VCC·GND 사이에 100 nF를 한 개씩 연결합니다. 모듈 쪽 RO 풀업과 MCU 쪽 RN2가 전원 경계의 양쪽에서 각각 고임피던스 수신선을 유휴 고레벨로 유지합니다. 마지막 비트 전송이 끝난 뒤 RSE를 저레벨로 되돌리고 첫 응답 바이트가 수신되는지 확인합니다. [Waveshare 사용자 설명서][rs485-manual] · [Waveshare 회로도][rs485-schematic]
+RSE Low는 수신, High는 송신입니다. 하네스 말단에서 RSE를 EVM의 /RE와 DE에 함께 연결하고 10 kΩ을 GND로 둡니다. EVM의 C9 및 C10·C11이 공급을 로컬 바이패스합니다. EVM의 R3을 제거해야 송신 중 고임피던스 RO가 모니터 LED로 방전되지 않습니다. 캐리어의 모듈 측 풀업과 MCU 측 RN2 양쪽에서 RX 유휴 High를 확인합니다. 두 전원 중 하나만 인가하거나 RSE 선을 분리해 송신 해제와 역급전 여부를 확인합니다. 마지막 정지 비트와 방향 전환 뒤 첫 수신 바이트를 네 채널에서 확인합니다. [TI RS-485 EVM][rs485-manual]
 
 ## 외장 션트와 Jetson SOC 표시
 
@@ -100,12 +108,12 @@ Jetson에서 배터리 SOC와 측정 유효 상태를 표시합니다. 이를 �
 
 1. Nucleo 핀 1, 솔더 브리지, 38핀 소켓 결합 방향, 지지대 높이, USB 접근, 기판 위아래 커넥터와 하네스 간섭을 실물로 확인합니다. 하네스 전수 도통 검사와 전원 핀의 단락 검사를 합니다. [ST UM2505][nucleo]
 2. 첫 시제품에서는 Nucleo·USB·배터리·모터·외부 모듈을 분리하고 TP1–TP3 사이에 더미 부하를 연결합니다. 전류 제한형 실험 전원으로 정상 시동, 서서히 올리거나 급격히 올린 과전압에서의 차단과 차단 상태 유지, 정상 전압에서의 복귀, 역극성 차단을 확인합니다. J17 입력과 TP1을 오실로스코프로 동시에 측정합니다. 차단·복귀 전압과 TP1 방전 시간을 기록하고, 시동·보호 동작 중 TP1 최고 전압이 5.25 V 이내인지 확인합니다. 부하를 단계적으로 올려 지속 전류 제한점이 500 mA 이내인지 확인하고, 시동·부하 급변 시 전류 피크와 U6 온도를 기록합니다. [ADI LT3086][lt3086] · [ST UM2505][nucleo]
-3. J17 보호 시험을 통과한 뒤 Nucleo를 연결합니다. 정상 전원에서 E5V와 3.3 V를 확인하고, 외부 전원이 꺼진 경우 ST-LINK USB에 의한 역급전 여부를 확인합니다. RS-485 양 끝을 종단하고 4채널 동시 송신, ToF 전체 동작과 연결한 외부 부하를 사용해 시동·정상 동작 전류, E5V와 3.3 V의 최소 전압, U6와 Nucleo 레귤레이터 온도를 기록합니다. 각 SP3485 모듈 전원 단자에서 3.3 V ±5% 및 로컬 전원 유효 시점의 단자 전압을 확인합니다. 필수 경고음 J16의 4 kHz PWM, 스위칭 피크와 음압을 측정합니다. [ST UM2505][nucleo] · [MaxLinear SP3485 데이터시트][rs485-ic]
-4. 각 RS-485 모듈에서 A/B 사이의 내장 120 Ω을 무전원 상태로 실측합니다. 조립한 각 채널에서 양 끝의 수동 120 Ω이 연결되면 A/B 사이가 약 60 Ω인지 측정합니다. 모터를 구동하기 전 A/B 극성, MCU 리셋·RSE 선 단선·캐리어 무전원 상태에서의 송신 해제, 버스 유휴 상태와 송신 중 MCU RX의 유휴 고레벨, 네 채널 4 Mbps 파형, 방향 전환 직후 첫 응답 바이트를 확인합니다. CAN의 양 끝 120 Ω, STB 전환, 목표 CAN-FD 속도도 확인합니다.
+3. J17 보호 시험을 통과한 뒤 Nucleo를 연결합니다. 정상 전원에서 E5V와 3.3 V를 확인하고, 외부 전원이 꺼진 경우 ST-LINK USB에 의한 역급전 여부를 확인합니다. RS-485 양 끝을 종단하고 4채널 동시 송신, ToF 전체 동작과 연결한 외부 부하를 사용해 시동·정상 동작 전류, E5V와 3.3 V의 최소 전압, U6와 Nucleo 레귤레이터 온도를 기록합니다. 각 THVD1424EVM의 J6에서 첫 송신 허용부터 네 채널 동시 송신까지 3.0 V 동작 하한과 계산서의 시제품 전압 기준을 확인합니다. 필수 경고음 J16의 4 kHz PWM, 스위칭 피크와 음압을 측정합니다. [ST UM2505][nucleo] · [TI THVD1424 데이터시트][rs485-ic]
+4. 원단 수동 종단을 분리해 무전원에서 120 Ω ±1%를 확인합니다. 캐리어 끝 내장 종단은 전원·TERM_TX가 유효할 때 측정합니다. 모터와 원단 종단을 분리하고 EVM을 수신(DE Low)에 둔 뒤 전류 제한된 차동 시험원으로 TI 그림 7-9의 VZ=0 V, VY=2 V를 인가해 2 V/전류가 102~138 Ω인지 확인합니다. 같은 상태에서 원단 120 Ω을 연결했을 때 계산치는 약 55~65 Ω입니다. 전원 인가된 버스에 저항계를 직접 연결하지 않습니다. 모터 동작 전 A/B 극성, RSE 단선·리셋 시 송신 해제, 4 Mbps 동시 전송 및 첫 응답을 확인합니다. CAN의 양끝 종단과 STB 전환도 검사합니다. [TI 종단 시험][rs485-ic]
 5. ToF 네 개의 XSHUT을 모두 저레벨로 둔 뒤 한 개씩 해제해 주소를 할당합니다. 네 하네스를 연결하고 100 kHz에서 측정한 뒤 SCL·SDA의 저레벨과 상승 시간을 각 센서 단에서 확인합니다. 400 kHz를 쓰려면 상승 시간 300 ns 이내를 확인합니다. 실제 케이블로 BMI088 양쪽 CS와 INT를 검사합니다. LiDAR 변환 하네스의 도통, SYNC의 MCU 입력 전압과 극성을 검사합니다. [NXP I²C 사양][i2c]
 6. 외장 션트의 영점·오차·극성과 VBUS를 확인합니다. 모터 동작을 허용하기 전 외부 비상정지 하드웨어 차단, MCU 리셋과 통신 단절 시 구동 응답, 차단 해제 후 재구동 조건을 검증합니다. 비상정지 보조접점을 실장한 경우 PA11 상태 보고와 하네스 분리 감지도 확인합니다. [실물 시험 지침][safety]
 
-시제품 발주는 설계팀이 전원 계산서·하네스·KiCad 검증 기록을 검토한 뒤 결정합니다. 제작 후 J17 5.15·5.20·5.25 V에서 기동과 최대 동시 부하를 시험하고 CN7-6 및 각 센서 끝단 최저 전압, 단일 전원/USB 역급전, U6·U12·U14·벅 온도와 RS-485 네 채널 4 Mbps 통신을 기록합니다. 보호 차단·복귀는 별도 시험합니다.
+시제품 발주는 설계팀이 전원 계산서·하네스·KiCad 검증 기록을 검토한 뒤 결정합니다. 제작 후 J17 5.15·5.20·5.25 V에서 기동과 최대 동시 부하를 시험하고 CN7-6 및 각 센서 끝단 최저 전압, 단일 전원/USB 역급전, Q3·Q4·U6·U12·U14·승압·벅 온도와 RS-485 네 채널 4 Mbps 통신을 기록합니다. 보호 차단·복귀는 별도 시험합니다.
 
 [requirements]: https://app.notion.com/p/42345bd871788017a5bbf7cbe5e0e705
 [ph]: https://www.jst.com/products/crimp-style-connectors-wire-to-board-type/ph-connector/
@@ -115,9 +123,9 @@ Jetson에서 배터리 SOC와 측정 유효 상태를 표시합니다. 이를 �
 [imu-housing]: https://www.harwin.com/products/M20-1060900
 [imu-contact]: https://www.harwin.com/products/M20-1180042
 [lt3086]: https://www.analog.com/media/en/technical-documentation/data-sheets/lt3086.pdf
-[rs485-manual]: https://files.waveshare.com/upload/9/95/RS485-Board-UserManual.pdf
-[rs485-schematic]: https://files.waveshare.com/upload/b/bf/RS485-Board-Schematic.pdf
-[rs485-ic]: https://files.waveshare.com/upload/2/25/MaxLinear-SP3485.pdf
+[rs485-manual]: https://www.ti.com/lit/ug/sllu356/sllu356.pdf
+
+[rs485-ic]: https://www.ti.com/lit/ds/symlink/thvd1424.pdf
 [rs485-guide]: https://www.ti.com/lit/an/slla272d/slla272d.pdf
 [tof]: https://www.pololu.com/product/3415
 [imu]: https://www.bosch-sensortec.com/media/boschsensortec/downloads/shuttle_board_flyer/application_board_3_1/bst-bmi088-sf000.pdf
