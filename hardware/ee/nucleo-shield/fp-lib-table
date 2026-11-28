@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "HyperNova")(type "KiCad")(uri "${KIPRJMOD}/HyperNova.pretty")(options "")(descr "HyperNova carrier footprints"))
+)

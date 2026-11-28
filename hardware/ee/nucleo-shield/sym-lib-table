@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "HyperNova")(type "KiCad")(uri "${KIPRJMOD}/HyperNova.kicad_sym")(options "")(descr "HyperNova carrier symbols, CERN-OHL-S-2.0"))
+)
