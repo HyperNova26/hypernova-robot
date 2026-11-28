@@ -12,39 +12,85 @@ J11,하네스 압착 단자,기본,Harwin,M20-1180042,9,개,22–30 AWG 암 압�
 J13,기판 커넥터,기본,JST,B4B-PH-K-S,1,개,2.00 mm PH 4핀 상부 삽입. 3.3 V → GND → SCL → SDA 순서입니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
 J13,하네스 하우징,기본,JST,PHR-4,1,개,INA228 디지털 하네스의 캐리어 쪽입니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
 J13,하네스 압착 단자,기본,JST,SPH-002T-P0.5S,4,개,24–30 AWG 단자 4개입니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
-J14,기판 커넥터,기본,JST,B5B-XH-A,1,개,2.50 mm XH 5핀 상부 삽입. 3.3 V → GND → CAN_TX → CAN_RX → CAN_STB 순서입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
-J14,하네스 하우징,기본,JST,XHP-5,1,개,CAN 트랜시버 하네스의 캐리어 쪽입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
-J14,하네스 압착 단자,기본,JST,SXH-001T-P0.6,5,개,22–28 AWG 단자 5개입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
 J15,기판 커넥터,기본,JST,SM04B-GHS-TB,1,개,1.25 mm GH 4핀 SMT 측면 삽입. 신호 패드와 금속 고정 탭을 뒷면에 납땜합니다.,https://www.jst.com/wp-content/uploads/2025/06/eGH.pdf,2026-11-28
 J15,하네스 하우징,기본,JST,GHR-04V-S,1,개,LiDAR 변환 하네스의 캐리어 쪽입니다.,https://www.jst.com/wp-content/uploads/2025/06/eGH.pdf,2026-11-28
 J15,하네스 압착 단자,기본,JST,SSHL-002T-P0.2,2,개,26–30 AWG 단자입니다. 1·2번 EX_OUT·EX_OUT_GND에 쓰고 3·4번을 사용하는 후속 구성에는 2개를 추가합니다.,https://www.jst.com/wp-content/uploads/2025/06/eGH.pdf,2026-11-28
-J16,기판 커넥터,기본,JST,B2B-PH-K-S,1,개,2.00 mm PH 2핀 상부 삽입. 3.3 V → BUZZER_SINK 순서입니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
-J16,하네스 하우징,부저 사용 시,JST,PHR-2,1,개,외부 부저 하네스의 캐리어 쪽입니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
-J16,하네스 압착 단자,부저 사용 시,JST,SPH-002T-P0.5S,2,개,24–30 AWG 단자 2개입니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
+J16,기판 커넥터,필수,JST,B2B-PH-K-S,1,개,2.00 mm PH 2핀 상부 삽입. 3.3 V → BUZZER_SINK 순서입니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
+J16,하네스 하우징,필수,JST,PHR-2,1,개,외부 부저 하네스의 캐리어 쪽입니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
+J16,하네스 압착 단자,필수,JST,SPH-002T-P0.5S,2,개,24–30 AWG 단자 2개입니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
 J17,기판 커넥터,기본,JST,B2B-XH-A,1,개,2.50 mm XH 2핀 상부 삽입. 1번은 안정화 5.15–5.25 V이고 2번은 GND입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
 J17,하네스 하우징,기본,JST,XHP-2,1,개,외부 5 V 전원 하네스의 캐리어 쪽입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
 J17,하네스 압착 단자,기본,JST,SXH-001T-P0.6,2,개,22–28 AWG 단자 2개입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
 J18,기판 커넥터,기본 미실장,JST,B3B-PH-K,1,개,옵션 1세트입니다. B3B-PH-K(LF)(SN)으로 구매하며 R28·R29·D7·D8·C4와 함께 실장합니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
 J18,하네스 하우징,보조접점 사용 시,JST,PHR-3,1,개,무전압 NC 보조접점 하네스입니다. 2번 캐비티를 비웁니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
 J18,하네스 압착 단자,보조접점 사용 시,JST,SPH-002T-P0.5S,2,개,1·3번에만 단자를 압착합니다.,https://www.jst.com/wp-content/uploads/2021/09/ePH.pdf,2026-11-28
-J19–J22,기판 커넥터,기본,JST,B7B-XH-A,4,개,2.50 mm XH 7핀. 3.3 V → GND → RO → DI → RSE → A → B 순서입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
+J19–J22,기판 커넥터,기본,JST,B7B-XH-A,4,개,"2.50 mm XH 7핀. 전용 +3V3_RS485, GND, RO, DI, RSE, A, B 순서.",https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
 J19–J22,하네스 하우징,기본,JST,XHP-7,4,개,RS-485 모듈 하네스의 캐리어 쪽입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
 J19–J22,하네스 압착 단자,기본,JST,SXH-001T-P0.6,28,개,22–28 AWG 단자입니다. 하우징당 7개입니다.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
-J1·J2,완성 모듈,선정,STMicroelectronics,NUCLEO-G474RE,1,개,MB1367의 CN7·CN10 하부 핀을 사용합니다. JP5는 5–6번 E5V입니다.,https://www.st.com/en/evaluation-tools/nucleo-g474re.html,2026-11-28
+J1·J2,완성 모듈,선정,STMicroelectronics,NUCLEO-G474RE,1,개,"MB1367. JP5=5–6 E5V, SB5·SB6 설정은 assembly.md 확인.",https://www.st.com/en/evaluation-tools/nucleo-g474re.html,2026-11-28
 J19–J22,완성 모듈,선정,Waveshare,4777,4,개,RS485 Board (3.3V). SP3485와 120 Ω 내장 종단이 실장되어 있습니다. 다리당 1개이며 4 Mbps와 동시 송신 전류는 실물로 확인합니다.,https://www.waveshare.com/RS485-Board-3.3V.htm,2026-11-28
-J19–J22,모듈측 하우징,실물 맞춤 확인,Harwin,M20-1060500,4,개,2.54 mm 1×5 암 압착 하우징 후보입니다. Waveshare 수헤더의 핀 단면과 삽입 깊이를 실물로 확인합니다. 2.54 mm 5핀 암 피그테일로 대체할 수 있습니다.,https://www.harwin.com/products/M20-1060500,2026-11-28
-J19–J22,모듈측 압착 단자,하우징 직접 압착 시,Harwin,M20-1180042,20,개,모듈측 5핀 하우징당 5개입니다. 기성 암 피그테일을 쓰면 해당 피그테일에 포함됩니다.,https://www.harwin.com/products/M20-1180042,2026-11-28
+J19–J22,모듈측 하우징,기본,Harwin,M20-1060500,4,개,Waveshare 로직용 2.54 mm 1×5. 모듈 고정과 접점 삽입 깊이를 검사합니다.,https://www.harwin.com/products/M20-1060500,2026-11-28
+J19–J22,모듈측 압착 단자,기본,Harwin,M20-1180042,20,개,"하우징당 5개, 24 AWG.",https://www.harwin.com/products/M20-1180042,2026-11-28
 J19–J22,모듈측 A/B 배선,기본,미지정,120 Ω 특성 임피던스 짧은 꼬임쌍,4,쌍,캐리어 핀 6·7은 모듈의 2극 A/B 나사 단자로 분기합니다. 신호 GND는 5핀 로직 헤더에서 연결합니다.,https://files.waveshare.com/upload/9/95/RS485-Board-UserManual.pdf,2026-11-28
 J19–J22,하네스 풀다운,기본,미지정,10 kΩ 저항,4,개,각 모듈 가까이에서 RSE–GND 사이에 연결하고 접속부를 절연합니다.,https://files.waveshare.com/upload/b/bf/RS485-Board-Schematic.pdf,2026-11-28
-J19–J22,모듈측 바이패스,내장 바이패스 없을 때,미지정,100 nF X7R 세라믹 커패시터,4,개,내장 VCC 바이패스가 없는 모듈에 한 개씩 VCC–GND 가까이 연결합니다. 수량은 4개 모두 필요한 경우입니다.,https://files.waveshare.com/upload/b/bf/RS485-Board-Schematic.pdf,2026-11-28
+J19–J22,모듈측 바이패스,기본,미지정,100 nF X7R 세라믹 커패시터,4,개,모듈측 VCC–GND 접점 가까이 각 1개. 캐리어 C5–C8은 별도입니다.,https://files.waveshare.com/upload/b/bf/RS485-Board-Schematic.pdf,2026-11-28
 J3–J6,모터측 종단,모터 버스 끝에 없을 때,미지정,120 Ω 종단저항,4,개,다리당 최원단에 1개입니다. 모듈에 120 Ω이 있으므로 캐리어 R30–R33은 기본 미실장입니다.,https://www.ti.com/lit/an/slla272d/slla272d.pdf,2026-11-28
-J7–J10,완성 모듈,후보 · XSHUT 확인,ShillehTek,AA576 / CJMCU-531,4,개,VL53L1X 6핀 수헤더 실장 제품입니다. GPIO1은 비워 둡니다. 공급사 최소 입력 3.3 V와 XSHUT 풀업 전압을 실부하에서 확인합니다.,https://shillehtek.com/products/vl53l1x-tof-sensor-4m-pre-soldered-esp32,2026-11-28
-J7–J10,모듈측 피그테일,후보 · 실물 맞춤 확인,미지정,6핀 헤더에 맞는 암 피그테일,4,개,VCC·GND·SCL·SDA·XSHUT 5개 접점을 사용합니다. 구매 전에 6핀 헤더 피치와 배열을 확인합니다.,https://shillehtek.com/blogs/shillehtek-product-manuals/vl53l1x-tof-sensor-4m-pre-soldered-esp32-manual,2026-11-28
-J11,완성 모듈,후보 · 커넥터 실장과 전원 확인,Boardoza,BMI088 6-Axis IMU Breakout Board,1,개,기본 SPI 모드이며 하네스는 모듈 J1·J2·J3으로 분기합니다. 출고 커넥터 실장과 공급사 최소 입력 3.3 V를 실부하에서 확인합니다.,https://github.com/Boardoza/Boardoza_BMI088_6-Axis_IMU_Breakout_Board,2026-11-28
-J13,완성 모듈,후보 · 구성품 확인,Texas Instruments,INA228_237_238EVM,1,세트,INA228EVM 보드와 디지털 헤더를 확인합니다. 외장 션트 사용 시 R1 미실장을 확인합니다. 전류 측정용 전력선은 캐리어에 연결하지 않습니다.,https://www.ti.com/lit/ug/sbou241e/sbou241e.pdf,2026-11-28
-J13,외장 션트,후보 · 정격 선정 필요,미지정,0.2 mΩ ±1% 4단자,1,개,외부 배터리 하네스에 장착합니다. 실제 연속·피크·회생 전류로 정격을 확정합니다.,https://app.notion.com/p/42345bd871788017a5bbf7cbe5e0e705,2026-11-28
-J14,CAN-FD 모듈,후보 · 커넥터 사전 실장 필요,Switch Science,SSCI-110044,1,개,공식 판매 사진에는 로직 헤더와 버스 단자가 비어 있습니다. 사전 실장품을 확보할 때 사용합니다. VCC·VIO는 3.3 V이며 SJ1은 개방합니다.,https://www.switch-science.com/products/11004,2026-11-28
-J15,외부 LiDAR,기존 프로젝트 장비 · 하네스 확인,미지정,ML-X120,1,개,EX_OUT·EX_OUT_GND 신호명으로 연결합니다. 기존 하네스의 짝 커넥터와 핀 배치는 실물로 확인합니다.,https://app.notion.com/p/42345bd871788017a5bbf7cbe5e0e705,2026-11-28
-J16,외부 수동 피에조,선택 · 품번 미정,미지정,3.3 V PWM 수동 피에조,1,개,방전 저항을 포함하고 구동 전류 피크가 20 mA 이내인지 확인합니다.,https://www.murata.com/support/faqs/sound/sounder/char/sch0001,2026-11-28
-J17,외부 DC/DC,후보 · 실부하 전압 검증,MEAN WELL,DDR-15L-5,1,개,18–75 V DC 입력과 조정형 4.5–5.5 V 출력. 나사 단자가 실장되어 있습니다. 5.20 V로 조정해 실부하에서 5.15–5.25 V를 확인합니다.,https://www.meanwell.com/Upload/PDF/DDR-15/DDR-15-spec.pdf,2026-11-28
-J17,외부 DC/DC,대안 · 외부 DC/DC 중 택1,DFRobot,DFR0379,1,개,나사 단자형 조정 모듈입니다. 입력 피크에 회생 전압을 포함해 40 V 정격 이내인지 확인하고 실부하에서 5.15–5.25 V를 검증합니다.,https://www.dfrobot.com/product-1552.html,2026-11-28
+J14,기판 커넥터,기본,JST,B6B-XH-A,1,개,"XH 6핀 상부형. 1=3V3, 2=GND, 3=TX, 4=RX, 5=STB, 6=보호 E5V.",https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
+J14,하네스 하우징,기본,JST,XHP-6,1,개,캐리어측 키드 하우징.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
+J14,하네스 압착 단자,기본,JST,SXH-001T-P0.6,6,개,26 AWG.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
+J23,기판 커넥터,기본,JST,B5B-XH-A,1,개,"5핀 상부형. PG, EN, 퓨즈 뒤 VIN, 공통 GND, 전용 VOUT.",https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
+J23,하네스 하우징,기본,JST,XHP-5,1,개,캐리어측 키드 하우징.,https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
+J23,하네스 압착 단자,기본,JST,SXH-001T-P0.6,5,개,"PG/EN 26 AWG, 전원·GND 22 AWG.",https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf,2026-11-28
+J23,벅 완성 모듈,헤더 실장 납품,Pololu,2857 D24V22F3,1,개,3.3 V 고정. 표준품에 동봉된 1×5 수헤더를 납품처가 실장하고 도통 검사한 구성으로 견적 확인.,https://www.pololu.com/product/2857,2026-11-28
+J23,모듈측 하우징,기본,Harwin,M20-1060500,1,개,1×5 암 하우징. PG/EN/VIN/GND/VOUT를 표식으로 연결.,https://www.harwin.com/products/M20-1060500,2026-11-28
+J23,모듈측 압착 단자,기본,Harwin,M20-1180042,5,개,22/26 AWG 각 전선에 해당하는 압착 치수를 검사합니다.,https://www.harwin.com/products/M20-1180042,2026-11-28
+J7–J10,ToF 완성 모듈,헤더 실장 납품,Pololu,3415 VL53L1X carrier,4,개,"VIN 2.6–5.5 V, 7핀 수직 수헤더 실장·도통 검사 납품으로 견적 확인. 표준 소매품은 헤더 동봉.",https://www.pololu.com/product/3415,2026-11-28
+J7–J10,모듈측 하우징,기본,Harwin,M20-1060700,4,개,"2.54 mm 1×7. 2,3,5,4,6번 접점을 사용하고 1·7번을 비웁니다.",https://www.harwin.com/products/M20-1060700,2026-11-28
+J7–J10,모듈측 압착 단자,기본,Harwin,M20-1180042,20,개,"26 AWG, 각 모듈에 5개.",https://www.harwin.com/products/M20-1180042,2026-11-28
+J11,IMU 완성 모듈,기본,Bosch Sensortec,BST00767 BMI088 Shuttle Board 3.0,1,개,"VDD/VDDIO 직접 공급. 두 줄 수헤더와 션트 JP1/JP2, 두 CS·두 INT를 검사.",https://www.bosch-sensortec.com/media/boschsensortec/downloads/shuttle_board_flyer/application_board_3_1/bst-bmi088-sf000.pdf,2026-11-28
+J11,모듈측 소켓,기본,Samtec,CLP-107-02-L-S,1,개,"P1 (7핀) 1.27 mm, 0.4 mm 각핀용 암소켓. 하네스 공급사가 지지기판에 실장해 두 소켓 간격을 고정합니다.",https://www.samtec.com/products/clp-107-02-l-s,2026-11-28
+J11,모듈측 소켓,기본,Samtec,CLP-109-02-L-S,1,개,"P2 (9핀) 1.27 mm, 0.4 mm 각핀용 암소켓. 하네스 공급사가 지지기판에 실장해 두 소켓 간격을 고정합니다.",https://www.samtec.com/products/clp-109-02-l-s,2026-11-28
+J11,모듈측 분기 어댑터,기본,하네스 제작처,BST00767 두 소켓 공통 지지기판과 절연·장력완화,1,세트,"Bosch 기구 도면에 맞춘 완성 하네스로 납품. 1번 공급과 기준 GND를 각각 두 개로 분기, PS=GND.",https://www.bosch-sensortec.com/media/boschsensortec/downloads/shuttle_board_flyer/application_board_3_1/bst-bmi088-sf000.pdf,2026-11-28
+J13,전류계 완성 모듈,기본,Texas Instruments,"INA228EVM (SENS063, INA228AIDGSR)",1,개,현물 R1 미실장. J3 2×6에 외부 제어기를 연결하고 SCB/PAMB를 분리합니다. J1 켈빈 핀은 하네스 표 참조.,https://www.ti.com/lit/ug/sbou241e/sbou241e.pdf,2026-11-28
+J13,EVM J3 암 하우징,기본,Harwin,M22-3020600,1,개,"2×6 2.00 mm, EVM J3의 6/4/10/12번을 사용.",https://www.harwin.com/products/M22-3020600,2026-11-28
+J13,EVM측 압착 단자,기본,Harwin,M22-3050042,4,개,26 AWG 디지털 하네스.,https://www.harwin.com/products/M22-3050042,2026-11-28
+J14,CAN-FD 완성 모듈,기본,MikroElektronika,MIKROE-3992 CAN FD 3 Click,1,개,"캐리어측. J14.6 보호 5 V 및 J14.1 3.3 V VIO. VIO 선택 3V3, 두 열 헤더와 DE-9 실장. JP1 위치와 내장 종단을 확인합니다.",https://www.mikroe.com/can-fd-3-click,2026-11-28
+Jetson,CAN-FD 완성 모듈,기본,MikroElektronika,MIKROE-3992 CAN FD 3 Click,1,개,"P3768측. 전용 J17에 CAN·3.3 V, J12.2에서 5 V. VIO 선택 3V3, 두 열 헤더와 DE-9 실장. JP1 위치와 내장 종단을 확인합니다.",https://www.mikroe.com/can-fd-3-click,2026-11-28
+J14·Jetson,모듈측 하우징,기본,Harwin,M20-1060800,4,개,각 Click의 1×8 수헤더 두 줄. 짝과 방향을 홀더로 고정합니다.,https://www.harwin.com/products/M20-1060800,2026-11-28
+J14·Jetson,모듈측 압착 단자,기본,Harwin,M20-1180042,12,개,"한 모듈에 6개, Jetson STB는 반드시 로컬 GND와 결선.",https://www.harwin.com/products/M20-1180042,2026-11-28
+Jetson J17,CAN 헤더,P3768 미실장 시,Harwin,M20-9960445,1,개,P3768에 미실장일 때 2.54 mm 1×4 직각 수헤더를 장착.,https://www.harwin.com/products/M20-9960445,2026-11-28
+Jetson J17,하네스 하우징,기본,Harwin,M20-1060400,1,개,2.54 mm 1×4 암 하우징.,https://www.harwin.com/products/M20-1060400,2026-11-28
+Jetson J12,5 V 하네스 하우징,기본,Harwin,M20-1060100,1,개,"J12.2 5 V, 장력완화·핀1 기준 표기. 인접 핀과의 오결합을 막는 가이드와 함께 고정.",https://www.harwin.com/products/M20-1060100,2026-11-28
+Jetson J12·J17,호스트측 압착 단자,기본,Harwin,M20-1180042,5,개,"J17 4개, J12 1개. 26 AWG.",https://www.harwin.com/products/M20-1180042,2026-11-28
+CAN 버스,양끝 DE-9 암 짝,기본,TE Connectivity,5-747905-5,2,개,"모듈 STEP CN1은 5747840-5 수 플러그. 9핀 암 솔더컵의 7·2·3번 결선, 양끝 후드를 장착.",https://www.te.com/en/product-5-747905-5.html,2026-11-28
+CAN 버스,클램프형 후드,기본,하네스 제작처,DE-9 규격 후드 + #4-40 고정 나사,2,개,두 DE-9 솔더컵에 케이블 외피 스트레인 릴리프를 고정합니다.,harnesses.md,2026-11-28
+J15,LiDAR 및 짝 하네스,기존 장비,SOSLAB,ML-X120 / ML-X-STANDARD-A-3M,1,세트,기존 장비 사용. C1.7/C1.8 ↔ J15.1/J15.2만 연결. OEM 단말 라벨과 실제 하네스를 검사.,harnesses.md,2026-11-28
+J16,필수 수동 피에조,기본,PUI Audio,AT-1740-TT-3-R,1,개,"4 kHz, 3 Vpp, 최소 78 dBA/10 cm. 리드를 피그테일에 연결하고 음향 구멍을 개방.",https://api.puiaudio.com/filename/AT-1740-TT-3-R.pdf,2026-11-28
+J16,하네스 직렬 저항,기본,하네스 제작처,"180 Ω ±1%, 0.25 W 축형",1,개,3.4 V와 최소 178.2 Ω에서 초기 충전 전류 계산값 19.1 mA. 실물 피크 ≤20 mA 확인 후 절연.,https://api.puiaudio.com/filename/AT-1740-TT-3-R.pdf,2026-11-28
+J16,하네스 방전 저항,기본,하네스 제작처,"2.2 kΩ ±1%, 0.25 W 축형",1,개,피에조 양단에 병렬 배선.,https://api.puiaudio.com/filename/AT-1740-TT-3-R.pdf,2026-11-28
+J17,외부 DC/DC,기본,MEAN WELL,DDR-15L-5,1,개,6S 계통에서 사용. 18 V 입력 하한과 회생을 포함한 입력 정격을 지키고 버스 부하에서 J17 5.15–5.25 V로 조정.,https://www.meanwell.com/Upload/PDF/DDR-15/DDR-15-spec.pdf,2026-11-28
+외장 계측,4단자 션트,기본,Bourns/Riedon,RSN-250-50B,1,개,"250 A/50 mV = 0.2 mΩ ±0.1%, 권장 연속 166.67 A. 전류 단자와 켈빈 단자 분리.",https://www.bourns.com/docs/product-datasheets/rsn.pdf,2026-11-28
+배터리 메인,ATO 퓨즈,기본,Littelfuse,0287030.L,1,개,30 A 메인. 6S 한 다리 저부하 PoC. 32 V DC와 1 kA 차단용량을 확인합니다.,https://www.littelfuse.com/assetdocs/littelfuse_datasheet_287_atof_r2.7.pdf?assetguid=43dcdce8-8ca2-426f-8998-7e566f048d40,2026-11-28
+다리 전원,ATO 퓨즈,기본,Littelfuse,0287015.L,1,개,15 A 한 다리 분기. 6S 한 다리 저부하 PoC. 32 V DC와 1 kA 차단용량을 확인합니다.,https://www.littelfuse.com/assetdocs/littelfuse_datasheet_287_atof_r2.7.pdf?assetguid=43dcdce8-8ca2-426f-8998-7e566f048d40,2026-11-28
+외장 계측,ATO 퓨즈,기본,Littelfuse,0287001.L,3,개,"각 1 A IN+, IN−, VBUS. 6S 한 다리 저부하 PoC. 32 V DC와 1 kA 차단용량을 확인합니다.",https://www.littelfuse.com/assetdocs/littelfuse_datasheet_287_atof_r2.7.pdf?assetguid=43dcdce8-8ca2-426f-8998-7e566f048d40,2026-11-28
+배터리·다리,퓨즈 홀더,기본,Littelfuse,FHAC0002ZXJ,2,개,30 A/15 A 메인·다리 각 1개. 12 AWG 리드.,https://www.littelfuse.com/products/fuses-overcurrent-protection/fuse-holders-fuse-blocks-accessories/fuse-holders/automotive-inline-fuse-holders/fhac,2026-11-28
+외장 계측,센스선 퓨즈 홀더,기본,Littelfuse,FHAC0001ZXJ,3,개,16 AWG 피그테일 3개. 켈빈선과 동일 길이로 처리한 후 22 AWG로 전환. 탭부터 홀더까지 ≤50 mm.,https://www.littelfuse.com/products/fuses-overcurrent-protection/fuse-holders-fuse-blocks-accessories/fuse-holders/automotive-inline-fuse-holders/fhac,2026-11-28
+외부 분배,양극·음극 분배 단자,기본,하네스 제작처,"절연 덮개형 DC ≥32 V, 배선 및 단자 연속 ≥30 A",1,세트,"PoC 한 다리용. 션트 입력·출력은 제조사 지정 체결, 각 러그는 상대 단자·AWG와 일치.",harnesses.md,2026-11-28
+비상정지,외부 DC 차단,장비 정격 확인,프로젝트 장비,실물 모터계통에 맞는 DC 부하차단 접촉기·NC 조작부,1,세트,"32 V DC 이상, 해당 다리의 실측 동작·차단·회생 전류에서의 DC 유도 부하 차단 정격. 코일 제어·외부 재기동 인터록 포함. J18은 보조접점.",harnesses.md,2026-11-28
+모터,전원·신호 짝,기본,Unitree,GO-M8010-6 대응 XT30(2+2) 결합 케이블,3,세트,"한 다리 3모터 각 1개. 대접점 +/−, 소접점 A/B, 단면과 극성 공식 하네스로 검사.",https://shop.unitree.com/products/go1-motor,2026-11-28
+메인 전력선,10 AWG 동선,기본,하네스 제작처,10 AWG 절연 연동선,0.6,도체 m,메인 +/− 각 0.30 m. 홀더 피그테일은 별도.,harnesses.md,2026-11-28
+다리 전력선,12 AWG 동선,기본,하네스 제작처,12 AWG 절연 연동선,0.5,도체 m,한 다리 +/− 각 0.25 m.,harnesses.md,2026-11-28
+모터 전력선,16 AWG 동선,기본,하네스 제작처,16 AWG 절연 연동선,2.4,도체 m,한 다리 모터 3개 × +/− 각 0.40 m. 납품 피그테일 포함 상한.,harnesses.md,2026-11-28
+외장 계측,22 AWG 동선,기본,하네스 제작처,22 AWG 절연 연동선,0.8,도체 m,"IN+·IN− 꼬임쌍, VBUS, GND 기준. 각 0.20 m. 기준 결합점과의 배선을 확인.",harnesses.md,2026-11-28
+신호·제어,완성 하네스 세트,기본,하네스 제작처,harnesses.md의 커넥터별 양끝 압착·선경·편도 길이,1,세트,"22/24/26/28 AWG, 120 Ω 꼬임쌍 및 전원선, 공통 지지대·라벨·수축튜브 포함. 모터 신호 4채널 및 센서 전수. 부품 행과 중복 구매하지 않습니다.",harnesses.md,2026-11-28
+U13,실장된 DIP 변환기,기본,ADI / Proto Advantage,LTC2909ITS8-3.3#TRPBF + PA0089,1,개,"두 전원 유효 감시. 주문 시 IC와 기계핀 실장 옵션, 어댑터 방향·핀맵 확인.",https://www.proto-advantage.com/store/product_info.php?products_id=2200100,2026-11-28
+U14,실장된 DIP 변환기,기본,TI / Proto Advantage,TPS2553DBVR + PA0085,1,개,"보호 E5V 제한. IC와 기계핀을 조립한 납품품, 실장 방향·핀맵 확인.",https://www.proto-advantage.com/store/product_info.php?products_id=2200091,2026-11-28
+F1,캐리어 퓨즈,기본,Littelfuse,0251002.MXL,1,개,2 A 축형. J17 뒤 두 분기의 공통 입력 보호.,power-validation.md,2026-11-28
+U9–U11,3상태 버퍼,기본,Texas Instruments,SN74AHC126N,3,개,"역급전 방지, DIP-14.",https://www.ti.com/product/SN74AHC126,2026-11-28
+U15,슈미트 반전기,기본,Texas Instruments,SN74HC14N,1,개,DIP-14.,https://www.ti.com/product/SN74HC14,2026-11-28
+R57,전류제한 설정,기본,Vishay,CMF5559K700BERE70,1,개,"59.7 kΩ ±0.1%, U14.",power-validation.md,2026-11-28
+R63,RS 감시 상단,기본,Vishay,CMF5555K600BEEA70,1,개,"55.6 kΩ ±0.1%, ≤25 ppm/K.",power-validation.md,2026-11-28
+R64,RS 감시 하단,기본,Vishay,CMF5510K200BEEB,1,개,"10.2 kΩ ±0.1%, ≤25 ppm/K.",power-validation.md,2026-11-28
+J7–J10·J23,모듈 헤더 선실장 서비스,헤더 실장 견적,THT 납품처,1×7 수직 헤더 4줄 + 1×5 수직 헤더 1줄,1,건,캐리어는 베어 PCB 발주. Pololu 모듈에만 33접점 납땜 후 정렬·반대면 높이·인접 핀 단락·핀 도통 검사. 소량 수삽 납품 견적 미확정.,https://thewintech.co.kr/pcb-soldering/,2026-11-28
+R37,U6 전류 제한 설정,기본,정밀 저항 공급처,"1.82 kΩ ±0.1%, ≤25 ppm/K, 축형",1,개,U6 공칭 약 439.6 mA. 온도·공차 검토는 전원 계산서 참조.,power-validation.md,2026-11-28
+C11,U6 ILIM 보상,기본,KEMET,C315C123J3G5TA,1,개,"12 nF ±5%, 25 V C0G, THT 2.54 mm. R38=976 Ω ±1%와 함께 사용.",power-validation.md,2026-11-28
