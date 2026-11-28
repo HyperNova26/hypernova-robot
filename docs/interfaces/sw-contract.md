@@ -2,9 +2,9 @@
 
 # SW 인터페이스 계약
 
-2026-11-24 기준 초안입니다. 메시지 정의([`hn_sw_msgs`](../../ros_pkgs/hn_sw_msgs/))만으로는 알 수 없는 것, 곧 누가 내고 누가 받는지, QoS, 끊김·오래됨 판단 시간, 모드 전환, 사유 코드를 적습니다. 기준 문서는 SW팀 노션의 인터페이스 계약 명세(IF-01~IF-27)이고, 이 문서와 다르면 둘을 같이 고칩니다.
+2026-11-28 기준 초안입니다. 메시지 정의([`hn_sw_msgs`](../../ros_pkgs/hn_sw_msgs/))만으로는 알 수 없는 것, 곧 누가 내고 누가 받는지, QoS, 끊김·오래됨 판단 시간, 모드 전환, 사유 코드를 적습니다. 기준 문서는 SW팀 노션의 인터페이스 계약 명세(IF-01~IF-27)이고, 이 문서와 다르면 둘을 같이 고칩니다.
 
-여기 적은 숫자는 모두 **제안값**입니다. 시뮬레이터와 실기에서 시험하지 않았고 팀 합의도 받지 않았습니다. 정해지면 "제안" 표시를 지우고 근거를 남깁니다.
+여기 적은 숫자는 모두 **임시값**입니다. 시뮬레이터와 실기에서 시험하지 않았고 팀 합의도 받지 않았습니다. 실측하거나 담당 팀이 정하면 "임시" 표시를 지우고 근거를 남깁니다.
 
 ## AICV 인터페이스 기준
 
@@ -14,6 +14,7 @@ AICV팀이 먼저 정한 인터페이스를 기준으로 SW를 연결합니다. 
 - AICV가 정한 토픽의 이름, 타입, QoS, 번호는 그대로 받습니다. `/hn/`을 붙이거나 이름을 바꾸지 않습니다. 예외는 Nav2 속도 출력 하나입니다. 보행 정책이 받는 `/cmd_vel`을 안전 위협 관리만 내야 해서 Nav2 쪽 출력을 `/cmd_vel_nav`로 remap합니다(AICV 합의 필요). 그 밖에 바꿔야 하면 AICV팀에 요청하고 ADR로 정합니다.
 - 표준 인터페이스가 있는 것(`/cmd_vel`, `/odom`, `/map`, `/tf`, `/initialpose`, Nav2 action)은 표준 타입을 씁니다.
 - SW가 새로 정의하는 것은 SW 영역 사이와 관제 앱 쪽 인터페이스(`/hn/...`, `hn_sw_msgs`)뿐입니다.
+- AICV가 아직 정하지 않았는데 SW가 받아야 하는 것(보행 정책의 관절 목표 `JointTargets`, 점검 모델의 결과 `InspectionDetection`)은 SW가 먼저 정의하고 AICV팀에 알립니다. AICV가 다른 정의를 내면 그쪽에 맞춥니다.
 
 ## 토픽·서비스 목록
 
@@ -70,21 +71,21 @@ AICV팀이 먼저 정한 인터페이스를 기준으로 SW를 연결합니다. 
 | `/hn/record/query` | srv `QueryRecord` | 관제 앱 | 실행환경기록관리 | 19 |
 | `/hn/map/register` | srv `RegisterMap` | AICV | 지도관리 | 24 |
 
-서비스는 바로 끝나는 요청에만 씁니다. 서비스 응답은 1 s 안에 오지 않으면 부르는 쪽이 실패로 처리하고, 같은 `request_id`로 다시 보냅니다(제안). 받는 쪽은 같은 `request_id`를 한 번만 처리합니다.
+서비스는 바로 끝나는 요청에만 씁니다. 서비스 응답은 1 s 안에 오지 않으면 부르는 쪽이 실패로 처리하고, 같은 `request_id`로 다시 보냅니다(1 s는 임시값). 받는 쪽은 같은 `request_id`를 한 번만 처리합니다.
 
 ## QoS 프로필
 
 | 프로필 | reliability | history | durability | deadline | 쓰는 곳 |
 | --- | --- | --- | --- | --- | --- |
 | STREAM | best effort | keep last 1 | volatile | 없음 | 센서, 관절 상태, Teleop 입력, 앱 heartbeat |
-| CONTROL | reliable | keep last 1 | volatile | 100 ms (제안) | 속도 명령, 관절 명령, 안전 판정 |
+| CONTROL | reliable | keep last 1 | volatile | 100 ms (임시값) | 속도 명령, 관절 명령, 안전 판정 |
 | STATE | reliable | keep last 1 | transient local | 없음 | 모드, 위험, 임무 상태, 로봇 상태, 지도 |
 | EVENT | reliable | keep last 20 | transient local | 없음 | 경유점 도착, 점검 결과, 이벤트 |
 
 - EVENT는 노션 명세의 STATE에서 나눈 것입니다. 이벤트가 연달아 나면 depth 1로는 앞의 것을 잃기 때문입니다. 놓친 이벤트는 `QueryRecord`로 다시 받습니다.
 - CONTROL의 deadline은 QoS 이벤트로 알림만 받습니다. 정지는 아래 시간 기준에 따라 받는 쪽 코드가 합니다.
 
-## 시간 기준 (제안)
+## 시간 기준 (임시값)
 
 | 항목 | 기준 | 넘었을 때 | 근거 |
 | --- | --- | --- | --- |
@@ -101,7 +102,17 @@ AICV팀이 먼저 정한 인터페이스를 기준으로 SW를 연결합니다. 
 | 배터리 오래됨 | 3 s | `battery_validity = STALE` | 1 Hz 3번 |
 | 안정 정지 확인 | 선속도 < 0.02 m/s, 회전 < 0.05 rad/s가 0.5 s 유지 | `stop_confirmed = true` | IF-04 |
 | 정체 (R-10) | 명령 선속도 ≥ 0.1 m/s인데 실제 < 0.02 m/s가 3 s | `TYPE_STALLED` | IF-06 |
-| 배터리 낮음 (R-15) | 30 % 이하 WARN, 15 % 이하 ERROR | WARN: 귀환 판단. ERROR: Auto 시작 거부 | 배터리 사양 확인 전 |
+| 배터리 부족 (R-15) | 남은 배터리 < 예상 소모량 + 10 %p | Auto 시작 거부, 충전 후 출발 | 아래 "배터리 판단" |
+
+### 배터리 판단 (R-15)
+
+배터리가 떨어진 뒤에 대처하지 않고, **출발할 때** 임무를 끝까지 할 수 있는지 미리 봅니다(SW팀장 결정, 2026-11-27).
+
+- 판단하는 곳: 임무경로관리가 `REQUEST_AUTO`를 받을 때.
+- 예상 소모량 = 평균 분당 소모량 × 예상 이동 시간. 예상 이동 시간은 승인된 경로 길이를 계획 속도로 나눈 값입니다(왕복이면 왕복 거리).
+- 여유분 10 %p를 더해서, 남은 배터리(`RobotState.battery_ratio`)가 그보다 적으면 시작을 거부하고 `MISSION_BATTERY_INSUFFICIENT`를 냅니다. 예) 예상 소모량 60 %면 70 % 이상일 때만 출발합니다.
+- **평균 분당 소모량은 임시값**입니다. 배터리 사양과 실측이 나오기 전까지 파라미터로 두고, EE·HW팀 값이 나오면 바꿉니다. 여유분 10 %p도 같은 파라미터로 둡니다.
+- `battery_validity`가 `VALID`가 아니면 판단할 수 없으므로 시작을 거부합니다.
 
 - 위치추정 신뢰도(R-13)는 숫자 대신 `LocalizationStatus.status`를 씁니다. `STATUS_TRACKING`이 아니면 Auto를 보류합니다. `fitness` 기준값은 AICV 쪽 실험값이라 여기서 정하지 않습니다.
 - SIM에서는 모든 SW 노드가 시뮬레이터 시간(`/clock`, `use_sim_time`)으로 잽니다. 실기에서는 시스템 시간입니다.
@@ -139,7 +150,7 @@ AICV 인터페이스 문서(`docs/interfaces/locomotion-status.md`)의 알려진
 
 | 지금 | 다음 | 계기 | 조건 |
 | --- | --- | --- | --- |
-| IDLE | AUTO | `REQUEST_AUTO` | 승인된 임무, `ready_to_walk`, 위치 `TRACKING`, `motion_blocked = false` |
+| IDLE | AUTO | `REQUEST_AUTO` | 승인된 임무, `ready_to_walk`, 위치 `TRACKING`, `motion_blocked = false`, 배터리 충분(R-15) |
 | IDLE | TELEOP | `REQUEST_TELEOP` | 조종권을 받은 앱, `ready_to_walk` |
 | AUTO | TELEOP | `REQUEST_TELEOP` | 운영자 개입. 임무는 `HELD` (R-07) |
 | TELEOP | AUTO | `REQUEST_RESUME` | 보류된 임무가 있고 IDLE → AUTO 조건을 충족 |
@@ -164,7 +175,7 @@ PAUSE와 STOP의 차이는 임무를 남기는지입니다. PAUSE는 임무를 `
 | `MISSION_ROUTE_UNREACHABLE` | 임무경로관리 | 보정해도 갈 수 없음 (R-14) |
 | `MISSION_MAP_MISMATCH` | 임무경로관리 | 경로의 지도 ID·버전이 현재 지도와 다름 |
 | `MISSION_WAYPOINT_SKIPPED` | 임무경로관리 | 경유점에 도착하지 못하고 넘어감 (R-19) |
-| `MISSION_LOW_BATTERY_RETURN` | 임무경로관리 | 배터리 때문에 귀환 (R-15) |
+| `MISSION_BATTERY_INSUFFICIENT` | 임무경로관리 | 남은 배터리로 임무를 끝낼 수 없어 시작 거부. 충전 후 출발 (R-15) |
 | `CONTROL_NOT_OWNER` | 제어권명령관리 | 조종권이 없는 앱의 요청 (R-01, R-06) |
 | `CONTROL_INVALID_REQUEST` | 제어권명령관리 | 지금 모드에서 할 수 없는 요청 |
 | `CONTROL_NOT_READY` | 제어권명령관리 | 보행 준비 전 (`ready_to_walk = false`) |
@@ -197,3 +208,4 @@ PAUSE와 STOP의 차이는 임무를 남기는지입니다. PAUSE는 임무를 `
 - MCU 프레임(IF-12)의 물리층과 주기, heartbeat가 끊겼을 때 MCU 동작. 모터를 MCU를 거쳐 돌릴지부터 EE팀과 정해야 합니다.
 - 점검 이상 유형 목록과 낮은 신뢰도 처리(IF-17), 지도 패키지 형식(IF-24).
 - 기록이 빠졌을 때의 처리(IF-25).
+- 배터리(R-15): 임무 중에 예상보다 빨리 닳을 때의 처리(`Hazard.TYPE_LOW_BATTERY`를 쓸지 포함), 충전을 사람이 하는지 로봇이 충전기로 가는지, 평균 분당 소모량의 실제 값(EE·HW).
