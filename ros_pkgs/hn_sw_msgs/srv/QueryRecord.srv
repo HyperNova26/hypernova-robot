@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 HYPERNOVA contributors
+#
+# 순찰 기록 조회 (IF-19). 서비스 /hn/record/query. 임무 ID 기준 (R-19).
+# 궤적처럼 큰 데이터는 record_url로 HTTP에서 받습니다.
+
+string mission_id
+---
+bool found
+RunTarget run_target
+TargetResult[] targets   # 점검 완료·도착 미확인·미방문
+Event[] events
+Reason end_reason        # 종료 사유
+string record_url

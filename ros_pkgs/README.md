@@ -6,7 +6,7 @@
 
 후보만 적어 둡니다. package를 만들거나 책임 범위를 정한 단계는 아닙니다.
 
-- `interfaces`: message, service, action과 외부 protocol
+- `interfaces`: message, service, action과 외부 protocol. SW 모듈과 관제 앱용 정의는 [`hn_sw_msgs`](hn_sw_msgs/)에 둡니다(2026-11-22 초안)
 - `bringup`: 기체·센서 구성별 통합 실행
 - `locomotion`: 이동 제어와 state estimation
 - `localization` / `navigation`: 지도, 위치 추정, 경로와 임무 실행

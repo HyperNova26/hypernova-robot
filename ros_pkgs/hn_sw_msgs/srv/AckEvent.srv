@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 HYPERNOVA contributors
+#
+# 운영자의 이벤트 확인 (IF-18). 서비스 /hn/event/ack.
+
+string request_id
+string client_id
+string event_id
+---
+bool accepted
+Reason reason

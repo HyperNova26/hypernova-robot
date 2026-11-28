@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 HYPERNOVA contributors
+#
+# 모드 전환·재개·정지 요청 (IF-02). 서비스 /hn/control/request_mode.
+# STOP, PAUSE, CANCEL은 일반 이동보다 우선합니다 (R-11). 0은 잘못된 요청으로 거부합니다.
+
+uint8 REQUEST_AUTO = 1
+uint8 REQUEST_TELEOP = 2
+uint8 REQUEST_PAUSE = 3
+uint8 REQUEST_RESUME = 4
+uint8 REQUEST_CANCEL = 5
+uint8 REQUEST_STOP = 6
+
+string request_id
+string client_id
+uint8 request    # REQUEST_*
+---
+CommandStatus status
+ControlMode mode   # 처리 후 모드
+Reason reason

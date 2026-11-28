@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 HYPERNOVA contributors
+#
+# 지도 패키지 등록 (IF-24). 서비스 /hn/map/register. AICV팀이 지도 폴더 하나를 넘깁니다.
+
+string package_path   # manifest가 있는 지도 폴더 경로
+---
+bool success
+string map_id
+string map_version
+Reason reason
