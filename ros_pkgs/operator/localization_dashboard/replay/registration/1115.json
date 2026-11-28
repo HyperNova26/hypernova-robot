@@ -1,0 +1,64 @@
+{
+  "transform": "pair360_map <- camera_init (FAST-LIO run with sensor-capture/ros/fast_lio_mlx.yaml, 11-15 recording)",
+  "matrix": [
+    [
+      -0.200816,
+      0.979527,
+      -0.01411,
+      -48.42917
+    ],
+    [
+      0.973946,
+      0.201179,
+      0.104674,
+      119.612589
+    ],
+    [
+      0.10537,
+      0.007278,
+      -0.994406,
+      1.465875
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "translation_xyz": [
+    -48.4292,
+    119.6126,
+    1.4659
+  ],
+  "rpy_deg": [
+    179.581,
+    -6.048,
+    101.65
+  ],
+  "via": "ICP to pc_v2 (voxel 0.3 m), composed with map_v3 manifest pc_v2_to_map",
+  "fit_pc_v2": {
+    "mean_nn_m_trim1": 0.6702,
+    "inlier_lt_0.3m": 0.2255
+  },
+  "fit_map_v3_static": {
+    "mean_nn_m_trim1": 0.657,
+    "inlier_lt_0.3m": 0.2355
+  },
+  "trajectory_start_map": [
+    -48.462,
+    119.612,
+    1.463
+  ],
+  "tilt_correction": {
+    "deg": 1.484,
+    "dh_dx": -0.01105,
+    "dh_dy": -0.02344,
+    "why": "constant sensor height above mesh_v3 along the loop; ICP pitch is weakly constrained (narrow vertical FoV)",
+    "height_above_terrain_m": {
+      "before_std": 0.84,
+      "after_std": 0.048,
+      "after_mean": 1.366
+    }
+  }
+}
